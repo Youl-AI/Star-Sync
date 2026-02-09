@@ -13,12 +13,11 @@ app = FastAPI(
 # 주의: 실제 배포할 때는 'allow_origins'에 내 웹사이트 주소만 넣어야 안전합니다.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 모든 주소 허용 (테스트용)
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 class AnalysisRequest(BaseModel):
     name: str
     year: int
