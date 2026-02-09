@@ -63,6 +63,18 @@
             background: rgba(255, 255, 255, 0.9);
             font-size: 1rem;
             box-sizing: border-box;
+            color: #333;
+        }
+
+        /* 안내 문구 스타일 */
+        ::placeholder {
+            color: #888;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        input:focus::placeholder, textarea:focus::placeholder {
+            opacity: 0;
         }
 
         .row {
@@ -177,10 +189,6 @@
             border-bottom: 2px solid #e74c3c;
         }
 
-            .coupang-link:hover {
-                background-color: #ffe6e6;
-            }
-
         .coupang-notice {
             font-size: 0.75rem;
             color: #ccc;
@@ -212,138 +220,106 @@
         <p class="subtitle">AI가 분석하는 당신의 운명 데이터</p>
 
         <label>이름</label>
-        <input type="text" id="name" value="김하율">
+        <input type="text" id="name" placeholder="이름을 입력하세요"
+               onfocus="this.placeholder=''" onblur="this.placeholder='이름을 입력하세요'">
 
         <label>생년월일 / 시간</label>
         <div class="row">
-            <input type="number" id="year" placeholder="YYYY" value="1999">
-            <input type="number" id="month" placeholder="MM" value="9">
-            <input type="number" id="day" placeholder="DD" value="27">
+            <input type="number" id="year" placeholder="YYYY">
+            <input type="number" id="month" placeholder="MM">
+            <input type="number" id="day" placeholder="DD">
         </div>
         <div class="row">
-            <input type="number" id="hour" placeholder="시" value="12">
-            <input type="number" id="minute" placeholder="분" value="30">
+            <input type="number" id="hour" placeholder="시">
+            <input type="number" id="minute" placeholder="분">
         </div>
 
         <label>태어난 장소 (국가 / 도시)</label>
         <div class="row">
             <div>
-                <input list="countryOptions" id="country" placeholder="국가 검색" onchange="updateCities()">
+                <input list="countryOptions" id="country" placeholder="국가" onchange="updateCities()"
+                       onfocus="this.placeholder=''" onblur="this.placeholder='국가'">
                 <datalist id="countryOptions"></datalist>
             </div>
             <div>
-                <input list="cityOptions" id="city" placeholder="도시 검색">
+                <input list="cityOptions" id="city" placeholder="도시"
+                       onfocus="this.placeholder=''" onblur="this.placeholder='도시'">
                 <datalist id="cityOptions"></datalist>
             </div>
         </div>
 
         <label>고민 내용</label>
-        <textarea id="concern" rows="3">올해 취업 운이 궁금해!</textarea>
+        <textarea id="concern" rows="3" placeholder="너의 고민을 입력해 봐!"
+                  onfocus="this.placeholder=''" onblur="this.placeholder='너의 고민을 입력해 봐!'"></textarea>
 
         <button onclick="analyze()" id="btnSubmit">분석 시작하기 🚀</button>
         <div class="spinner" id="spinner">💫 별들의 신호를 수신 중...</div>
 
         <div id="resultArea">
             <div class="result-card" id="aiResponse"></div>
-
             <div class="coupang-notice" id="coupangNotice" style="display:none;">
                 이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br>이에 따른 일정액의 수수료를 제공받습니다.
             </div>
-
             <button onclick="shareKakao()" class="kakao-btn">
                 <span>💬</span> 카카오톡으로 친구에게 자랑하기
             </button>
         </div>
     </div>
 
-    <script>
-        Kakao.init('6516527c220b1e6dd951d65fb477c9be');
+<script>
+        // 🔑 카카오 키
+        Kakao.init('6319382abe230fee9540bbc9515adbbb');
 
+        // 🌏 데이터베이스 (이게 있어야 자동완성이 됩니다)
         const WORLD_DB = {
             "South Korea": [
                 "Seoul", "Busan", "Daegu", "Incheon", "Gwangju", "Daejeon", "Ulsan", "Sejong",
-                "Suwon", "Seongnam", "Uijeongbu", "Anyang", "Bucheon", "Gwangmyeong", "Pyeongtaek",
-                "Dongducheon", "Ansan", "Goyang", "Gwacheon", "Guri", "Namyangju", "Osan",
-                "Siheung", "Gunpo", "Uiwang", "Hanam", "Yongin", "Paju", "Icheon",
-                "Anseong", "Gimpo", "Hwaseong", "Gwangju (Gyeonggi)", "Yangju", "Pocheon", "Yeoju",
-                "Yeoncheon", "Gapyeong", "Yangpyeong",
-                "Chuncheon", "Wonju", "Gangneung", "Donghae", "Taebaek", "Sokcho", "Samcheok",
-                "Hongcheon", "Hoengseong", "Yeongwol", "Pyeongchang", "Jeongseon", "Cheorwon",
-                "Hwacheon", "Yanggu", "Inje", "Goseong (Gangwon)", "Yangyang",
-                "Cheongju", "Chungju", "Jecheon", "Boeun", "Okcheon", "Yeongdong",
-                "Jeungpyeong", "Jincheon", "Goesan", "Eumseong", "Danyang",
-                "Cheonan", "Gongju", "Boryeong", "Asan", "Seosan", "Nonsan", "Gyeryong", "Dangjin",
-                "Geumsan", "Buyeo", "Seocheon", "Cheongyang", "Hongseong", "Yesan", "Taean",
-                "Jeonju", "Gunsan", "Iksan", "Jeongeup", "Namwon", "Gimje", "Wanju", "Jinan",
-                "Muju", "Jangsu", "Imsil", "Sunchang", "Gochang", "Buan",
-                "Mokpo", "Yeosu", "Suncheon", "Naju", "Gwangyang", "Damyang", "Gokseong",
-                "Gurye", "Goheung", "Boseong", "Hwasun", "Jangheung", "Gangjin", "Haenam",
-                "Yeongam", "Muan", "Hampyeong", "Yeonggwang", "Jangseong", "Wando", "Jindo", "Sinan",
-                "Pohang", "Gyeongju", "Gimcheon", "Andong", "Gumi", "Yeongju", "Yeongcheon",
-                "Sangju", "Mungyeong", "Gyeongsan", "Gunwi", "Uiseong", "Cheongsong", "Yeongyang",
-                "Yeongdeok", "Cheongdo", "Goryeong", "Seongju", "Chilgok", "Yecheon", "Bonghwa",
-                "Uljin", "Ulleung",
-                "Changwon", "Jinju", "Tongyeong", "Sacheon", "Gimhae", "Miryang", "Geoje", "Yangsan",
-                "Uiryeong", "Haman", "Changnyeong", "Goseong (Gyeongnam)", "Namhae", "Hadong",
-                "Sancheong", "Hamyang", "Geochang", "Hapcheon",
-                "Jeju City", "Seogwipo"
+                "Suwon", "Seongnam", "Uijeongbu", "Anyang", "Bucheon", "Gwangmyeong", "Pyeongtaek", "Ansan", "Goyang", "Yongin", "Jeju City"
             ],
-            "United States": [
-                "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "San Francisco", "Charlotte", "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Mesa", "Sacramento", "Atlanta", "Kansas City", "Colorado Springs", "Miami", "Raleigh", "Omaha", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "Tampa", "New Orleans", "Honolulu"
-            ],
-            "Japan": [
-                "Tokyo", "Yokohama", "Osaka", "Nagoya", "Sapporo", "Kobe", "Kyoto", "Fukuoka", "Kawasaki", "Saitama", "Hiroshima", "Sendai", "Kitakyushu", "Chiba", "Sakai", "Niigata", "Hamamatsu", "Kumamoto", "Sagamihara", "Shizuoka", "Okinawa"
-            ],
-            "China": [
-                "Beijing", "Shanghai", "Chongqing", "Tianjin", "Guangzhou", "Shenzhen", "Chengdu", "Nanjing", "Wuhan", "Hangzhou", "Xi'an", "Shenyang", "Harbin", "Jinan", "Qingdao", "Dalian", "Zhengzhou", "Xiamen", "Kunming", "Changsha"
-            ],
-            "United Kingdom": ["London", "Birmingham", "Manchester", "Glasgow", "Liverpool", "Leeds", "Edinburgh", "Bristol", "Cardiff", "Belfast"],
-            "France": ["Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes", "Strasbourg", "Montpellier", "Bordeaux", "Lille"],
-            "Germany": ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig"],
-            "Italy": ["Rome", "Milan", "Naples", "Turin", "Palermo", "Genoa", "Bologna", "Florence", "Bari", "Venice"],
-            "Spain": ["Madrid", "Barcelona", "Valencia", "Seville", "Zaragoza", "Málaga", "Murcia", "Palma", "Bilbao"],
-            "Netherlands": ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven"],
-            "Switzerland": ["Zurich", "Geneva", "Basel", "Bern", "Lausanne"],
-            "Russia": ["Moscow", "Saint Petersburg", "Novosibirsk", "Yekaterinburg", "Kazan", "Nizhny Novgorod", "Vladivostok"],
-            "Australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Gold Coast", "Canberra", "Hobart"],
-            "Canada": ["Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa", "Winnipeg", "Quebec City"],
-            "India": ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Surat", "Pune", "Jaipur"],
-            "Vietnam": ["Ho Chi Minh City", "Hanoi", "Da Nang", "Haiphong", "Can Tho"],
-            "Thailand": ["Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Hat Yai"],
-            "Philippines": ["Manila", "Quezon City", "Davao City", "Cebu City", "Zamboanga City"],
-            "Singapore": ["Singapore"],
-            "Taiwan": ["Taipei", "Kaohsiung", "Taichung", "Tainan"],
-            "Indonesia": ["Jakarta", "Surabaya", "Bandung", "Medan", "Bali (Denpasar)"],
-            "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah"],
-            "Saudi Arabia": ["Riyadh", "Jeddah", "Mecca", "Medina"],
-            "Turkey": ["Istanbul", "Ankara", "Izmir", "Bursa", "Antalya"],
-            "Egypt": ["Cairo", "Alexandria", "Giza"],
-            "South Africa": ["Johannesburg", "Cape Town", "Durban", "Pretoria"],
-            "Brazil": ["Sao Paulo", "Rio de Janeiro", "Brasilia", "Salvador", "Fortaleza"],
-            "Argentina": ["Buenos Aires", "Cordoba", "Rosario", "Mendoza"],
-            "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Cancun"]
+            "United States": ["New York", "Los Angeles", "Chicago", "Houston", "San Francisco", "Seattle", "Boston", "Washington"],
+            "Japan": ["Tokyo", "Osaka", "Kyoto", "Fukuoka", "Sapporo"],
+            "China": ["Beijing", "Shanghai", "Guangzhou", "Shenzhen"],
+            "United Kingdom": ["London", "Manchester", "Liverpool"],
+            "France": ["Paris", "Lyon", "Marseille"],
+            "Germany": ["Berlin", "Munich", "Frankfurt"],
+            "Vietnam": ["Ho Chi Minh City", "Hanoi", "Da Nang"],
+            "Thailand": ["Bangkok", "Chiang Mai", "Phuket"]
         };
 
+        // ⚡ 페이지가 열리자마자 실행되는 기능 (여기가 핵심!)
         window.onload = function () {
-            const countryList = document.getElementById('countryOptions');
-            document.getElementById('country').value = "South Korea";
+            // 1. 날짜: 오늘 날짜로 자동 설정
+            const now = new Date();
+            document.getElementById('year').value = now.getFullYear();
+            document.getElementById('month').value = now.getMonth() + 1;
+            document.getElementById('day').value = now.getDate();
+            
+            // 2. 시간: 12시 30분 고정
+            document.getElementById('hour').value = 12;
+            document.getElementById('minute').value = 30;
 
+            // 3. 국가 목록 만들기 (자동완성 준비)
+            const countryList = document.getElementById('countryOptions');
             Object.keys(WORLD_DB).forEach(country => {
                 const option = document.createElement('option');
                 option.value = country;
                 countryList.appendChild(option);
             });
-            updateCities();
+
+            // 4. 기본값 설정 (대한민국 / 서울)
+            document.getElementById('country').value = "South Korea";
+            updateCities(); // 서울 목록 생성 트리거
+            document.getElementById('city').value = "Seoul";
         };
 
+        // 도시 목록 업데이트 함수
         function updateCities() {
             const countryInput = document.getElementById('country').value;
             const cityInput = document.getElementById('city');
             const cityList = document.getElementById('cityOptions');
 
             cityList.innerHTML = "";
-            cityInput.value = "";
-
+            
             if (WORLD_DB[countryInput]) {
                 const cities = WORLD_DB[countryInput];
                 cities.forEach(city => {
@@ -351,10 +327,8 @@
                     option.value = city;
                     cityList.appendChild(option);
                 });
-                cityInput.placeholder = `${cities.length}개의 도시 중 선택`;
-                if (cities.length > 0) cityInput.value = cities[0];
             } else {
-                cityInput.placeholder = "국가를 먼저 선택하세요";
+                cityInput.value = "";
             }
         }
 
@@ -365,11 +339,16 @@
             const aiResponse = document.getElementById('aiResponse');
             const coupangNotice = document.getElementById('coupangNotice');
 
+            if(!document.getElementById('name').value || !document.getElementById('concern').value) {
+                alert("이름과 고민을 모두 입력해주세요!");
+                return;
+            }
+
             btn.disabled = true;
             btn.innerText = "분석 중입니다...";
             spinner.style.display = "block";
             resultArea.style.display = "none";
-            coupangNotice.style.display = "none"; // 재검사 시 공정위 문구 일단 숨김
+            coupangNotice.style.display = "none";
 
             const requestData = {
                 name: document.getElementById('name').value,
@@ -378,13 +357,12 @@
                 day: parseInt(document.getElementById('day').value),
                 hour: parseInt(document.getElementById('hour').value),
                 minute: parseInt(document.getElementById('minute').value),
-                country: document.getElementById('country').value,
-                city: document.getElementById('city').value,
+                country: document.getElementById('country').value || "South Korea",
+                city: document.getElementById('city').value || "Seoul",
                 concern: document.getElementById('concern').value
             };
 
             try {
-                // Render 서버 주소 (오타 없이 정확하게 적용됨)
                 const response = await fetch("https://star-sync.onrender.com/analyze", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -395,27 +373,25 @@
 
                 if (response.ok) {
                     let rawText = data.ai_message;
-
+                    
                     const itemRegex = /\[\[(.*?)\]\]/g;
-
                     const linkedText = rawText.replace(itemRegex, (match, itemName) => {
                         const searchUrl = `https://www.coupang.com/np/search?component=&q=${encodeURIComponent(itemName)}&channel=user`;
                         return `<a href="${searchUrl}" target="_blank" class="coupang-link">🎁 ${itemName} (구매하기)</a>`;
                     });
 
                     aiResponse.innerHTML = marked.parse(linkedText);
-
+                    
                     if (rawText.match(itemRegex)) {
                         coupangNotice.style.display = "block";
                     }
-
                     resultArea.style.display = "block";
                 } else {
                     alert("오류 발생: " + data.detail);
                 }
 
             } catch (error) {
-                alert("서버 연결 실패! 터미널을 확인해주세요.");
+                alert("서버 연결 실패! 잠시 후 다시 시도해주세요.");
                 console.error(error);
             } finally {
                 btn.disabled = false;
@@ -424,33 +400,20 @@
             }
         }
 
-        // 🟡 [추가] 카카오톡 공유하기 함수
         function shareKakao() {
             if (!Kakao.isInitialized()) {
-                alert("카카오 SDK 초기화 실패! 키를 확인하세요.");
+                alert("카카오 SDK 초기화 실패!");
                 return;
             }
-
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
                     title: 'Star Sync ✨',
                     description: 'AI가 분석해주는 소름 돋는 내 2026년 운세! 너도 한번 확인해봐.',
                     imageUrl: 'https://cdn-icons-png.flaticon.com/512/2647/2647287.png',
-                    link: {
-                        mobileWebUrl: window.location.href,
-                        webUrl: window.location.href,
-                    },
+                    link: { mobileWebUrl: window.location.href, webUrl: window.location.href },
                 },
-                buttons: [
-                    {
-                        title: '내 운세 확인하러 가기',
-                        link: {
-                            mobileWebUrl: window.location.href,
-                            webUrl: window.location.href,
-                        },
-                    },
-                ],
+                buttons: [{ title: '내 운세 확인하러 가기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }],
             });
         }
     </script>
