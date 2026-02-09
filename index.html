@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Sync | 당신의 우주를 연결하세요</title>
+    <style>
+        /* (기존 CSS 스타일 그대로 유지) */
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a29bfe;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+            .row > div {
+                flex: 1;
+            }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            button:hover {
+                transform: scale(1.02);
+            }
+
+            button:disabled {
+                background: #555;
+                cursor: not-allowed;
+            }
+
+        #resultArea {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.5s;
+        }
+
+        .result-card {
+            background: #fff;
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>💫 Star Sync</h1>
+        <p class="subtitle">AI가 분석하는 당신의 운명 데이터</p>
+
+        <label>이름</label>
+        <input type="text" id="name" value="김하율">
+
+        <label>생년월일 / 시간</label>
+        <div class="row">
+            <input type="number" id="year" placeholder="YYYY" value="1999">
+            <input type="number" id="month" placeholder="MM" value="9">
+            <input type="number" id="day" placeholder="DD" value="27">
+        </div>
+        <div class="row">
+            <input type="number" id="hour" placeholder="시" value="12">
+            <input type="number" id="minute" placeholder="분" value="30">
+        </div>
+
+        <label>태어난 장소 (국가 / 도시)</label>
+        <div class="row">
+            <div>
+                <input list="countryOptions" id="country" placeholder="국가 검색 (예: Ko..)" onchange="updateCities()">
+                <datalist id="countryOptions">
+                </datalist>
+            </div>
+
+            <div>
+                <input list="cityOptions" id="city" placeholder="도시 검색 (예: Seo..)">
+                <datalist id="cityOptions">
+                </datalist>
+            </div>
+        </div>
+
+        <label>고민 내용</label>
+        <textarea id="concern" rows="3">올해 취업 운이 궁금해!</textarea>
+
+        <button onclick="analyze()" id="btnSubmit">분석 시작하기 🚀</button>
+        <div class="spinner" id="spinner">💫 별들의 신호를 수신 중...</div>
+
+        <div id="resultArea">
+            <h3>🔮 분석 리포트</h3>
+            <div class="result-card" id="aiResponse"></div>
+        </div>
+    </div>
+
+    <script>
+        // 🌏 전 세계 국가/도시 데이터베이스 (한국: 전체 / 해외: 주요 도시)
+        const WORLD_DB = {
+            // 🇰🇷 대한민국 (모든 시/군 포함 - 가나다순 정렬)
+            "South Korea": [
+                // 특별시/광역/자치시
+                "Seoul", "Busan", "Daegu", "Incheon", "Gwangju", "Daejeon", "Ulsan", "Sejong",
+
+                // 경기도 (Gyeonggi-do)
+                "Suwon", "Seongnam", "Uijeongbu", "Anyang", "Bucheon", "Gwangmyeong", "Pyeongtaek",
+                "Dongducheon", "Ansan", "Goyang", "Gwacheon", "Guri", "Namyangju", "Osan",
+                "Siheung", "Gunpo", "Uiwang", "Hanam", "Yongin", "Paju", "Icheon",
+                "Anseong", "Gimpo", "Hwaseong", "Gwangju (Gyeonggi)", "Yangju", "Pocheon", "Yeoju",
+                "Yeoncheon", "Gapyeong", "Yangpyeong",
+
+                // 강원도 (Gangwon-do)
+                "Chuncheon", "Wonju", "Gangneung", "Donghae", "Taebaek", "Sokcho", "Samcheok",
+                "Hongcheon", "Hoengseong", "Yeongwol", "Pyeongchang", "Jeongseon", "Cheorwon",
+                "Hwacheon", "Yanggu", "Inje", "Goseong (Gangwon)", "Yangyang",
+
+                // 충청북도 (Chungcheongbuk-do)
+                "Cheongju", "Chungju", "Jecheon", "Boeun", "Okcheon", "Yeongdong",
+                "Jeungpyeong", "Jincheon", "Goesan", "Eumseong", "Danyang",
+
+                // 충청남도 (Chungcheongnam-do)
+                "Cheonan", "Gongju", "Boryeong", "Asan", "Seosan", "Nonsan", "Gyeryong", "Dangjin",
+                "Geumsan", "Buyeo", "Seocheon", "Cheongyang", "Hongseong", "Yesan", "Taean",
+
+                // 전라북도 (Jeollabuk-do)
+                "Jeonju", "Gunsan", "Iksan", "Jeongeup", "Namwon", "Gimje", "Wanju", "Jinan",
+                "Muju", "Jangsu", "Imsil", "Sunchang", "Gochang", "Buan",
+
+                // 전라남도 (Jeollanam-do)
+                "Mokpo", "Yeosu", "Suncheon", "Naju", "Gwangyang", "Damyang", "Gokseong",
+                "Gurye", "Goheung", "Boseong", "Hwasun", "Jangheung", "Gangjin", "Haenam",
+                "Yeongam", "Muan", "Hampyeong", "Yeonggwang", "Jangseong", "Wando", "Jindo", "Sinan",
+
+                // 경상북도 (Gyeongsangbuk-do)
+                "Pohang", "Gyeongju", "Gimcheon", "Andong", "Gumi", "Yeongju", "Yeongcheon",
+                "Sangju", "Mungyeong", "Gyeongsan", "Gunwi", "Uiseong", "Cheongsong", "Yeongyang",
+                "Yeongdeok", "Cheongdo", "Goryeong", "Seongju", "Chilgok", "Yecheon", "Bonghwa",
+                "Uljin", "Ulleung",
+
+                // 경상남도 (Gyeongsangnam-do)
+                "Changwon", "Jinju", "Tongyeong", "Sacheon", "Gimhae", "Miryang", "Geoje", "Yangsan",
+                "Uiryeong", "Haman", "Changnyeong", "Goseong (Gyeongnam)", "Namhae", "Hadong",
+                "Sancheong", "Hamyang", "Geochang", "Hapcheon",
+
+                // 제주도 (Jeju-do)
+                "Jeju City", "Seogwipo"
+            ],
+
+            // 🇺🇸 미국 (주요 도시 Top 50)
+            "United States": [
+                "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "San Francisco", "Charlotte", "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Mesa", "Sacramento", "Atlanta", "Kansas City", "Colorado Springs", "Miami", "Raleigh", "Omaha", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tulsa", "Arlington", "Tampa", "New Orleans", "Honolulu"
+            ],
+
+            // 🇯🇵 일본
+            "Japan": [
+                "Tokyo", "Yokohama", "Osaka", "Nagoya", "Sapporo", "Kobe", "Kyoto", "Fukuoka", "Kawasaki", "Saitama", "Hiroshima", "Sendai", "Kitakyushu", "Chiba", "Sakai", "Niigata", "Hamamatsu", "Kumamoto", "Sagamihara", "Shizuoka", "Okinawa"
+            ],
+
+            // 🇨🇳 중국
+            "China": [
+                "Beijing", "Shanghai", "Chongqing", "Tianjin", "Guangzhou", "Shenzhen", "Chengdu", "Nanjing", "Wuhan", "Hangzhou", "Xi'an", "Shenyang", "Harbin", "Jinan", "Qingdao", "Dalian", "Zhengzhou", "Xiamen", "Kunming", "Changsha"
+            ],
+
+            // 🇪🇺 유럽 주요국
+            "United Kingdom": ["London", "Birmingham", "Manchester", "Glasgow", "Liverpool", "Leeds", "Edinburgh", "Bristol", "Cardiff", "Belfast"],
+            "France": ["Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes", "Strasbourg", "Montpellier", "Bordeaux", "Lille"],
+            "Germany": ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig"],
+            "Italy": ["Rome", "Milan", "Naples", "Turin", "Palermo", "Genoa", "Bologna", "Florence", "Bari", "Venice"],
+            "Spain": ["Madrid", "Barcelona", "Valencia", "Seville", "Zaragoza", "Málaga", "Murcia", "Palma", "Bilbao"],
+            "Netherlands": ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven"],
+            "Switzerland": ["Zurich", "Geneva", "Basel", "Bern", "Lausanne"],
+            "Russia": ["Moscow", "Saint Petersburg", "Novosibirsk", "Yekaterinburg", "Kazan", "Nizhny Novgorod", "Vladivostok"],
+
+            // 🌏 아시아/태평양
+            "Australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Gold Coast", "Canberra", "Hobart"],
+            "Canada": ["Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa", "Winnipeg", "Quebec City"],
+            "India": ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Surat", "Pune", "Jaipur"],
+            "Vietnam": ["Ho Chi Minh City", "Hanoi", "Da Nang", "Haiphong", "Can Tho"],
+            "Thailand": ["Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Hat Yai"],
+            "Philippines": ["Manila", "Quezon City", "Davao City", "Cebu City", "Zamboanga City"],
+            "Singapore": ["Singapore"],
+            "Taiwan": ["Taipei", "Kaohsiung", "Taichung", "Tainan"],
+            "Indonesia": ["Jakarta", "Surabaya", "Bandung", "Medan", "Bali (Denpasar)"],
+
+            // 🕌 중동/아프리카
+            "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah"],
+            "Saudi Arabia": ["Riyadh", "Jeddah", "Mecca", "Medina"],
+            "Turkey": ["Istanbul", "Ankara", "Izmir", "Bursa", "Antalya"],
+            "Egypt": ["Cairo", "Alexandria", "Giza"],
+            "South Africa": ["Johannesburg", "Cape Town", "Durban", "Pretoria"],
+
+            // 🌎 남미
+            "Brazil": ["Sao Paulo", "Rio de Janeiro", "Brasilia", "Salvador", "Fortaleza"],
+            "Argentina": ["Buenos Aires", "Cordoba", "Rosario", "Mendoza"],
+            "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Cancun"]
+        };
+
+        // 1. 페이지 로딩 시 국가 목록 채우기
+        window.onload = function () {
+            const countryList = document.getElementById('countryOptions');
+            // 한국을 기본값으로 설정하고 싶다면 아래 주석 해제
+            document.getElementById('country').value = "South Korea";
+
+            Object.keys(WORLD_DB).forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                countryList.appendChild(option);
+            });
+
+            // 초기 도시 목록 설정 (한국)
+            updateCities();
+        };
+
+        // 2. 국가 변경 시 도시 목록 업데이트 함수
+        function updateCities() {
+            const countryInput = document.getElementById('country').value;
+            const cityInput = document.getElementById('city');
+            const cityList = document.getElementById('cityOptions');
+
+            // 기존 도시 목록 비우기
+            cityList.innerHTML = "";
+            cityInput.value = ""; // 도시 입력칸 초기화
+
+            if (WORLD_DB[countryInput]) {
+                const cities = WORLD_DB[countryInput];
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    cityList.appendChild(option);
+                });
+                cityInput.placeholder = `${cities.length}개의 도시 중 선택`;
+                // 편의를 위해 첫 번째 도시 자동 선택 (선택 사항)
+                if (cities.length > 0) cityInput.value = cities[0];
+            } else {
+                cityInput.placeholder = "국가를 먼저 선택하세요";
+            }
+        }
+
+        async function analyze() {
+            const btn = document.getElementById('btnSubmit');
+            const spinner = document.getElementById('spinner');
+            const resultArea = document.getElementById('resultArea');
+            const aiResponse = document.getElementById('aiResponse');
+
+            btn.disabled = true;
+            btn.innerText = "분석 중입니다...";
+            spinner.style.display = "block";
+            resultArea.style.display = "none";
+
+            const requestData = {
+                name: document.getElementById('name').value,
+                year: parseInt(document.getElementById('year').value),
+                month: parseInt(document.getElementById('month').value),
+                day: parseInt(document.getElementById('day').value),
+                hour: parseInt(document.getElementById('hour').value),
+                minute: parseInt(document.getElementById('minute').value),
+                // 🚨 국가/도시 정보 함께 전송
+                country: document.getElementById('country').value,
+                city: document.getElementById('city').value,
+                concern: document.getElementById('concern').value
+            };
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/analyze", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    aiResponse.innerText = data.ai_message;
+                    resultArea.style.display = "block";
+                } else {
+                    alert("오류 발생: " + data.detail);
+                }
+
+            } catch (error) {
+                alert("서버 연결 실패! 터미널을 확인해주세요.");
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "분석 시작하기 🚀";
+                spinner.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

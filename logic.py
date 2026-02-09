@@ -1,14 +1,21 @@
 import os
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from kerykeion import AstrologicalSubject
-# from dotenv import load_dotenv # 직접 입력하므로 삭제
+from geopy.geocoders import Nominatim
+from timezonefinder import TimezoneFinder
+import pytz
+
+load_dotenv()
 
 # ---------------------------------------------------------
 # 🔑 1. API 키 설정 (여기에 키를 직접 붙여넣으세요!)
 # ---------------------------------------------------------
-# 따옴표("") 안에 AIzaSy... 로 시작하는 키를 복사해 넣으세요.
-MY_API_KEY = "AIzaSyB00Ic4LC-jIgLAVYomXCex4dPWFhaQhFY"
+MY_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+if not MY_API_KEY:
+    raise ValueError("API 키가 없습니다! .env 파일을 확인하거나 클라우드 환경변수를 설정하세요.")
 
 client = genai.Client(api_key=MY_API_KEY)
 
@@ -18,12 +25,51 @@ client = genai.Client(api_key=MY_API_KEY)
 # 속도가 빠르고 성능이 뛰어난 최신 모델입니다.
 MODEL_NAME = "gemini-3-flash-preview"
 
-def get_natal_chart_data(name, year, month, day, hour, minute, city, nation="KR"):
+def get_location_info(city, country):
     """
-    kerykeion (v4.x+)을 사용하여 차트 데이터를 계산합니다.
+    [새로운 기능] 주소(도시, 국가)를 주면 위도, 경도, 시간대를 찾아옵니다.
     """
     try:
-        user = AstrologicalSubject(name, year, month, day, hour, minute, city, nation)
+        # 1. 도시 검색 (예: "Pyeongtaek, South Korea")
+        geolocator = Nominatim(user_agent="star_sync_app")
+        location = geolocator.geocode(f"{city}, {country}")
+        
+        if not location:
+            # 검색 실패시 에러
+            return None, None, None, f"'{city}'의 위치를 지도에서 찾을 수 없습니다."
+
+        # 2. 시간대(TimeZone) 찾기 (예: "Asia/Seoul")
+        tf = TimezoneFinder()
+        timezone_str = tf.timezone_at(lng=location.longitude, lat=location.latitude)
+        
+        if not timezone_str:
+            return None, None, None, "시간대(Timezone) 정보를 찾을 수 없습니다."
+            
+        return location.latitude, location.longitude, timezone_str, None
+
+    except Exception as e:
+        return None, None, None, str(e)
+
+def get_natal_chart_data(name, year, month, day, hour, minute, city, country="South Korea"):
+    """
+    위치 정보를 먼저 찾고, 그 좌표로 정확하게 차트를 계산합니다.
+    """
+    try:
+        # 1. 위도, 경도, 시간대 먼저 구하기
+        lat, lng, tz_str, error = get_location_info(city, country)
+        
+        if error:
+            return {"error": f"위치 오류: {error}"}
+
+        user = AstrologicalSubject(
+            name, year, month, day, hour, minute,
+            city=city,
+            lat=lat,
+            lng=lng,
+            tz_str=tz_str, 
+            nation=country,
+            online=False
+        )
         
         chart_data = {
             "Sun": f"{user.sun.sign} ({user.sun.house})",
@@ -36,9 +82,10 @@ def get_natal_chart_data(name, year, month, day, hour, minute, city, nation="KR"
             "Saturn": f"{user.saturn.sign} ({user.saturn.house})",
         }
         return chart_data
+        
     except Exception as e:
-        return {"error": f"위치 계산 실패: {str(e)}"}
-
+        return {"error": f"차트 계산 실패: {str(e)}"}
+    
 def get_ai_interpretation(chart_data, user_concern):
     """
     [업그레이드] 긴 줄글 대신, 요즘 스타일의 '핵심 요약' 포맷으로 출력
@@ -48,6 +95,8 @@ def get_ai_interpretation(chart_data, user_concern):
     sys_msg = """
     당신은 현대적 감각을 지닌 'AI 점성술사'입니다.
     구구절절 긴 설명은 빼고, 사용자가 딱 보고 알 수 있는 '핵심 정보'만 제공하세요.
+    전문 용어 금지: '하우스', '어센던트', '각도', '트라인' 같은 단어는 절대 쓰지 마세요.
+        - 대신 '분야', '타고난 기질', '에너지', '무대' 같은 쉬운 말로 바꾸세요.
     
     [출력 포맷 가이드] - 반드시 이 형식을 따를 것
     
@@ -85,7 +134,7 @@ def get_ai_interpretation(chart_data, user_concern):
             model=MODEL_NAME,
             config=types.GenerateContentConfig(
                 system_instruction=sys_msg,
-                temperature=0.8, # 조금 더 창의적인 추천을 위해 0.8로 상향
+                temperature=0.7,
             ),
             contents=user_msg
         )

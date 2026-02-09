@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+google-genai
+kerykeion
+geopy
+timezonefinder
+pytz
+pydantic
+python-multipart
+python-dotenv
