@@ -9,11 +9,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# 🔓 CORS 설정 (모든 곳에서 접속 허용)
-# 주의: 실제 배포할 때는 'allow_origins'에 내 웹사이트 주소만 넣어야 안전합니다.
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://daily-star-sync.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=origins, 
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,7 +40,6 @@ def read_root():
 
 @app.post("/analyze")
 async def analyze_star(request: AnalysisRequest):
-    # 1. 차트 데이터 계산
     chart_data = get_natal_chart_data(
         request.name, request.year, request.month, request.day,
         request.hour, request.minute, request.city, request.country
@@ -44,7 +48,6 @@ async def analyze_star(request: AnalysisRequest):
     if "error" in chart_data:
         raise HTTPException(status_code=400, detail=chart_data["error"])
 
-    # 2. AI 해석
     ai_result = get_ai_interpretation(chart_data, request.concern)
     
     return {
