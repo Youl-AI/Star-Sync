@@ -7,7 +7,7 @@ load_dotenv()
 
 try:
     # 클라이언트 연결
-    client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+    client = genai.Client(api_key="AIzaSyB00Ic4LC-jIgLAVYomXCex4dPWFhaQhFY")
     
     print("📋 사용 가능한 Gemini 모델 목록:")
     print("-" * 30)
