@@ -5,213 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Sync | 당신의 우주를 연결하세요</title>
 
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"
-            integrity="sha384-l+xbElFSnPZ2rOaPrU//2FF5B4LB8FiX5q4fXYTlvy7e88eHeBGcontentWM7I67" crossorigin="anonymous"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 
-    <style>
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: #fff;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/locale/en.js"></script>
 
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2rem;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #a29bfe;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            font-size: 1rem;
-            box-sizing: border-box;
-            color: #333;
-        }
-
-        /* 안내 문구 스타일 */
-        ::placeholder {
-            color: #888;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-
-        input:focus::placeholder, textarea:focus::placeholder {
-            opacity: 0;
-        }
-
-        .row {
-            display: flex;
-            gap: 10px;
-        }
-
-            .row > div {
-                flex: 1;
-            }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(to right, #6c5ce7, #a29bfe);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-            margin-bottom: 10px;
-        }
-
-            button:hover {
-                transform: scale(1.02);
-            }
-
-            button:disabled {
-                background: #555;
-                cursor: not-allowed;
-            }
-
-        #resultArea {
-            display: none;
-            margin-top: 30px;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .spinner {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .result-card {
-            background: #fff;
-            color: #333;
-            padding: 25px;
-            border-radius: 15px;
-            line-height: 1.7;
-            margin-bottom: 20px;
-        }
-
-            .result-card h3 {
-                color: #4834d4;
-                border-bottom: 2px solid #a29bfe;
-                padding-bottom: 5px;
-                margin-top: 25px;
-                margin-bottom: 10px;
-                font-size: 1.2rem;
-            }
-
-                .result-card h3:first-child {
-                    margin-top: 0;
-                }
-
-            .result-card strong {
-                color: #6c5ce7;
-                background: #e0dcfc;
-                padding: 0 4px;
-                border-radius: 4px;
-                font-weight: 700;
-            }
-
-            .result-card ul {
-                padding-left: 0;
-                list-style-type: none;
-            }
-
-            .result-card li {
-                position: relative;
-                padding-left: 20px;
-                margin-bottom: 8px;
-            }
-
-                .result-card li::before {
-                    content: '✨';
-                    position: absolute;
-                    left: 0;
-                    font-size: 0.8rem;
-                    color: #6c5ce7;
-                }
-
-        .coupang-link {
-            color: #e74c3c;
-            font-weight: bold;
-            text-decoration: none;
-            border-bottom: 2px solid #e74c3c;
-        }
-
-        .coupang-notice {
-            font-size: 0.75rem;
-            color: #ccc;
-            text-align: right;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
-        .kakao-btn {
-            background: #FEE500;
-            color: #3c1e1e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-            .kakao-btn:hover {
-                transform: scale(1.02);
-            }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -220,37 +24,49 @@
         <p class="subtitle">AI가 분석하는 당신의 운명 데이터</p>
 
         <label>이름</label>
-        <input type="text" id="name" placeholder="이름을 입력하세요"
-               onfocus="this.placeholder=''" onblur="this.placeholder='이름을 입력하세요'">
+        <input type="text" id="name" placeholder="Name"
+               onfocus="this.placeholder=''" onblur="this.placeholder='Name'">
 
         <label>생년월일 / 시간</label>
+
+        <input type="text" id="birthdate" placeholder="YYYY-MM-DD" autocomplete="off" maxlength="10" oninput="autoFormatDate(this)">
+
         <div class="row">
-            <input type="number" id="year" placeholder="YYYY">
-            <input type="number" id="month" placeholder="MM">
-            <input type="number" id="day" placeholder="DD">
-        </div>
-        <div class="row">
-            <input type="number" id="hour" placeholder="시">
-            <input type="number" id="minute" placeholder="분">
+            <div class="dropdown-wrapper">
+                <input type="number" id="hour" placeholder="Hour" autocomplete="off"
+                       onfocus="showList('hourList')"
+                       onclick="showList('hourList')">
+                <ul id="hourList" class="dropdown-list"></ul>
+            </div>
+            <div class="dropdown-wrapper">
+                <input type="text" id="minute" placeholder="Minute" autocomplete="off"
+                       onfocus="showList('minuteList')"
+                       onclick="showList('minuteList')">
+                <ul id="minuteList" class="dropdown-list"></ul>
+            </div>
         </div>
 
         <label>태어난 장소 (국가 / 도시)</label>
         <div class="row">
-            <div>
-                <input list="countryOptions" id="country" placeholder="국가" onchange="updateCities()"
-                       onfocus="this.placeholder=''" onblur="this.placeholder='국가'">
-                <datalist id="countryOptions"></datalist>
+            <div class="dropdown-wrapper">
+                <input type="text" id="country" placeholder="Country" autocomplete="off"
+                       onkeyup="filterList('country', 'countryList')"
+                       onfocus="showList('countryList')"
+                       onclick="showList('countryList')">
+                <ul id="countryList" class="dropdown-list"></ul>
             </div>
-            <div>
-                <input list="cityOptions" id="city" placeholder="도시"
-                       onfocus="this.placeholder=''" onblur="this.placeholder='도시'">
-                <datalist id="cityOptions"></datalist>
+            <div class="dropdown-wrapper">
+                <input type="text" id="city" placeholder="City" autocomplete="off"
+                       onkeyup="filterList('city', 'cityList')"
+                       onfocus="showList('cityList')"
+                       onclick="showList('cityList')">
+                <ul id="cityList" class="dropdown-list"></ul>
             </div>
         </div>
 
         <label>고민 내용</label>
-        <textarea id="concern" rows="3" placeholder="너의 고민을 입력해 봐!"
-                  onfocus="this.placeholder=''" onblur="this.placeholder='너의 고민을 입력해 봐!'"></textarea>
+        <textarea id="concern" rows="3" placeholder="What is your concern?"
+                  onfocus="this.placeholder=''" onblur="this.placeholder='What is your concern?'"></textarea>
 
         <button onclick="analyze()" id="btnSubmit">분석 시작하기 🚀</button>
         <div class="spinner" id="spinner">💫 별들의 신호를 수신 중...</div>
@@ -266,156 +82,6 @@
         </div>
     </div>
 
-<script>
-        // 🔑 카카오 키
-        Kakao.init('6319382abe230fee9540bbc9515adbbb');
-
-        // 🌏 데이터베이스 (이게 있어야 자동완성이 됩니다)
-        const WORLD_DB = {
-            "South Korea": [
-                "Seoul", "Busan", "Daegu", "Incheon", "Gwangju", "Daejeon", "Ulsan", "Sejong",
-                "Suwon", "Seongnam", "Uijeongbu", "Anyang", "Bucheon", "Gwangmyeong", "Pyeongtaek", "Ansan", "Goyang", "Yongin", "Jeju City"
-            ],
-            "United States": ["New York", "Los Angeles", "Chicago", "Houston", "San Francisco", "Seattle", "Boston", "Washington"],
-            "Japan": ["Tokyo", "Osaka", "Kyoto", "Fukuoka", "Sapporo"],
-            "China": ["Beijing", "Shanghai", "Guangzhou", "Shenzhen"],
-            "United Kingdom": ["London", "Manchester", "Liverpool"],
-            "France": ["Paris", "Lyon", "Marseille"],
-            "Germany": ["Berlin", "Munich", "Frankfurt"],
-            "Vietnam": ["Ho Chi Minh City", "Hanoi", "Da Nang"],
-            "Thailand": ["Bangkok", "Chiang Mai", "Phuket"]
-        };
-
-        // ⚡ 페이지가 열리자마자 실행되는 기능 (여기가 핵심!)
-        window.onload = function () {
-            // 1. 날짜: 오늘 날짜로 자동 설정
-            const now = new Date();
-            document.getElementById('year').value = now.getFullYear();
-            document.getElementById('month').value = now.getMonth() + 1;
-            document.getElementById('day').value = now.getDate();
-            
-            // 2. 시간: 12시 30분 고정
-            document.getElementById('hour').value = 12;
-            document.getElementById('minute').value = 30;
-
-            // 3. 국가 목록 만들기 (자동완성 준비)
-            const countryList = document.getElementById('countryOptions');
-            Object.keys(WORLD_DB).forEach(country => {
-                const option = document.createElement('option');
-                option.value = country;
-                countryList.appendChild(option);
-            });
-
-            // 4. 기본값 설정 (대한민국 / 서울)
-            document.getElementById('country').value = "South Korea";
-            updateCities(); // 서울 목록 생성 트리거
-            document.getElementById('city').value = "Seoul";
-        };
-
-        // 도시 목록 업데이트 함수
-        function updateCities() {
-            const countryInput = document.getElementById('country').value;
-            const cityInput = document.getElementById('city');
-            const cityList = document.getElementById('cityOptions');
-
-            cityList.innerHTML = "";
-            
-            if (WORLD_DB[countryInput]) {
-                const cities = WORLD_DB[countryInput];
-                cities.forEach(city => {
-                    const option = document.createElement('option');
-                    option.value = city;
-                    cityList.appendChild(option);
-                });
-            } else {
-                cityInput.value = "";
-            }
-        }
-
-        async function analyze() {
-            const btn = document.getElementById('btnSubmit');
-            const spinner = document.getElementById('spinner');
-            const resultArea = document.getElementById('resultArea');
-            const aiResponse = document.getElementById('aiResponse');
-            const coupangNotice = document.getElementById('coupangNotice');
-
-            if(!document.getElementById('name').value || !document.getElementById('concern').value) {
-                alert("이름과 고민을 모두 입력해주세요!");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "분석 중입니다...";
-            spinner.style.display = "block";
-            resultArea.style.display = "none";
-            coupangNotice.style.display = "none";
-
-            const requestData = {
-                name: document.getElementById('name').value,
-                year: parseInt(document.getElementById('year').value),
-                month: parseInt(document.getElementById('month').value),
-                day: parseInt(document.getElementById('day').value),
-                hour: parseInt(document.getElementById('hour').value),
-                minute: parseInt(document.getElementById('minute').value),
-                country: document.getElementById('country').value || "South Korea",
-                city: document.getElementById('city').value || "Seoul",
-                concern: document.getElementById('concern').value
-            };
-
-            try {
-                const response = await fetch("https://star-sync.onrender.com/analyze", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    let rawText = data.ai_message;
-                    
-                    const itemRegex = /\[\[(.*?)\]\]/g;
-                    const linkedText = rawText.replace(itemRegex, (match, itemName) => {
-                        const searchUrl = `https://www.coupang.com/np/search?component=&q=${encodeURIComponent(itemName)}&channel=user`;
-                        return `<a href="${searchUrl}" target="_blank" class="coupang-link">🎁 ${itemName} (구매하기)</a>`;
-                    });
-
-                    aiResponse.innerHTML = marked.parse(linkedText);
-                    
-                    if (rawText.match(itemRegex)) {
-                        coupangNotice.style.display = "block";
-                    }
-                    resultArea.style.display = "block";
-                } else {
-                    alert("오류 발생: " + data.detail);
-                }
-
-            } catch (error) {
-                alert("서버 연결 실패! 잠시 후 다시 시도해주세요.");
-                console.error(error);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "분석 시작하기 🚀";
-                spinner.style.display = "none";
-            }
-        }
-
-        function shareKakao() {
-            if (!Kakao.isInitialized()) {
-                alert("카카오 SDK 초기화 실패!");
-                return;
-            }
-            Kakao.Share.sendDefault({
-                objectType: 'feed',
-                content: {
-                    title: 'Star Sync ✨',
-                    description: 'AI가 분석해주는 소름 돋는 내 2026년 운세! 너도 한번 확인해봐.',
-                    imageUrl: 'https://cdn-icons-png.flaticon.com/512/2647/2647287.png',
-                    link: { mobileWebUrl: window.location.href, webUrl: window.location.href },
-                },
-                buttons: [{ title: '내 운세 확인하러 가기', link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }],
-            });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
