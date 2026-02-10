@@ -10,7 +10,7 @@ import pytz
 load_dotenv()
 
 # ---------------------------------------------------------
-# 🔑 1. API 키 설정
+# API 키 설정
 # ---------------------------------------------------------
 MY_API_KEY = os.getenv("GOOGLE_API_KEY")
 
@@ -20,27 +20,24 @@ if not MY_API_KEY:
 client = genai.Client(api_key=MY_API_KEY)
 
 # ---------------------------------------------------------
-# 🚀 2. 모델 설정 (Gemini 3.0 Flash)
+# 모델 설정 (Gemini 3.0 Flash Preview)
 # ---------------------------------------------------------
 MODEL_NAME = "gemini-3-flash-preview"
 
 def get_location_info(city, country):
     """
-    [수정됨] User-Agent를 추가하여 차단을 방지하고, 위치 정보를 가져옵니다.
+    User-Agent를 추가하여 차단을 방지하고, 위치 정보를 가져옵니다.
     """
     try:
-        # 1. 도시 검색 (User-Agent 필수!)
-        # user_agent는 앱 이름이나 이메일 등을 넣어서 고유하게 만듭니다.
         geolocator = Nominatim(user_agent="daily-star-sync/1.0 (hayoul1999@gmail.com)") 
         
-        # 타임아웃 설정 추가 (무한 대기 방지)
+        # 타임아웃 설정 추가
         location = geolocator.geocode(f"{city}, {country}", timeout=10)
         
         if not location:
-            # 검색 실패시 에러 대신 None 반환하거나 기본값 처리
             return None, None, None, f"'{city}'의 위치를 지도에서 찾을 수 없습니다."
 
-        # 2. 시간대(TimeZone) 찾기
+        # 시간대(TimeZone) 찾기
         tf = TimezoneFinder()
         timezone_str = tf.timezone_at(lng=location.longitude, lat=location.latitude)
         
@@ -50,7 +47,6 @@ def get_location_info(city, country):
         return location.latitude, location.longitude, timezone_str, None
 
     except Exception as e:
-        # 에러 발생 시 로그 출력 (디버깅용)
         print(f"⚠️ 위치 찾기 오류: {e}")
         return None, None, None, str(e)
 
@@ -63,7 +59,7 @@ def get_natal_chart_data(name, year, month, day, hour, minute, city, country="So
         # 1. 위도, 경도, 시간대 구하기
         lat, lng, tz_str, error = get_location_info(city, country)
         
-        # [안전장치] 위치 찾기 실패 시 기본값(서울) 사용
+        # 위치 찾기 실패 시 기본값(서울) 사용
         if error:
             print(f"⚠️ 위치 자동 검색 실패 ({error}). 기본값(서울)을 사용합니다.")
             lat = 37.5665
@@ -95,13 +91,13 @@ def get_natal_chart_data(name, year, month, day, hour, minute, city, country="So
     except Exception as e:
         return {"error": f"차트 계산 실패: {str(e)}"}
     
-def get_ai_interpretation(chart_data, user_concern, lang='ko'): # 👈 lang 파라미터 추가 (기본값 'ko')
+def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     """
     [업그레이드] 긴 줄글 대신, 요즘 스타일의 '핵심 요약' 포맷으로 출력
     언어 설정(lang)에 따라 한글 또는 영어 페르소나를 선택하여 답변을 생성합니다.
     """
     
-    # 🇰🇷 [기존] 한글 페르소나 (사용자님 원본 유지)
+    # 한글 페르소나
     sys_msg_ko = """
     당신은 겉치레 없는 솔직한 독설가이자, 정확한 통찰력을 가진 '현실적인 점성술사'입니다.
     구구절절 긴 설명은 빼고, 사용자가 딱 보고 알 수 있는 '핵심 정보'만 제공하세요.
@@ -144,7 +140,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'): # 👈 lang 파�
     (단 필요에 따라 사용자의 특정 요구사항(예시: 인생의 변곡점을 알려줘, 10년 단위 운세 흐름을 보여줘 등)에 대해선 정확하고 세밀하게 분석해 줘.)
     """
 
-    # 🇺🇸 [추가] 영어 페르소나 (한글과 동일한 성격/포맷)
+    # 영어 페르소나
     sys_msg_en = """
     You are a blunt, honest, and insightful 'Realist Astrologer'.
     Skip the fluff and provide only the 'core insights' directly.
@@ -186,7 +182,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'): # 👈 lang 파�
     (Clear solution to "{user_concern}" within 3 sentences)
     """
 
-    # ⭐ 언어 설정에 따라 시스템 메시지 선택
+    # 언어 설정에 따라 시스템 메시지 선택
     sys_msg = sys_msg_en if lang == 'en' else sys_msg_ko
     
     # 사용자 프롬프트도 언어에 맞게 구성
