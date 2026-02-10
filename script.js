@@ -6,6 +6,9 @@ try {
     console.log("⚠️ 카카오 초기화 실패", e);
 }
 
+// ⭐ [추가] 현재 선택된 언어 상태 (기본값: 한국어)
+let currentLanguage = 'ko';
+
 // 🌏 데이터베이스 (복구 완료: 전체 리스트)
 const WORLD_DB = {
     // 🇰🇷 대한민국 (모든 시/군 포함)
@@ -241,16 +244,16 @@ async function analyze() {
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
     if (!document.getElementById('name').value || !document.getElementById('concern').value || !dateVal) {
-        alert("Please fill in all fields!");
+        alert(currentLanguage === 'ko' ? "모든 항목을 입력해주세요!" : "Please fill in all fields!");
         return;
     }
     if (!datePattern.test(dateVal)) {
-        alert("Please enter the date in YYYY-MM-DD format.");
+        alert(currentLanguage === 'ko' ? "날짜를 YYYY-MM-DD 형식으로 입력해주세요." : "Please enter the date in YYYY-MM-DD format.");
         return;
     }
 
     btn.disabled = true;
-    btn.innerText = "Analyzing... 🚀";
+    btn.innerText = currentLanguage === 'ko' ? "분석 중... 🚀" : "Analyzing... 🚀";
     spinner.style.display = "block";
     resultArea.style.display = "none";
     coupangNotice.style.display = "none";
@@ -266,7 +269,8 @@ async function analyze() {
         minute: parseInt(document.getElementById('minute').value),
         country: document.getElementById('country').value || "South Korea",
         city: document.getElementById('city').value || "Seoul",
-        concern: document.getElementById('concern').value
+        concern: document.getElementById('concern').value,
+        lang: currentLanguage // ⭐ [핵심] 현재 선택된 언어('ko' or 'en') 전송!
     };
 
     try {
@@ -283,7 +287,8 @@ async function analyze() {
             const itemRegex = /\[\[(.*?)\]\]/g;
             const linkedText = rawText.replace(itemRegex, (match, itemName) => {
                 const searchUrl = `https://www.coupang.com/np/search?component=&q=${encodeURIComponent(itemName)}&channel=user`;
-                return `<a href="${searchUrl}" target="_blank" class="coupang-link">🎁 ${itemName} (구매하기)</a>`;
+                const buyText = currentLanguage === 'ko' ? "(구매하기)" : "(Buy Now)";
+                return `<a href="${searchUrl}" target="_blank" class="coupang-link">🎁 ${itemName} ${buyText}</a>`;
             });
 
             if (typeof marked !== 'undefined') aiResponse.innerHTML = marked.parse(linkedText);
@@ -296,11 +301,11 @@ async function analyze() {
         }
 
     } catch (error) {
-        alert("Server Error! Please try again later.");
+        alert(currentLanguage === 'ko' ? "서버 오류! 나중에 다시 시도해주세요." : "Server Error! Please try again later.");
         console.error(error);
     } finally {
         btn.disabled = false;
-        btn.innerText = "분석 시작하기 🚀";
+        btn.innerText = currentLanguage === 'ko' ? "분석 시작하기 🚀" : "Start Analysis 🚀";
         spinner.style.display = "none";
     }
 }
@@ -324,5 +329,67 @@ function shareKakao() {
         });
     } catch (e) {
         alert("Share Error: " + e);
+    }
+}
+
+const translations = {
+    'ko': {
+        subtitle: "AI가 분석하는 당신의 운명 데이터",
+        lblName: "이름",
+        lblBirth: "생년월일 / 시간",
+        lblPlace: "태어난 장소 (국가 / 도시)",
+        lblConcern: "고민 내용",
+        placeholderConcern: "요즘 가장 큰 고민이 무엇인가요?",
+        btnSubmit: "분석 시작하기 🚀",
+        spinner: "💫 별들의 신호를 수신 중...",
+        kakaoBtn: "카카오톡으로 친구에게 자랑하기",
+        linkAbout: "서비스 소개",
+        linkPrivacy: "개인정보처리방침"
+    },
+    'en': {
+        subtitle: "AI-Powered Destiny Analysis",
+        lblName: "Name",
+        lblBirth: "Birth Date / Time",
+        lblPlace: "Birthplace (Country / City)",
+        lblConcern: "Your Concern",
+        placeholderConcern: "What is your main concern?",
+        btnSubmit: "Start Analysis 🚀",
+        spinner: "💫 Reading the stars...",
+        kakaoBtn: "Share with Friends",
+        linkAbout: "About Us",
+        linkPrivacy: "Privacy Policy"
+    }
+};
+
+/* 언어 변경 함수 */
+function setLanguage(lang) {
+    // ⭐ 현재 언어 상태 업데이트 (중요!)
+    currentLanguage = lang;
+
+    // 1. 버튼 스타일 변경
+    document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+    // 2. 텍스트 변경 (사전 이용)
+    const t = translations[lang];
+    document.getElementById('txt-subtitle').innerText = t.subtitle;
+    document.getElementById('lbl-name').innerText = t.lblName;
+    document.getElementById('lbl-birth').innerText = t.lblBirth;
+    document.getElementById('lbl-place').innerText = t.lblPlace;
+    document.getElementById('lbl-concern').innerText = t.lblConcern;
+    document.getElementById('concern').placeholder = t.placeholderConcern;
+    document.getElementById('btnSubmit').innerText = t.btnSubmit;
+    document.getElementById('spinner').innerText = t.spinner;
+    document.getElementById('btn-kakao-txt').innerText = t.kakaoBtn;
+    document.getElementById('link-about').innerText = t.linkAbout;
+    document.getElementById('link-privacy').innerText = t.linkPrivacy;
+
+    // 3. 설명글(긴 글) 섹션 교체
+    if (lang === 'ko') {
+        document.querySelector('.info-section.lang-ko').style.display = 'block';
+        document.querySelector('.info-section.lang-en').style.display = 'none';
+    } else {
+        document.querySelector('.info-section.lang-ko').style.display = 'none';
+        document.querySelector('.info-section.lang-en').style.display = 'block';
     }
 }

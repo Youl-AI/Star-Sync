@@ -19,7 +19,6 @@ body {
     flex-direction: column;
     align-items: center; /* 아이템들을 가운데 정렬 */
     width: 100%;
-    /* max-width: 700px;  <-- 삭제: 자식 요소들이 각자 알아서 너비 조절하도록 함 */
     margin: 0 auto;
     padding: 60px 20px; /* 위쪽 여백을 좀 더 주어 시원하게 */
     box-sizing: border-box;
@@ -385,5 +384,50 @@ button {
 
     .info-section h2 {
         font-size: 1.6rem;
+    }
+}
+
+/* ⭐ [추가됨] 언어 변경 버튼 (우측 상단 고정) */
+.lang-switch {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000; /* 제일 위에 표시 */
+}
+
+    .lang-switch button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #aaa;
+        padding: 5px 10px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: bold;
+        width: auto;
+        margin: 0;
+        transition: 0.3s;
+    }
+
+        /* 선택된 언어 버튼 스타일 */
+        .lang-switch button.active {
+            background: #a29bfe;
+            color: #fff;
+            border-color: #a29bfe;
+            box-shadow: 0 0 10px rgba(162, 155, 254, 0.5);
+        }
+
+        .lang-switch button:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+
+/* 모바일에서는 버튼이 너무 구석에 있지 않게 조정 */
+@media (max-width: 600px) {
+    .lang-switch {
+        top: 15px;
+        right: 15px;
     }
 }

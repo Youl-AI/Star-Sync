@@ -95,13 +95,14 @@ def get_natal_chart_data(name, year, month, day, hour, minute, city, country="So
     except Exception as e:
         return {"error": f"차트 계산 실패: {str(e)}"}
     
-def get_ai_interpretation(chart_data, user_concern):
+def get_ai_interpretation(chart_data, user_concern, lang='ko'): # 👈 lang 파라미터 추가 (기본값 'ko')
     """
     [업그레이드] 긴 줄글 대신, 요즘 스타일의 '핵심 요약' 포맷으로 출력
+    언어 설정(lang)에 따라 한글 또는 영어 페르소나를 선택하여 답변을 생성합니다.
     """
     
-    # 🔮 페르소나: 족집게 도사 (짧고 강렬하게)
-    sys_msg = """
+    # 🇰🇷 [기존] 한글 페르소나 (사용자님 원본 유지)
+    sys_msg_ko = """
     당신은 겉치레 없는 솔직한 독설가이자, 정확한 통찰력을 가진 '현실적인 점성술사'입니다.
     구구절절 긴 설명은 빼고, 사용자가 딱 보고 알 수 있는 '핵심 정보'만 제공하세요.
     전문 용어 금지: '하우스', '어센던트', '각도', '트라인' 같은 단어는 절대 쓰지 마세요.
@@ -136,18 +137,65 @@ def get_ai_interpretation(chart_data, user_concern):
     
     ### 🍀 행운의 열쇠
     * **컬러:** (색상)
-    * **아이템:** (구체적인 물건)
+    * **아이템:** (구체적인 물건, 반드시 [[아이템]] 형식)
     
     💌 [고민에 대한 답변]
     (사용자의 고민 "{user_concern}"에 대해 3문장 이내로 명쾌한 솔루션 제시)
+    (단 필요에 따라 사용자의 특정 요구사항(예시: 인생의 변곡점을 알려줘, 10년 단위 운세 흐름을 보여줘 등)에 대해선 정확하고 세밀하게 분석해 줘.)
     """
+
+    # 🇺🇸 [추가] 영어 페르소나 (한글과 동일한 성격/포맷)
+    sys_msg_en = """
+    You are a blunt, honest, and insightful 'Realist Astrologer'.
+    Skip the fluff and provide only the 'core insights' directly.
+    No Jargon: Do not use terms like 'House', 'Ascendant', 'Trine'. Use 'Area', 'Nature', 'Energy' instead.
+
+    [Response Guidelines]
+    1. Use Markdown actively and mix in emojis appropriately.
+    2. Use ### (Heading 3) for subsections.
+    3. Use - (hyphen) for list items.
+    4. **Bold** important keywords.
+    5. Don't just say good things; give a sharp warning if the fortune is bad.
+    6. Evaluate the score (0-100) very coldly. (Don't give high scores blindly).
+    7. Be polite but firm and direct.
+    8. Maintain a warm and hopeful tone overall, but don't forget the 'bone-hitting' advice.
+    9. Recommend the Lucky Item as a specific noun and MUST enclose it in double brackets like [[Item Name]]. (e.g., [[Metal Watch]], [[Red Scarf]]).
+    10. This item should be a tangible object searchable on shopping sites.
+
+    [Output Format Guide] - Must follow this strictly
+
+    ### 💫 [Theme of the Day]
+    (One-line impactful summary within 15 words)
+    (However, if the user has specific requests—such as 'life turning points' or '10-year fortune flow'—provide a precise and detailed analysis.)
+
+    ### 📊 Today's Score
+    * **Total:** (0~100) Points
+    * **Career/Study:** (5 Star Emojis) - (One line comment)
+    * **Money/Success:** (5 Star Emojis) - (One line comment)
+    * **Love/Relationship:** (5 Star Emojis) - (One line comment)
+
+    ### ⚡ Sharp Advice
+    * **Do:** (One specific action)
+    * **Don't:** (One specific action)
+
+    ### 🍀 Lucky Keys
+    * **Color:** (Color name)
+    * **Item:** (Specific object, must be in [[Item Name]] format)
+
+    💌 [Answer to your Concern]
+    (Clear solution to "{user_concern}" within 3 sentences)
+    """
+
+    # ⭐ 언어 설정에 따라 시스템 메시지 선택
+    sys_msg = sys_msg_en if lang == 'en' else sys_msg_ko
     
+    # 사용자 프롬프트도 언어에 맞게 구성
     user_msg = f"""
-    [내담자 정보]
-    - 별자리 데이터: {chart_data}
-    - 현재 고민: {user_concern}
+    [Client Info]
+    - Chart Data: {chart_data}
+    - Concern: {user_concern}
     
-    위 정보를 분석해서 모바일에서 보기 편하게 짧고 굵게 답변해줘.
+    Analyze this and answer in {'English' if lang == 'en' else 'Korean'} following the format.
     """
 
     try:
@@ -162,4 +210,5 @@ def get_ai_interpretation(chart_data, user_concern):
         return response.text
 
     except Exception as e:
-        return f"⚠️ 에러 발생: {str(e)}"
+        error_msg = "⚠️ Error occurred:" if lang == 'en' else "⚠️ 에러 발생:"
+        return f"{error_msg} {str(e)}"

@@ -22,10 +22,15 @@
 </head>
 <body>
 
+    <div class="lang-switch">
+        <button id="btn-ko" onclick="setLanguage('ko')" class="active">KR</button>
+        <button id="btn-en" onclick="setLanguage('en')">EN</button>
+    </div>
+
     <div class="main-wrapper">
 
         <div class="content-container">
-            <section class="info-section">
+            <section class="info-section lang-ko">
                 <h2>🌌 Star Sync: 당신의 운명을 비추는 AI 점성학</h2>
                 <p>
                     Star Sync는 수천 년간 이어져 온 <strong>전통 점성학(Astrology)</strong>의 지혜와 최신 <strong>인공지능(AI)</strong> 기술을 결합한 차세대 운세 분석 서비스입니다.
@@ -42,17 +47,35 @@
                     지금 바로 당신의 이름과 생년월일을 입력하고, 밤하늘이 들려주는 당신만의 이야기를 확인해보세요.
                 </p>
             </section>
+
+            <section class="info-section lang-en" style="display: none;">
+                <h2>🌌 Star Sync: AI Astrology for Your Destiny</h2>
+                <p>
+                    Star Sync combines the wisdom of <strong>Traditional Astrology</strong> with cutting-edge <strong>AI technology</strong> to provide next-generation destiny analysis.
+                    Moving beyond simple horoscopes, we precisely calculate planetary alignments, aspects at your birth, and current cosmic flows.
+                </p>
+                <h3>💫 What do we analyze?</h3>
+                <p>
+                    Our system analyzes your <strong>innate nature</strong> and <strong>potential</strong> based on the positions of the Sun, Moon, Mercury, Venus, Mars, and other key planets.
+                    AI interprets real-time stellar advice for your specific concerns, offering realistic and warm guidance.
+                </p>
+                <h3>🚀 Where is your opportunity in 2026?</h3>
+                <p>
+                    The future is not set in stone but created. Star Sync serves as a compass to help you make better choices at life's crossroads.
+                    Enter your name and birth details now to hear your unique story from the night sky.
+                </p>
+            </section>
         </div>
 
         <div class="container">
             <h1>💫 Star Sync</h1>
-            <p class="subtitle">AI가 분석하는 당신의 운명 데이터</p>
+            <p class="subtitle" id="txt-subtitle">AI가 분석하는 당신의 운명 데이터</p>
 
-            <label>이름</label>
+            <label id="lbl-name">이름</label>
             <input type="text" id="name" placeholder="Name"
                    onfocus="this.placeholder=''" onblur="this.placeholder='Name'">
 
-            <label>생년월일 / 시간</label>
+            <label id="lbl-birth">생년월일 / 시간</label>
 
             <input type="text" id="birthdate" placeholder="YYYY-MM-DD" autocomplete="off" maxlength="10" oninput="autoFormatDate(this)">
 
@@ -71,7 +94,7 @@
                 </div>
             </div>
 
-            <label>태어난 장소 (국가 / 도시)</label>
+            <label id="lbl-place">태어난 장소 (국가 / 도시)</label>
             <div class="row">
                 <div class="dropdown-wrapper">
                     <input type="text" id="country" placeholder="Country" autocomplete="off"
@@ -89,7 +112,7 @@
                 </div>
             </div>
 
-            <label>고민 내용</label>
+            <label id="lbl-concern">고민 내용</label>
             <textarea id="concern" rows="3" placeholder="What is your concern?"
                       onfocus="this.placeholder=''" onblur="this.placeholder='What is your concern?'"></textarea>
 
@@ -102,7 +125,7 @@
                     이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br>이에 따른 일정액의 수수료를 제공받습니다.
                 </div>
                 <button onclick="shareKakao()" class="kakao-btn">
-                    <span>💬</span> 카카오톡으로 친구에게 자랑하기
+                    <span>💬</span> <span id="btn-kakao-txt">카카오톡으로 친구에게 자랑하기</span>
                 </button>
             </div>
         </div>
@@ -110,8 +133,8 @@
         <div class="content-container">
             <footer class="site-footer">
                 <div class="footer-links">
-                    <a href="about.html">서비스 소개</a> |
-                    <a href="privacy.html">개인정보처리방침</a>
+                    <a href="about.html" id="link-about">서비스 소개</a> |
+                    <a href="privacy.html" id="link-privacy">개인정보처리방침</a>
                 </div>
                 <p class="copyright">© 2026 Star Sync. All rights reserved.</p>
             </footer>

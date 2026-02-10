@@ -27,6 +27,8 @@ class AnalysisRequest(BaseModel):
     country: str
     city: str
     concern: str
+    # ⭐ [추가] 언어 설정 받기 (기본값 'ko'로 설정하여 오류 방지)
+    lang: str = "ko" 
 
 @app.get("/")
 def read_root():
@@ -34,7 +36,7 @@ def read_root():
 
 @app.post("/analyze")
 async def analyze(request: AnalysisRequest):
-    print(f"📝 요청 받음: {request.name}, {request.city}") # 로그 출력
+    print(f"📝 요청 받음: {request.name}, {request.city}, 언어: {request.lang}") # 로그 출력
     
     try:
         # 1. 점성술 차트 데이터 계산
@@ -55,7 +57,8 @@ async def analyze(request: AnalysisRequest):
             return {"ai_message": f" 죄송합니다. 위치를 찾지 못했어요.\n오류 내용: {chart_data['error']}"}
 
         # 2. AI 해석 요청
-        ai_message = get_ai_interpretation(chart_data, request.concern)
+        # ⭐ [수정] request.lang 정보를 함수에 같이 넘겨줍니다!
+        ai_message = get_ai_interpretation(chart_data, request.concern, lang=request.lang)
         
         print("✅ 분석 완료!")
         return {"ai_message": ai_message}
