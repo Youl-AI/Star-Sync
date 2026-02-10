@@ -29,7 +29,7 @@ body {
 /* 2. 입력창 박스: 너비를 500px로 줄여서 비율 개선 (핵심!) */
 .container {
     width: 100%;
-    max-width: 500px; /* ⭐ 700px -> 500px로 축소 (비율 황금비) */
+    max-width: 600px; /* ⭐ 700px -> 500px로 축소 (비율 황금비) */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 20px;
