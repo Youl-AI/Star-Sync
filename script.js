@@ -138,6 +138,7 @@ window.onload = function () {
             closeAllDropdowns();
         }
     });
+    setLanguage('ko');
 };
 
 // ⏰ [NEW] 시간/분 목록 생성 함수
@@ -339,6 +340,9 @@ const translations = {
         lblBirth: "생년월일 / 시간",
         lblPlace: "태어난 장소 (국가 / 도시)",
         lblConcern: "고민 내용",
+        placeholderName: "이름을 입력해 주세요.",
+        placeholderHour: "시",
+        placeholderMinute: "분",
         placeholderConcern: "요즘 가장 큰 고민이 무엇인가요?",
         btnSubmit: "분석 시작하기 🚀",
         spinner: "💫 별들의 신호를 수신 중...",
@@ -352,6 +356,9 @@ const translations = {
         lblBirth: "Birth Date / Time",
         lblPlace: "Birthplace (Country / City)",
         lblConcern: "Your Concern",
+        placeholderName: "Type your name.",
+        placeholderHour: "Hour",
+        placeholderMinute: "Minute",
         placeholderConcern: "What is your main concern?",
         btnSubmit: "Start Analysis 🚀",
         spinner: "💫 Reading the stars...",
@@ -383,6 +390,11 @@ function setLanguage(lang) {
     document.getElementById('btn-kakao-txt').innerText = t.kakaoBtn;
     document.getElementById('link-about').innerText = t.linkAbout;
     document.getElementById('link-privacy').innerText = t.linkPrivacy;
+
+    document.getElementById('name').placeholder = t.placeholderName;
+    document.getElementById('hour').placeholder = t.placeholderHour;
+    document.getElementById('minute').placeholder = t.placeholderMinute;
+    document.getElementById('concern').placeholder = t.placeholderConcern;
 
     // 3. 설명글(긴 글) 섹션 교체
     if (lang === 'ko') {
