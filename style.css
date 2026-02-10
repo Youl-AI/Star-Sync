@@ -1,5 +1,6 @@
 ﻿* {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
+    box-sizing: border-box; /* 레이아웃 계산을 위해 추가 권장 */
 }
 
 /* 기본 스타일 */
@@ -8,61 +9,60 @@ body {
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
     color: #fff;
     margin: 0;
-    padding: 20px;
+    padding: 0; /* body 패딩 제거 (wrapper에서 처리) */
     min-height: 100vh;
-    /* display: flex;  <-- 이 부분이 세로 정렬을 방해할 수 있어 주석 처리하거나 지워도 됩니다. main-wrapper가 역할을 대신합니다. */
-    /* justify-content: center; */
-    /* align-items: center; */
 }
 
+/* 1. 메인 레이아웃 수정: 꽉 막힌 700px 제한을 풀고 간격 조정 */
 .main-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center; /* 아이템들을 가운데 정렬 */
     width: 100%;
-    max-width: 700px; /* ⭐ 여기가 핵심! 700px로 넓혔습니다 */
-    margin: 0 auto; /* ⭐ 화면 전체에서 중앙에 위치 */
-    padding: 40px 20px;
+    /* max-width: 700px;  <-- 삭제: 자식 요소들이 각자 알아서 너비 조절하도록 함 */
+    margin: 0 auto;
+    padding: 60px 20px; /* 위쪽 여백을 좀 더 주어 시원하게 */
     box-sizing: border-box;
-    gap: 30px;
+    gap: 40px; /* 요소 사이 간격을 넓혀서 여유 있게 */
 }
 
-/* 2. 입력창 박스: 부모(700px)에 맞춰서 꽉 차게 */
+/* 2. 입력창 박스: 너비를 500px로 줄여서 비율 개선 (핵심!) */
 .container {
-    width: 100%; /* 꽉 채우기 */
-    max-width: 100%; /* 제한 풀기 (부모 따라감) */
+    width: 100%;
+    max-width: 500px; /* ⭐ 700px -> 500px로 축소 (비율 황금비) */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 40px; /* 내부 여백을 좀 더 넉넉하게 */
+    padding: 40px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     border: 1px solid rgba(255, 255, 255, 0.18);
     display: flex;
     flex-direction: column;
-    /* ⭐ [추가] 드롭다운 메뉴가 잘리지 않게 하기 위해 필수! ⭐ */
+    /* 드롭다운 메뉴 잘림 방지 */
     overflow: visible !important;
     position: relative;
     z-index: 10;
 }
 
-/* 3. 설명글 박스: 부모(700px)에 맞춰서 꽉 차게 */
+/* 3. 설명글 박스: 넓게 퍼트리고 배경 제거 (히어로 스타일) */
 .content-container {
     width: 100%;
-    max-width: 100%; /* 제한 풀기 */
+    max-width: 800px; /* 글자는 입력창보다 넓게 (안정감) */
     color: #e0e0e0;
+    text-align: center; /* ⭐ 글자 가운데 정렬 */
 }
 
 h1 {
     text-align: center;
     margin-bottom: 10px;
-    font-size: 2rem;
+    font-size: 2.5rem; /* 제목 조금 더 키움 */
 }
 
 .subtitle {
     text-align: center;
     color: #a29bfe;
     margin-bottom: 30px;
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 label {
@@ -70,6 +70,7 @@ label {
     margin-bottom: 5px;
     font-weight: bold;
     font-size: 0.9rem;
+    text-align: left; /* 입력 라벨은 왼쪽 정렬 유지 */
 }
 
 /* 입력창 스타일 */
@@ -205,6 +206,7 @@ button {
     border-radius: 15px;
     line-height: 1.7;
     margin-bottom: 20px;
+    text-align: left; /* 결과 카드는 왼쪽 정렬 */
 }
 
     .result-card h3 {
@@ -306,6 +308,7 @@ button {
         cursor: pointer;
         border-bottom: 1px solid #eee;
         font-size: 0.95rem;
+        text-align: left; /* 목록은 왼쪽 정렬 */
     }
 
         .dropdown-list li:hover {
@@ -314,19 +317,20 @@ button {
             font-weight: bold;
         }
 
-/* 설명글 섹션 */
+/* 설명글 섹션 디자인 업그레이드 (히어로 스타일 적용) */
 .info-section {
-    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%); /* 그라데이션 효과 */
-    padding: 30px;
-    border-radius: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1); /* 위쪽에만 살짝 선 */
+    background: transparent; /* ⭐ 배경 제거 (투명하게) */
+    padding: 0 20px;
+    border-top: none; /* ⭐ 테두리 제거 */
+    border: none;
 }
 
     .info-section h2 {
-        text-align: center; /* 제목 가운데 정렬 */
+        text-align: center;
         color: #a29bfe;
-        font-size: 1.4rem;
+        font-size: 2rem; /* 제목 더 크게 */
         margin-bottom: 25px;
+        text-shadow: 0 0 10px rgba(162, 155, 254, 0.3); /* 은은한 네온 효과 */
     }
 
     .info-section h3 {
@@ -334,21 +338,25 @@ button {
         font-size: 1.2rem;
         margin-top: 30px;
         margin-bottom: 15px;
+        opacity: 0.9;
     }
 
     .info-section p {
         margin-bottom: 15px;
-        font-size: 1rem;
-        word-break: keep-all; /* 한글 줄바꿈 예쁘게 */
+        font-size: 1.1rem; /* 글자 조금 키움 */
+        line-height: 1.8;
+        word-break: keep-all;
+        color: #e0e0e0;
     }
 
 /* 하단 메뉴 (Footer) */
 .site-footer {
     text-align: center;
-    padding: 20px 0;
+    padding: 40px 0 20px 0; /* 위쪽 여백 추가 */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 0.9rem;
     color: #aaa;
+    width: 100%;
 }
 
 .footer-links a {
@@ -367,4 +375,15 @@ button {
 .copyright {
     margin-top: 15px;
     font-size: 0.8rem;
+}
+
+/* 모바일 대응 추가 */
+@media (max-width: 600px) {
+    .container {
+        padding: 25px;
+    }
+
+    .info-section h2 {
+        font-size: 1.6rem;
+    }
 }
