@@ -10,22 +10,46 @@ body {
     margin: 0;
     padding: 20px;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* display: flex;  <-- 이 부분이 세로 정렬을 방해할 수 있어 주석 처리하거나 지워도 됩니다. main-wrapper가 역할을 대신합니다. */
+    /* justify-content: center; */
+    /* align-items: center; */
 }
 
+.main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 아이템들을 가운데 정렬 */
+    width: 100%;
+    max-width: 700px; /* ⭐ 여기가 핵심! 700px로 넓혔습니다 */
+    margin: 0 auto; /* ⭐ 화면 전체에서 중앙에 위치 */
+    padding: 40px 20px;
+    box-sizing: border-box;
+    gap: 30px;
+}
+
+/* 2. 입력창 박스: 부모(700px)에 맞춰서 꽉 차게 */
 .container {
+    width: 100%; /* 꽉 채우기 */
+    max-width: 100%; /* 제한 풀기 (부모 따라감) */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 40px;
-    width: 100%;
-    max-width: 500px;
+    padding: 40px; /* 내부 여백을 좀 더 넉넉하게 */
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    flex-direction: column;
+    /* ⭐ [추가] 드롭다운 메뉴가 잘리지 않게 하기 위해 필수! ⭐ */
+    overflow: visible !important;
     position: relative;
-    z-index: 1;
+    z-index: 10;
+}
+
+/* 3. 설명글 박스: 부모(700px)에 맞춰서 꽉 차게 */
+.content-container {
+    width: 100%;
+    max-width: 100%; /* 제한 풀기 */
+    color: #e0e0e0;
 }
 
 h1 {
@@ -289,3 +313,58 @@ button {
             color: #6c5ce7;
             font-weight: bold;
         }
+
+/* 설명글 섹션 */
+.info-section {
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%); /* 그라데이션 효과 */
+    padding: 30px;
+    border-radius: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* 위쪽에만 살짝 선 */
+}
+
+    .info-section h2 {
+        text-align: center; /* 제목 가운데 정렬 */
+        color: #a29bfe;
+        font-size: 1.4rem;
+        margin-bottom: 25px;
+    }
+
+    .info-section h3 {
+        color: #fff;
+        font-size: 1.2rem;
+        margin-top: 30px;
+        margin-bottom: 15px;
+    }
+
+    .info-section p {
+        margin-bottom: 15px;
+        font-size: 1rem;
+        word-break: keep-all; /* 한글 줄바꿈 예쁘게 */
+    }
+
+/* 하단 메뉴 (Footer) */
+.site-footer {
+    text-align: center;
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+.footer-links a {
+    color: #a29bfe;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+    .footer-links a:hover {
+        color: #fff;
+        text-decoration: underline;
+    }
+
+.copyright {
+    margin-top: 15px;
+    font-size: 0.8rem;
+}
