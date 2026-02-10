@@ -10,7 +10,7 @@ import pytz
 load_dotenv()
 
 # ---------------------------------------------------------
-# 🔑 1. API 키 설정 (여기에 키를 직접 붙여넣으세요!)
+# 🔑 1. API 키 설정
 # ---------------------------------------------------------
 MY_API_KEY = os.getenv("GOOGLE_API_KEY")
 
@@ -22,23 +22,25 @@ client = genai.Client(api_key=MY_API_KEY)
 # ---------------------------------------------------------
 # 🚀 2. 모델 설정 (Gemini 3.0 Flash)
 # ---------------------------------------------------------
-# 속도가 빠르고 성능이 뛰어난 최신 모델입니다.
 MODEL_NAME = "gemini-3-flash-preview"
 
 def get_location_info(city, country):
     """
-    [새로운 기능] 주소(도시, 국가)를 주면 위도, 경도, 시간대를 찾아옵니다.
+    [수정됨] User-Agent를 추가하여 차단을 방지하고, 위치 정보를 가져옵니다.
     """
     try:
-        # 1. 도시 검색 (예: "Pyeongtaek, South Korea")
-        geolocator = Nominatim(user_agent="star_sync_app")
-        location = geolocator.geocode(f"{city}, {country}")
+        # 1. 도시 검색 (User-Agent 필수!)
+        # user_agent는 앱 이름이나 이메일 등을 넣어서 고유하게 만듭니다.
+        geolocator = Nominatim(user_agent="daily-star-sync/1.0 (hayoul1999@gmail.com)") 
+        
+        # 타임아웃 설정 추가 (무한 대기 방지)
+        location = geolocator.geocode(f"{city}, {country}", timeout=10)
         
         if not location:
-            # 검색 실패시 에러
+            # 검색 실패시 에러 대신 None 반환하거나 기본값 처리
             return None, None, None, f"'{city}'의 위치를 지도에서 찾을 수 없습니다."
 
-        # 2. 시간대(TimeZone) 찾기 (예: "Asia/Seoul")
+        # 2. 시간대(TimeZone) 찾기
         tf = TimezoneFinder()
         timezone_str = tf.timezone_at(lng=location.longitude, lat=location.latitude)
         
@@ -48,18 +50,25 @@ def get_location_info(city, country):
         return location.latitude, location.longitude, timezone_str, None
 
     except Exception as e:
+        # 에러 발생 시 로그 출력 (디버깅용)
+        print(f"⚠️ 위치 찾기 오류: {e}")
         return None, None, None, str(e)
 
 def get_natal_chart_data(name, year, month, day, hour, minute, city, country="South Korea"):
     """
     위치 정보를 먼저 찾고, 그 좌표로 정확하게 차트를 계산합니다.
+    (위치 찾기 실패 시 기본값 서울 사용 로직 추가 가능)
     """
     try:
-        # 1. 위도, 경도, 시간대 먼저 구하기
+        # 1. 위도, 경도, 시간대 구하기
         lat, lng, tz_str, error = get_location_info(city, country)
         
+        # [안전장치] 위치 찾기 실패 시 기본값(서울) 사용
         if error:
-            return {"error": f"위치 오류: {error}"}
+            print(f"⚠️ 위치 자동 검색 실패 ({error}). 기본값(서울)을 사용합니다.")
+            lat = 37.5665
+            lng = 126.9780
+            tz_str = "Asia/Seoul"
 
         user = AstrologicalSubject(
             name, year, month, day, hour, minute,
