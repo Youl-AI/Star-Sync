@@ -15,16 +15,24 @@
 
     <link rel="stylesheet" href="style.css">
 
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6538739927923803"
             crossorigin="anonymous"></script>
 
 </head>
 <body>
+    <div class="stars"></div>
 
-    <div class="lang-switch">
-        <button id="btn-ko" onclick="setLanguage('ko')" class="active">KR</button>
-        <button id="btn-en" onclick="setLanguage('en')">EN</button>
-    </div>
+    <header class="app-header">
+        <div class="header-logo" onclick="location.reload()">
+            <span>✨</span> Star Sync
+        </div>
+        <div class="lang-switch">
+            <button id="btn-ko" onclick="setLanguage('ko')" class="active">KR</button>
+            <button id="btn-en" onclick="setLanguage('en')">EN</button>
+        </div>
+    </header>
 
     <div class="main-wrapper">
 
@@ -67,7 +75,6 @@
         </div>
 
         <div class="container">
-            <h1>💫 Star Sync</h1>
             <p class="subtitle" id="txt-subtitle">AI가 분석하는 당신의 운명 데이터</p>
 
             <label id="lbl-name">이름</label>
@@ -122,23 +129,24 @@
                 <div class="coupang-notice" id="coupangNotice" style="display:none;">
                     이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br>이에 따른 일정액의 수수료를 제공받습니다.
                 </div>
+
+                <button onclick="saveResultImage()" class="save-img-btn" style="display:none;" id="btnSaveImg">
+                    📸 결과 이미지로 저장하기
+                </button>
+
                 <button onclick="shareKakao()" class="kakao-btn">
                     <span>💬</span> <span id="btn-kakao-txt">카카오톡으로 친구에게 자랑하기</span>
                 </button>
             </div>
         </div>
-
-        <div class="content-container">
-            <footer class="site-footer">
-                <div class="footer-links">
-                    <a href="about.html" id="link-about">서비스 소개</a> |
-                    <a href="privacy.html" id="link-privacy">개인정보처리방침</a>
-                </div>
-                <p class="copyright">© 2026 Star Sync. All rights reserved.</p>
-            </footer>
+    </div> <footer class="site-footer">
+        <div class="footer-links">
+            <a href="about.html" id="link-about">서비스 소개</a> |
+            <a href="privacy.html" id="link-privacy">개인정보처리방침</a>
         </div>
+        <p class="copyright">© 2026 Star Sync. All rights reserved.</p>
+    </footer>
 
-    </div>
     <script src="script.js"></script>
 </body>
 </html>

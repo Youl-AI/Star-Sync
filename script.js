@@ -138,6 +138,10 @@ window.onload = function () {
             closeAllDropdowns();
         }
     });
+    createStars();
+
+    setInterval(createShootingStar, 3500);
+
     setLanguage('ko');
 };
 
@@ -404,4 +408,55 @@ function setLanguage(lang) {
         document.querySelector('.info-section.lang-ko').style.display = 'none';
         document.querySelector('.info-section.lang-en').style.display = 'block';
     }
+}
+
+function createStars() {
+    const starContainer = document.querySelector('.stars');
+    if (!starContainer) return; // 에러 방지
+
+    const starCount = 100; // 별 개수 (늘리면 더 많아짐)
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+
+        // 랜덤 위치 및 크기 설정
+        const x = Math.random() * 100; // 화면 가로 %
+        const y = Math.random() * 100; // 화면 세로 %
+        const size = Math.random() * 2 + 1; // 1px ~ 3px 크기
+        const duration = Math.random() * 3 + 2; // 2초 ~ 5초 사이 깜빡임
+
+        star.style.left = `${x}%`;
+        star.style.top = `${y}%`;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.setProperty('--duration', `${duration}s`); // CSS 변수로 넘김
+
+        starContainer.appendChild(star);
+    }
+}
+
+function createShootingStar() {
+    const starContainer = document.querySelector('.stars');
+    if (!starContainer) return;
+
+    const shootingStar = document.createElement('div');
+    shootingStar.className = 'shooting_star';
+
+    // 1. 랜덤 위치 (화면 상단 위주)
+    shootingStar.style.top = (Math.random() * 50) + '%';
+    shootingStar.style.left = (Math.random() * 100) + '%';
+
+    // 2. ⭐ 랜덤 각도 설정 (30도 ~ 60도 사이로 예쁘게 떨어지게)
+    // 너무 제각각이면 지저분해 보여서 가장 예쁜 각도 범위로 잡았습니다.
+    const angle = Math.random() * 30 + 30;
+    shootingStar.style.setProperty('--angle', angle + 'deg');
+
+    // 3. 컨테이너에 추가
+    starContainer.appendChild(shootingStar);
+
+    // 4. 삭제 타이머
+    setTimeout(() => {
+        shootingStar.remove();
+    }, 4000);
 }

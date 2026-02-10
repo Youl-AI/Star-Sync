@@ -1,60 +1,255 @@
-﻿* {
+﻿/* =========================================================
+   [최종 완결] 스크롤 떨림 제거 & 하단 여백 해결 & 나선형 삭제
+   ========================================================= */
+
+/* 1. 기본 초기화 */
+* {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
-    box-sizing: border-box; /* 레이아웃 계산을 위해 추가 권장 */
-}
-
-/* 기본 스타일 */
-body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-    color: #fff;
-    margin: 0;
-    padding: 0; /* body 패딩 제거 (wrapper에서 처리) */
-    min-height: 100vh;
-}
-
-/* 1. 메인 레이아웃 수정: 꽉 막힌 700px 제한을 풀고 간격 조정 */
-.main-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* 아이템들을 가운데 정렬 */
-    width: 100%;
-    margin: 0 auto;
-    padding: 60px 20px; /* 위쪽 여백을 좀 더 주어 시원하게 */
     box-sizing: border-box;
-    gap: 40px; /* 요소 사이 간격을 넓혀서 여유 있게 */
 }
 
-/* 2. 입력창 박스: 너비를 500px로 줄여서 비율 개선 (핵심!) */
-.container {
+/* 2. html, body 설정 (빈 공간 원천 차단) */
+html {
     width: 100%;
-    max-width: 600px; /* ⭐ 700px -> 500px로 축소 (비율 황금비) */
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* 가로 스크롤 절대 금지 */
+    overflow-y: scroll; /* 세로 스크롤바 공간 미리 확보 (덜컹거림 방지) */
+}
+
+body {
+    width: 100%;
+    min-height: 100vh; /* 화면 전체 높이 확보 */
+    margin: 0;
+    padding: 0;
+    /* Sticky Footer를 위한 Flex 레이아웃 */
     display: flex;
     flex-direction: column;
-    /* 드롭다운 메뉴 잘림 방지 */
-    overflow: visible !important;
+    /* 배경이 끊기지 않도록 고정 (하단 빈 공간 해결의 핵심) */
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    background-attachment: fixed;
+    color: #fff;
     position: relative;
-    z-index: 10;
 }
 
-/* 3. 설명글 박스: 넓게 퍼트리고 배경 제거 (히어로 스타일) */
+/* =========================================================
+   배경 별 효과 (화면 밖 간섭 차단)
+   ========================================================= */
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background: transparent; /* body 배경이 보이도록 투명 */
+    overflow: hidden; /* 별이 튀어나가도 스크롤 안 생기게 */
+    pointer-events: none;
+}
+
+.star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff;
+    animation: twinkle var(--duration) ease-in-out infinite;
+    opacity: 0;
+}
+
+@keyframes twinkle {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.5);
+        opacity: 0.3;
+    }
+}
+
+/* 유성우 */
+.shooting_star {
+    position: absolute;
+    height: 2px;
+    /* ⭐ 핵심 수정: 색상 순서를 반대로 뒤집음! (투명 -> 흰색) */
+    /* 이렇게 해야 오른쪽(이동 방향)이 머리가 됩니다. */
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
+    border-radius: 999px;
+    filter: drop-shadow(0 0 6px rgba(105, 155, 255, 1));
+    /* 애니메이션 실행 */
+    animation: shooting 3s ease-out infinite;
+    /* 회전축 유지 */
+    transform-origin: left center;
+}
+
+@keyframes tail {
+    0% {
+        width: 0;
+    }
+
+    30% {
+        width: 100px;
+    }
+
+    100% {
+        width: 0;
+    }
+}
+
+@keyframes shooting {
+    0% {
+        width: 0;
+        transform: rotate(var(--angle)) translateX(0);
+        opacity: 1;
+    }
+
+    10% {
+        width: 100px; /* 꼬리가 길어짐 */
+    }
+
+    100% {
+        width: 0; /* 꼬리가 다시 짧아짐 */
+        transform: rotate(var(--angle)) translateX(400px); /* 각도 방향으로 400px 이동 */
+        opacity: 0;
+    }
+}
+
+/* =========================================================
+   상단 헤더
+   ========================================================= */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    z-index: 1000;
+    background: rgba(15, 15, 25, 0.85); /* 가독성 위해 조금 더 진하게 */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.header-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(to right, #fff, #a29bfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    cursor: pointer;
+    text-shadow: 0 0 15px rgba(162, 155, 254, 0.5);
+    display: flex;
+    align-items: center;
+}
+
+    .header-logo span {
+        margin-right: 8px;
+        font-size: 1.8rem;
+    }
+
+.lang-switch {
+    display: flex;
+    gap: 10px;
+}
+
+    .lang-switch button {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.6);
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-left: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+        .lang-switch button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .lang-switch button.active {
+            background: #a29bfe;
+            color: #fff;
+            border-color: #a29bfe;
+            box-shadow: 0 0 10px rgba(162, 155, 254, 0.5);
+        }
+
+/* =========================================================
+   메인 레이아웃 (푸터 밀어내기)
+   ========================================================= */
+.main-wrapper {
+    /* ⭐ 핵심: 남은 공간을 모두 차지 (푸터를 바닥으로 밀어냄) */
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 100px;
+    padding-bottom: 60px;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 40px;
+}
+
 .content-container {
     width: 100%;
-    max-width: 800px; /* 글자는 입력창보다 넓게 (안정감) */
+    max-width: 800px;
     color: #e0e0e0;
-    text-align: center; /* ⭐ 글자 가운데 정렬 */
+    text-align: center;
 }
 
+/* 입력창 박스 */
+.container {
+    width: 100%;
+    max-width: 600px;
+    position: relative;
+    z-index: 1;
+    /* 깔끔한 유리 질감 */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(30px); /* 블러를 높여서 고급스럽게 */
+    -webkit-backdrop-filter: blur(30px);
+    /* 테두리 형태 */
+    border-radius: 50px 4px 50px 4px;
+    border: 1px solid rgba(162, 155, 254, 0.2);
+    /* 그림자 */
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    /* ⭐ 중요: 드롭다운 메뉴를 위해 visible 유지 */
+    overflow: visible !important;
+}
+
+/* ⚠️ 문제의 원인이었던 '회전하는 나선형 패턴(::before)'을 완전히 삭제했습니다. */
+/* 이제 스크롤이 떨리거나 레이아웃이 깨질 일이 없습니다. */
+
+/* =========================================================
+   입력창 / 버튼 / 텍스트
+   ========================================================= */
 h1 {
     text-align: center;
     margin-bottom: 10px;
-    font-size: 2.5rem; /* 제목 조금 더 키움 */
+    font-size: 2.5rem;
+    background: linear-gradient(to right, #fff, #a29bfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(162, 155, 254, 0.5);
 }
 
 .subtitle {
@@ -69,73 +264,33 @@ label {
     margin-bottom: 5px;
     font-weight: bold;
     font-size: 0.9rem;
-    text-align: left; /* 입력 라벨은 왼쪽 정렬 유지 */
+    text-align: left;
 }
 
-/* 입력창 스타일 */
 input, select, textarea {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
-    border: none;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.9);
     font-size: 1rem;
     box-sizing: border-box;
-    color: #333;
+    background: rgba(0, 0, 0, 0.2) !important; /* 조금 더 어둡게 해서 가독성 확보 */
+    border: 1px solid rgba(162, 155, 254, 0.2) !important;
+    border-radius: 10px;
+    color: #fff !important;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 }
 
-/* 📅 달력 아이콘 */
-#birthdate {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c5ce7'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 24px;
-    cursor: pointer;
-}
+    input:focus, select:focus, textarea:focus {
+        background: rgba(0, 0, 0, 0.4) !important;
+        border-color: #a29bfe !important;
+        box-shadow: 0 0 15px rgba(162, 155, 254, 0.3);
+        outline: none;
+    }
 
-/* 📅 Air Datepicker 커스텀 */
-.air-datepicker-global-container {
-    z-index: 9999 !important;
-}
-
-.air-datepicker {
-    background-color: #24243e;
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    font-family: 'Pretendard', sans-serif;
-    border-radius: 15px;
-}
-
-.air-datepicker-nav--title {
-    color: #a29bfe !important;
-    font-weight: bold;
-}
-
-.air-datepicker-nav--action path {
-    stroke: #a29bfe;
-}
-
-.air-datepicker-cell.-current- {
-    color: #a29bfe;
-    font-weight: bold;
-}
-
-.air-datepicker-cell.-selected- {
-    background: #6c5ce7;
-    color: #fff;
-}
-
-.air-datepicker-body--day-name {
-    color: #a29bfe;
-}
-
-/* Placeholder */
 ::placeholder {
-    color: #888;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+    color: rgba(255, 255, 255, 0.4) !important;
+    opacity: 1;
 }
 
 input:focus::placeholder, textarea:focus::placeholder {
@@ -151,29 +306,30 @@ input:focus::placeholder, textarea:focus::placeholder {
         flex: 1;
     }
 
-button {
+button#btnSubmit {
     width: 100%;
     padding: 15px;
-    background: linear-gradient(to right, #6c5ce7, #a29bfe);
+    background: linear-gradient(90deg, #6c5ce7, #a29bfe);
     color: white;
     border: none;
     border-radius: 10px;
     font-size: 1.1rem;
-    font-weight: bold;
+    font-weight: 800;
+    letter-spacing: 1px;
     cursor: pointer;
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
     transition: transform 0.2s;
     margin-bottom: 10px;
 }
 
-    button:hover {
-        transform: scale(1.02);
+    button#btnSubmit:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(108, 92, 231, 0.6);
     }
 
-    button:disabled {
-        background: #555;
-        cursor: not-allowed;
-    }
-
+/* =========================================================
+   결과창 / 기타
+   ========================================================= */
 #resultArea {
     display: none;
     margin-top: 30px;
@@ -205,7 +361,7 @@ button {
     border-radius: 15px;
     line-height: 1.7;
     margin-bottom: 20px;
-    text-align: left; /* 결과 카드는 왼쪽 정렬 */
+    text-align: left;
 }
 
     .result-card h3 {
@@ -248,13 +404,6 @@ button {
             color: #6c5ce7;
         }
 
-.coupang-link {
-    color: #e74c3c;
-    font-weight: bold;
-    text-decoration: none;
-    border-bottom: 2px solid #e74c3c;
-}
-
 .coupang-notice {
     font-size: 0.75rem;
     color: #ccc;
@@ -265,8 +414,15 @@ button {
 }
 
 .kakao-btn {
+    width: 100%;
+    padding: 15px;
     background: #FEE500;
     color: #3c1e1e;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -278,7 +434,6 @@ button {
         transform: scale(1.02);
     }
 
-/* 커스텀 드롭다운 스타일 */
 .dropdown-wrapper {
     position: relative;
 }
@@ -307,7 +462,7 @@ button {
         cursor: pointer;
         border-bottom: 1px solid #eee;
         font-size: 0.95rem;
-        text-align: left; /* 목록은 왼쪽 정렬 */
+        text-align: left;
     }
 
         .dropdown-list li:hover {
@@ -316,20 +471,18 @@ button {
             font-weight: bold;
         }
 
-/* 설명글 섹션 디자인 업그레이드 (히어로 스타일 적용) */
 .info-section {
-    background: transparent; /* ⭐ 배경 제거 (투명하게) */
+    background: transparent;
     padding: 0 20px;
-    border-top: none; /* ⭐ 테두리 제거 */
     border: none;
 }
 
     .info-section h2 {
         text-align: center;
         color: #a29bfe;
-        font-size: 2rem; /* 제목 더 크게 */
+        font-size: 2rem;
         margin-bottom: 25px;
-        text-shadow: 0 0 10px rgba(162, 155, 254, 0.3); /* 은은한 네온 효과 */
+        text-shadow: 0 0 10px rgba(162, 155, 254, 0.3);
     }
 
     .info-section h3 {
@@ -342,41 +495,49 @@ button {
 
     .info-section p {
         margin-bottom: 15px;
-        font-size: 1.1rem; /* 글자 조금 키움 */
+        font-size: 1.1rem;
         line-height: 1.8;
         word-break: keep-all;
         color: #e0e0e0;
     }
 
-/* 하단 메뉴 (Footer) */
+/* =========================================================
+   하단 푸터 (Footer) - 바닥 고정 완성
+   ========================================================= */
 .site-footer {
-    text-align: center;
-    padding: 40px 0 20px 0; /* 위쪽 여백 추가 */
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 0.9rem;
-    color: #aaa;
+    flex-shrink: 0; /* 본문에 밀려도 찌그러지지 않음 */
+    /* ⭐ 중요: 이중 안전장치 */
+    margin-top: auto;
     width: 100%;
+    padding: 20px 0;
+    text-align: center;
+    background: #0f0c29;
+    border-top: 2px solid #6c5ce7;
+    box-shadow: 0 -10px 40px rgba(108, 92, 231, 0.2);
+    z-index: 10;
 }
 
 .footer-links a {
-    color: #a29bfe;
+    color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
     margin: 0 10px;
-    font-weight: bold;
-    transition: color 0.2s;
+    font-weight: normal;
+    font-size: 0.85rem;
+    transition: color 0.3s;
 }
 
     .footer-links a:hover {
         color: #fff;
-        text-decoration: underline;
+        text-shadow: 0 0 10px #fff;
     }
 
 .copyright {
     margin-top: 15px;
     font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.3);
 }
 
-/* 모바일 대응 추가 */
+/* 모바일 대응 */
 @media (max-width: 600px) {
     .container {
         padding: 25px;
@@ -385,49 +546,64 @@ button {
     .info-section h2 {
         font-size: 1.6rem;
     }
+
+    .app-header {
+        padding: 0 20px;
+    }
 }
 
-/* ⭐ [추가됨] 언어 변경 버튼 (우측 상단 고정) */
-.lang-switch {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    gap: 10px;
-    z-index: 1000; /* 제일 위에 표시 */
+/* 달력 아이콘 */
+#birthdate {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c5ce7'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 24px;
+    cursor: pointer;
 }
 
-    .lang-switch button {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: #aaa;
-        padding: 5px 10px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-size: 0.8rem;
-        font-weight: bold;
-        width: auto;
-        margin: 0;
-        transition: 0.3s;
-    }
+.air-datepicker-global-container {
+    z-index: 9999 !important;
+}
 
-        /* 선택된 언어 버튼 스타일 */
-        .lang-switch button.active {
-            background: #a29bfe;
-            color: #fff;
-            border-color: #a29bfe;
-            box-shadow: 0 0 10px rgba(162, 155, 254, 0.5);
-        }
+.air-datepicker {
+    background-color: #24243e;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    font-family: 'Pretendard', sans-serif;
+    border-radius: 15px;
+}
 
-        .lang-switch button:hover {
-            color: #fff;
-            border-color: #fff;
-        }
+.air-datepicker-nav--title {
+    color: #a29bfe !important;
+    font-weight: bold;
+}
 
-/* 모바일에서는 버튼이 너무 구석에 있지 않게 조정 */
-@media (max-width: 600px) {
-    .lang-switch {
-        top: 15px;
-        right: 15px;
-    }
+.air-datepicker-nav--action path {
+    stroke: #a29bfe;
+}
+
+.air-datepicker-cell.-current- {
+    color: #a29bfe;
+    font-weight: bold;
+}
+
+.air-datepicker-cell.-selected- {
+    background: #6c5ce7;
+    color: #fff;
+}
+
+.air-datepicker-body--day-name {
+    color: #a29bfe;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* 파이어폭스용 */
+input[type=number] {
+    -moz-appearance: textfield;
 }
