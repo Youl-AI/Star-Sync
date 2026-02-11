@@ -612,3 +612,115 @@ input[type=number] {
         opacity: 1;
     }
 }}
+
+.seo-content-wrapper {
+    width: 100%;
+    max-width: 800px; /* 메인 컨텐츠와 너비 맞춤 */
+    margin: 40px 0; /* 위아래 여백 */
+    padding: 0 20px;
+}
+
+.seo-card {
+    background: rgba(0, 0, 0, 0.3); /* 배경을 어둡게 깔아서 글씨가 잘 보이게 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    color: #dcdde1; /* 눈이 편한 회색 톤 */
+    text-align: left;
+    line-height: 1.8;
+}
+
+    .seo-card h3 {
+        color: #a29bfe; /* 포인트 컬러 (보라색) */
+        font-size: 1.5rem;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        border-left: 4px solid #a29bfe;
+        padding-left: 15px;
+    }
+
+        .seo-card h3:first-child {
+            margin-top: 0;
+        }
+
+    .seo-card p {
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+        word-break: keep-all; /* 단어 단위 줄바꿈 */
+    }
+
+    .seo-card strong {
+        color: #fff;
+        font-weight: 700;
+    }
+
+.seo-divider {
+    border: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 40px 0;
+}
+
+/* 12별자리 그리드 레이아웃 */
+.zodiac-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* 반응형 그리드 */
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.zodiac-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+    .zodiac-item strong {
+        display: block;
+        color: #74b9ff; /* 별자리 이름은 하늘색 */
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+    }
+
+    .zodiac-item p {
+        font-size: 0.85rem;
+        color: #ccc;
+        margin: 0;
+    }
+
+/* FAQ 리스트 스타일 */
+.faq-list {
+    list-style: none;
+    padding: 0;
+}
+
+    .faq-list li {
+        margin-bottom: 25px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .faq-list strong {
+        display: block;
+        color: #ff7675; /* 질문은 핑크색 */
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .faq-list span {
+        display: block;
+        color: #e0e0e0;
+    }
+
+/* 모바일 대응 */
+@media (max-width: 600px) {
+    .seo-card {
+        padding: 25px;
+    }
+
+    .zodiac-grid {
+        grid-template-columns: 1fr;
+    }
+    /* 모바일에서는 한 줄로 */
+}
