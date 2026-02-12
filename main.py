@@ -59,7 +59,13 @@ async def analyze(request: AnalysisRequest):
         ai_message = get_ai_interpretation(chart_data, request.concern, lang=request.lang)
         
         print("✅ 분석 완료!")
-        return {"ai_message": ai_message}
+        return {
+            "ai_message": ai_message,
+            "chart_data": {
+                "sun": chart_data.get("Sun"),       # 예: "Aries (1st House)"
+                "moon": chart_data.get("Moon"),     # 예: "Taurus (2nd House)"
+                "rising": chart_data.get("Rising")  # 예: "Gemini"
+            }
 
     except Exception as e:
         print(f"🔥 치명적인 서버 에러: {str(e)}")

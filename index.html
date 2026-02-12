@@ -124,9 +124,34 @@
                       onfocus="this.placeholder=''" onblur="this.placeholder='What is your concern?'"></textarea>
 
             <button onclick="analyze()" id="btnSubmit">분석 시작하기 🚀</button>
-            <div class="spinner" id="spinner">💫 별들의 신호를 수신 중...</div>
 
             <div id="resultArea">
+                <div class="astro-identity-card">
+                    <div class="astro-item">
+                        <span class="planet-icon">☀️</span>
+                        <div class="planet-info">
+                            <span class="label">Sun (자아)</span>
+                            <span class="value" id="res-sun">Analyzing...</span>
+                        </div>
+                    </div>
+                    <div class="line"></div>
+                    <div class="astro-item">
+                        <span class="planet-icon">🌙</span>
+                        <div class="planet-info">
+                            <span class="label">Moon (내면)</span>
+                            <span class="value" id="res-moon">Analyzing...</span>
+                        </div>
+                    </div>
+                    <div class="line"></div>
+                    <div class="astro-item">
+                        <span class="planet-icon">🏹</span>
+                        <div class="planet-info">
+                            <span class="label">Rising (가면)</span>
+                            <span class="value" id="res-rising">Analyzing...</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="result-card" id="aiResponse"></div>
                 <div class="coupang-notice" id="coupangNotice" style="display:none;">
                     이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br>이에 따른 일정액의 수수료를 제공받습니다.
@@ -139,6 +164,14 @@
                 <button onclick="shareKakao()" class="kakao-btn">
                     <span>💬</span> <span id="btn-kakao-txt">카카오톡으로 친구에게 자랑하기</span>
                 </button>
+            </div>
+
+            <div id="loadingArea" style="display: none; text-align: center; margin-top: 30px;">
+                <div class="cosmic-spinner">
+                    <div class="orbit"></div>
+                    <div class="core"></div>
+                </div>
+                <p class="loading-text">별들의 신호를 해석하고 있습니다...</p>
             </div>
 
         </div> <section class="seo-content-wrapper">
@@ -231,7 +264,7 @@
                 </ul>
             </div>
         </section>
-    </div>
+
     </div> <footer class="site-footer">
         <div class="footer-links">
             <a href="about.html" id="link-about">서비스 소개</a> |

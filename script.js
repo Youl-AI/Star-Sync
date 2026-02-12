@@ -234,9 +234,10 @@ function updateCities(country) {
 }
 
 // 분석 요청 함수
+// 분석 요청 함수 (로딩 애니메이션 & 결과창 제어 수정됨)
 async function analyze() {
     const btn = document.getElementById('btnSubmit');
-    const spinner = document.getElementById('spinner');
+    const loadingArea = document.getElementById('loadingArea'); // ✨ 새로 만든 로딩창
     const resultArea = document.getElementById('resultArea');
     const aiResponse = document.getElementById('aiResponse');
     const coupangNotice = document.getElementById('coupangNotice');
@@ -244,6 +245,7 @@ async function analyze() {
     const dateVal = document.getElementById('birthdate').value;
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
+    // 입력값 검증
     if (!document.getElementById('name').value || !document.getElementById('concern').value || !dateVal) {
         alert(currentLanguage === 'ko' ? "모든 항목을 입력해주세요!" : "Please fill in all fields!");
         return;
@@ -253,10 +255,11 @@ async function analyze() {
         return;
     }
 
+    // ✨ [수정 1] 로딩 시작: 버튼 끄기 & 새 로딩창 켜기
     btn.disabled = true;
     btn.innerText = currentLanguage === 'ko' ? "분석 중... 🚀" : "Analyzing... 🚀";
-    spinner.style.display = "block";
-    resultArea.style.display = "none";
+    loadingArea.style.display = "block"; // 빙글빙글 로딩 시작
+    resultArea.style.display = "none";   // 결과창 숨김
     coupangNotice.style.display = "none";
 
     const [y, m, d] = dateVal.split('-').map(Number);
@@ -285,29 +288,48 @@ async function analyze() {
 
         if (response.ok) {
             let rawText = data.ai_message;
+
+            if (data.chart_data) {
+                document.getElementById('res-sun').innerText = data.chart_data.sun;
+                document.getElementById('res-moon').innerText = data.chart_data.moon;
+                document.getElementById('res-rising').innerText = data.chart_data.rising;
+            }
+
+            // 쿠팡 링크 처리 (기존 로직 유지)
             const itemRegex = /\[\[(.*?)\]\]/g;
             const linkedText = rawText.replace(itemRegex, (match, itemName) => {
                 const searchUrl = `https://www.coupang.com/np/search?component=&q=${encodeURIComponent(itemName)}&channel=user`;
                 const buyText = currentLanguage === 'ko' ? "(구매하기)" : "(Buy Now)";
-                return `<a href="${searchUrl}" target="_blank" class="coupang-link">🎁 ${itemName} ${buyText}</a>`;
+                return `<a href="${searchUrl}" target="_blank" class="lucky-badge">🎁 ${itemName}</a>`;
             });
 
+            // 마크다운 변환해서 보여주기
             if (typeof marked !== 'undefined') aiResponse.innerHTML = marked.parse(linkedText);
             else aiResponse.innerHTML = linkedText;
 
             if (rawText.match(itemRegex)) coupangNotice.style.display = "block";
+
+            // ✨ [수정 3] 로딩 끝: 로딩창 끄고 결과창 & 저장 버튼 보여주기
+            loadingArea.style.display = "none";
             resultArea.style.display = "block";
+
+            // 저장 버튼이 있다면 보여주기
+            if (document.getElementById('btnSaveImg')) {
+                document.getElementById('btnSaveImg').style.display = 'flex';
+            }
+
         } else {
             alert("Error: " + data.detail);
+            loadingArea.style.display = "none"; // 에러 시 로딩 끄기
         }
 
     } catch (error) {
         alert(currentLanguage === 'ko' ? "서버 오류! 나중에 다시 시도해주세요." : "Server Error! Please try again later.");
         console.error(error);
+        loadingArea.style.display = "none"; // 에러 시 로딩 끄기
     } finally {
         btn.disabled = false;
         btn.innerText = currentLanguage === 'ko' ? "분석 시작하기 🚀" : "Start Analysis 🚀";
-        spinner.style.display = "none";
     }
 }
 
@@ -448,4 +470,34 @@ function createShootingStar() {
     setTimeout(() => {
         shootingStar.remove();
     }, 4000);
+}
+
+function saveResultImage() {
+    // 1. 캡처할 대상 (결과 카드) 가져오기
+    const target = document.getElementById('aiResponse');
+
+    if (!target) {
+        alert("저장할 결과가 없습니다!");
+        return;
+    }
+
+    // 2. html2canvas로 캡처 시작
+    html2canvas(target, {
+        backgroundColor: "#1e1e2e", // 투명 배경 대신 깔끔한 남색 배경 사용
+        scale: 2, // 2배 고화질로 캡처 (선명하게)
+        useCORS: true, // 이모지나 외부 이미지 허용
+        logging: false
+    }).then(canvas => {
+        // 3. 캡처된 내용을 이미지 주소로 변환
+        const image = canvas.toDataURL("image/png");
+
+        // 4. 가상의 링크를 만들어 다운로드 실행
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = 'StarSync_Destiny.png'; // 저장될 파일 이름
+        link.click();
+    }).catch(err => {
+        console.error("캡처 에러:", err);
+        alert("이미지 저장 중 오류가 발생했습니다 ㅠㅠ");
+    });
 }

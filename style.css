@@ -724,3 +724,254 @@ input[type=number] {
     }
     /* 모바일에서는 한 줄로 */
 }
+
+.cosmic-spinner {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px; /* 중앙 정렬 */
+}
+
+/* 바깥쪽 궤도 (빙글빙글 회전) */
+.orbit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid rgba(162, 155, 254, 0.3); /* 연한 보라색 트랙 */
+    border-top: 3px solid #a29bfe; /* 진한 보라색 헤드 */
+    border-right: 3px solid #6c5ce7;
+    border-radius: 50%;
+    animation: spin 1.5s linear infinite; /* 회전 애니메이션 */
+    box-shadow: 0 0 15px rgba(108, 92, 231, 0.5); /* 네온 효과 */
+}
+
+/* 안쪽 핵심 (맥박치듯 반짝임) */
+.core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, #fff, #a29bfe);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loading-text {
+    color: #a29bfe;
+    font-size: 0.95rem;
+    animation: blink 2s infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.6;
+    }
+}
+
+/* --- 💎 럭셔리 결과 카드 디자인 --- */
+
+/* 결과창 전체 박스 */
+#aiResponse {
+    background: rgba(20, 20, 30, 0.8); /* 아주 어두운 남색 */
+    backdrop-filter: blur(15px); /* 유리 효과 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    color: #ececec;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    line-height: 1.7;
+    text-align: left;
+}
+
+    /* 1. 소제목 (###) 꾸미기 */
+    #aiResponse h3 {
+        font-size: 1.4rem;
+        color: #a29bfe; /* 연보라색 네온 */
+        margin-top: 40px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(162, 155, 254, 0.3);
+        display: flex;
+        align-items: center;
+    }
+
+        #aiResponse h3:first-child {
+            margin-top: 0;
+        }
+    /* 첫 번째 제목은 여백 제거 */
+
+    /* 2. 리스트 (*) 꾸미기 */
+    #aiResponse ul {
+        margin: 0;
+        padding-left: 10px;
+        list-style: none; /* 기본 점 없애기 */
+    }
+
+    #aiResponse li {
+        margin-bottom: 12px;
+        position: relative;
+        padding-left: 25px;
+    }
+        /* 리스트 앞에 별 아이콘 붙이기 */
+        #aiResponse li::before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: #ffd700; /* 금색 별 */
+            font-size: 1.2rem;
+        }
+
+    /* 3. 강조 단어 (**) 꾸미기 - 형광펜 효과 */
+    #aiResponse strong {
+        color: #fff;
+        background: linear-gradient(120deg, transparent 0%, rgba(108, 92, 231, 0.5) 100%);
+        padding: 0 5px;
+        font-weight: 700;
+    }
+
+/* 4. [[아이템]] 뱃지 디자인 (JS에서 변환한 클래스) */
+.lucky-badge {
+    display: inline-block;
+    background: linear-gradient(45deg, #FFD700, #FDB931); /* 골드 그라데이션 */
+    color: #222; /* 글자색은 어둡게 */
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); /* 금빛 후광 */
+    animation: pulse-gold 2s infinite;
+}
+
+/* 뱃지 반짝임 애니메이션 */
+@keyframes pulse-gold {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    }
+}
+
+/* 점수 표시 강조 */
+#aiResponse li:first-child strong {
+    /* 총점 부분만 더 크게 */
+    font-size: 1.2rem;
+    color: #fab1a0;
+}
+
+.save-img-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 15px;
+    /* 인스타 그라데이션 색상 */
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex; /* 아이콘과 글자 정렬 */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4);
+    transition: transform 0.2s;
+}
+
+    .save-img-btn:hover {
+        transform: scale(1.02); /* 마우스 올리면 살짝 커짐 */
+        box-shadow: 0 6px 20px rgba(220, 39, 67, 0.6);
+    }
+
+.astro-identity-card {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(162, 155, 254, 0.5);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.astro-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+}
+
+.planet-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+}
+
+.planet-info .label {
+    font-size: 0.8rem;
+    color: #a29bfe;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.planet-info .value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.line {
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 모바일 대응 */
+@media (max-width: 600px) {
+    .astro-identity-card {
+        padding: 15px 10px;
+    }
+
+    .planet-info .value {
+        font-size: 0.9rem;
+    }
+
+    .planet-icon {
+        font-size: 1.5rem;
+    }
+}
