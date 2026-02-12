@@ -66,6 +66,7 @@ async def analyze(request: AnalysisRequest):
                 "moon": chart_data.get("Moon"),     # 예: "Taurus (2nd House)"
                 "rising": chart_data.get("Rising")  # 예: "Gemini"
             }
+        }
 
     except Exception as e:
         print(f"🔥 치명적인 서버 에러: {str(e)}")
