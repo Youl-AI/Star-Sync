@@ -117,9 +117,9 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
 
     ### 📊 2026년 인생 지표
     * **종합 운기:** (0~100점)점
-    * **직업:** (별 5개) - (전문적 분석)
-    * **재물:** (별 5개) - (전문적 분석)
-    * **관계:** (별 5개) - (전문적 분석)
+    * **직업:** (★/☆ 으로 별 1~5개) - (전문적 분석)
+    * **재물:** (★/☆ 으로 별 1~5개) - (전문적 분석)
+    * **관계:** (★/☆ 으로 별 1~5개) - (전문적 분석)
     
     ### 🧭 천체의 전략적 조언
     * **기회:** (행성의 배치를 근거로 한 기회 포착 조언)
@@ -153,9 +153,9 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     
     ### 📊 2026 Life Indicators
     * **Overall Score:** (0~100) Points
-    * **Career:** (5 Star Emojis) - (Professional Analysis)
-    * **Wealth:** (5 Star Emojis) - (Professional Analysis)
-    * **Love:** (5 Star Emojis) - (Professional Analysis)
+    * **Career:** (5 Star with ★/☆) - (Professional Analysis)
+    * **Wealth:** (5 Star with ★/☆) - (Professional Analysis)
+    * **Love:** (5 Star with ★/☆) - (Professional Analysis)
     
     ### 🧭 Strategic Astral Advice
     * **Opportunity:** (Advice on seizing chances based on planetary alignments)

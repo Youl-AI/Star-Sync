@@ -969,3 +969,575 @@ input[type=number] {
     .planet-info .value { font-size: 0.9rem; }
     .planet-icon { font-size: 1.5rem; }
 }
+
+#aiResponse {
+    line-height: 1.8;
+    color: #ececec; /* 기본 글자색: 밝은 회색 */
+    font-size: 1rem;
+}
+
+/* 2. 제목 (###) 스타일 - 박스 없이 글자만 깔끔하게 */
+.result-header {
+    color: #a29bfe; /* 연보라색 (스크린샷과 동일) */
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-top: 35px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid rgba(162, 155, 254, 0.3); /* 은은한 밑줄만 */
+    padding-bottom: 5px;
+    background: none !important; /* 배경 박스 제거 */
+}
+
+/* 3. 강조 (**) 스타일 - 금색 텍스트 */
+.gold-text {
+    color: #a29bfe !important; /* 쨍한 금색 */
+    font-weight: 800;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); /* 살짝 빛나는 효과 */
+    background: none !important; /* 배경 제거 */
+}
+
+/* 4. 리스트 초기화 (이모티콘 겹침 방지) */
+#aiResponse ul, #aiResponse li {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important; /* 리스트 배경 제거 */
+    border: none !important;
+}
+
+    #aiResponse li::before {
+        content: none !important; /* 가상 점 제거 */
+    }
+
+/* 5. 럭키 뱃지 (버튼) */
+.lucky-badge {
+    display: inline-block;
+    background: linear-gradient(45deg, #FFD700, #FDB931);
+    color: #222 !important;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-decoration: none;
+    margin-left: 5px;
+}
+
+.custom-divider {
+    border: 0;
+    height: 1px; /* 선 두께 */
+    background: rgba(255, 255, 255, 0.2); /* 투명도가 들어간 은은한 하얀색 */
+    margin: 40px 0; /* 위아래 간격을 넉넉하게 줘서 시원하게 분리 */
+    width: 100%;
+}
+
+.star-list-item {
+    margin-bottom: 8px;
+    line-height: 1.6;
+    color: #ececec;
+    padding-left: 5px;
+}
+
+    .star-list-item::before {
+        /* 👇 여기를 '✦' (네 점 별)로 수정했습니다! */
+        content: "✦";
+        color: #FFD700; /* 별 색상을 금색으로 지정 */
+        margin-right: 8px;
+        font-size: 1.2rem; /* 크기도 살짝 키워서 잘 보이게 */
+        vertical-align: middle;
+        filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6)); /* 살짝 빛나는 효과 추가 */
+    }
+
+.nebula-chart-container {
+    position: relative;
+    width: 340px; /* 차트 링 크기 살짝 키움 */
+    height: 340px;
+    /* 👇 패널이 밖으로 많이 나가므로 상하좌우 여백을 충분히 줍니다 */
+    margin: 100px auto 120px auto;
+    border-radius: 50%;
+    overflow: visible !important; /* 잘림 방지 필수 */
+    z-index: 1;
+}
+
+/* 2. 배경 및 궤도 */
+.cosmic-bg {
+    position: absolute;
+    top: -15%;
+    left: -15%;
+    width: 130%;
+    height: 130%;
+    background: radial-gradient(circle at center, #1e1e2e 0%, #0f0f1a 60%, #000000 100%);
+    border-radius: 50%;
+    z-index: -2;
+    box-shadow: 0 0 60px rgba(108, 92, 231, 0.15); /* 은은한 보라빛 후광 */
+}
+
+.orbit-rings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.08); /* 궤도선 조금 더 잘 보이게 */
+    border-radius: 50%;
+    z-index: -1;
+}
+
+    .orbit-rings::before {
+        content: "";
+        position: absolute;
+        top: 25%;
+        left: 25%;
+        width: 50%;
+        height: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+
+/* 3. 중앙 코어 */
+.center-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: #151525;
+    border: 2px solid rgba(162, 155, 254, 0.6);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.7rem;
+    color: #a29bfe;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 0 25px rgba(162, 155, 254, 0.3);
+}
+
+/* =========================================
+   📍 섹터 및 아이콘 (밝기 & 위치 수정)
+   ========================================= */
+.chart-sectors-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.chart-sector {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* (A) 안쪽: 배경 심볼 밝기 UP! 💡 */
+.inner-glow-symbol {
+    font-size: 2rem;
+    /* 👇 여기가 핵심! 너무 어둡지 않게 0.4(40%) 정도로 올림 */
+    color: rgba(255, 255, 255, 0.4);
+    position: absolute;
+    transform: translate(110px); /* 궤도 위로 위치 조정 */
+    transition: all 0.4s ease;
+}
+
+/* (B) 활성 상태: 아이콘 */
+.chart-sector.active-nebula .inner-glow-symbol {
+    opacity: 1;
+    transform: translate(110px) scale(1.3); /* 활성시 살짝 커짐 */
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)); /* 금색 빛 */
+    z-index: 5;
+    color: #fff; /* 완전 흰색으로 강조 */
+}
+
+/* (C) 활성 상태: 성운 배경 효과 */
+.chart-sector.active-nebula::before {
+    content: "";
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    transform: translate(110px);
+    background: radial-gradient(circle, rgba(162, 155, 254, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(8px);
+    z-index: 1;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    from {
+        opacity: 0.5;
+        transform: translate(110px) scale(1);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(110px) scale(1.2);
+    }
+}
+
+
+/* =========================================
+   📜 확장 데이터 패널 (위치 & 연결선 수정)
+   ========================================= */
+.expanded-data-panel {
+    position: absolute;
+    /* 💥 핵심: 230px로 아주 멀리 보내서 아이콘과 절대 안 겹치게 함 */
+    transform: translate(230px);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+}
+
+
+/* 패널 본체 디자인 */
+.panel-content {
+    background: rgba(25, 25, 40, 0.95); /* 아주 진한 남색 배경 */
+    border: 1px solid rgba(255, 215, 0, 0.4); /* 연한 금색 테두리 */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 10px 12px;
+    min-width: 120px;
+    text-align: left;
+    backdrop-filter: blur(5px);
+}
+
+/* 패널 내부 텍스트 */
+.panel-header {
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.panel-house {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    background: #FFD700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    align-self: flex-start;
+    display: inline-block;
+}
+
+    .panel-house.asc-house {
+        background: #ff7675;
+        color: #fff;
+    }
+
+.panel-z-name {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #fff;
+    margin-top: 2px;
+}
+
+.panel-planets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.panel-p-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #ddd;
+}
+
+    .panel-p-item img {
+        width: 16px;
+        height: 16px;
+    }
+/* 행성 아이콘 크기 */
+
+/* =========================================
+   📍 회전 좌표 (기존 유지, 역회전 필수)
+   ========================================= */
+.sector-0 {
+    transform: rotate(300deg);
+}
+
+.sector-1 {
+    transform: rotate(330deg);
+}
+
+.sector-2 {
+    transform: rotate(0deg);
+}
+
+.sector-3 {
+    transform: rotate(30deg);
+}
+
+.sector-4 {
+    transform: rotate(60deg);
+}
+
+.sector-5 {
+    transform: rotate(90deg);
+}
+
+.sector-6 {
+    transform: rotate(120deg);
+}
+
+.sector-7 {
+    transform: rotate(150deg);
+}
+
+.sector-8 {
+    transform: rotate(180deg);
+}
+
+.sector-9 {
+    transform: rotate(210deg);
+}
+
+.sector-10 {
+    transform: rotate(240deg);
+}
+
+.sector-11 {
+    transform: rotate(270deg);
+}
+
+/* 패널 글자 뒤집힘 방지 (역회전) */
+/* 👇 translate 값을 230px로 맞춤 */
+.expanded-data-panel {
+    transform: translate(230px) rotate(calc(var(--rotation) * -1));
+}
+
+.sector-0 .expanded-data-panel {
+    --rotation: 300deg;
+}
+
+.sector-1 .expanded-data-panel {
+    --rotation: 330deg;
+}
+
+.sector-2 .expanded-data-panel {
+    --rotation: 0deg;
+}
+
+.sector-3 .expanded-data-panel {
+    --rotation: 30deg;
+}
+
+.sector-4 .expanded-data-panel {
+    --rotation: 60deg;
+}
+
+.sector-5 .expanded-data-panel {
+    --rotation: 90deg;
+}
+
+.sector-6 .expanded-data-panel {
+    --rotation: 120deg;
+}
+
+.sector-7 .expanded-data-panel {
+    --rotation: 150deg;
+}
+
+.sector-8 .expanded-data-panel {
+    --rotation: 180deg;
+}
+
+.sector-9 .expanded-data-panel {
+    --rotation: 210deg;
+}
+
+.sector-10 .expanded-data-panel {
+    --rotation: 240deg;
+}
+
+.sector-11 .expanded-data-panel {
+    --rotation: 270deg;
+}
+
+.radial-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 1px;
+    background: #a29bfe;
+    opacity: 0.6;
+    box-shadow: 0 0 5px rgba(162, 155, 254, 0.8);
+    transform-origin: left center; /* 왼쪽 끝(중심) 기준 회전 */
+    z-index: 15;
+    pointer-events: none;
+    /* 기본 시작점은 동일 (140px 지점) */
+    transform: translate(140px);
+}
+
+.radial-line.dist-short {
+    width: 80px;  /* 길이 */
+}
+
+/* (B) 먼 거리 (Long) - 겹칠 때 사용됨 */
+.radial-line.dist-long {
+    width: 150px; /* 훨씬 길게 뻗음! */
+}
+
+/* =========================================
+   📜 확장 패널 (미세 조정)
+   ========================================= */
+.expanded-data-panel {
+    position: absolute;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.expanded-data-panel.dist-short {
+    transform: translate(230px) rotate(calc(var(--rotation) * -1));
+}
+
+/* (B) 먼 거리 패널 위치 (더 바깥으로 나감) */
+.expanded-data-panel.dist-long {
+    transform: translate(300px) rotate(calc(var(--rotation) * -1));
+}
+
+.share-card.poster-style {
+    position: fixed;
+    top: -9999px;
+    left: -9999px;
+    width: 600px;
+    height: 850px;
+    background: radial-gradient(circle at center, #1b1b2f 0%, #0f0f1a 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* 요소 간격 */
+    gap: 50px;
+    justify-content: flex-start;
+    padding: 60px 30px 0 30px;
+    box-sizing: border-box;
+    font-family: 'Pretendard', sans-serif;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* 1. 헤더 */
+.poster-header {
+    text-align: center;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.poster-subtitle {
+    font-size: 0.85rem;
+    color: #a29bfe;
+    letter-spacing: 4px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+/* 🌟 [수정 1] 타이틀 크기 축소 (3rem -> 2.2rem) */
+.poster-title {
+    font-size: 2.2rem; /* 크기 줄임 */
+    font-weight: 900;
+    margin: 0 0 20px 0;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: none !important;
+    background-color: transparent !important;
+    color: #FFD700 !important;
+    text-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+}
+
+.poster-tags {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.tag-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    color: #FFD700;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* 2. 차트 (크기 고정 및 마진 제거) */
+.share-card .nebula-chart-container {
+    margin: 0 !important;
+    transform: none !important;
+    flex-shrink: 0;
+    width: 300px !important;
+    height: 300px !important;
+    aspect-ratio: 1 / 1;
+}
+
+/* 3. 하단 메시지 박스 */
+.poster-message-box {
+    width: 100%;
+    background: rgba(20, 20, 30, 0.9);
+    border-top: 2px solid #FFD700;
+    padding: 30px 25px 50px 25px;
+    border-radius: 25px 25px 0 0;
+    text-align: center;
+    /* 하단 고정 */
+    margin-top: auto;
+    width: 600px;
+    margin-left: -30px;
+    margin-right: -30px;
+}
+
+.message-label {
+    font-size: 0.8rem;
+    color: #FFD700;
+    margin-bottom: 15px;
+    font-weight: bold;
+    letter-spacing: 3px;
+}
+
+.message-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.5;
+    word-break: keep-all;
+    margin-bottom: 15px; /* 점수와의 간격 조절 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 🌟 [수정 2] 점수 스타일: 박스 제거, 텍스트만 유지 */
+.message-score {
+    display: inline-block;
+    font-size: 1.2rem; /* 크기 유지 */
+    font-weight: 800; /* 굵기 유지 */
+    color: #a29bfe; /* 색상 유지 */
+    /* 아래 속성들 모두 제거하여 박스 없앰 */
+    /* background: rgba(162, 155, 254, 0.1); */
+    /* padding: 8px 20px; */
+    /* border-radius: 50px; */
+    /* border: 1px solid rgba(162, 155, 254, 0.3); */
+}
+
+.poster-footer {
+    margin-top: 20px;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
