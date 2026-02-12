@@ -966,12 +966,6 @@ input[type=number] {
     .astro-identity-card {
         padding: 15px 10px;
     }
-
-    .planet-info .value {
-        font-size: 0.9rem;
-    }
-
-    .planet-icon {
-        font-size: 1.5rem;
-    }
+    .planet-info .value { font-size: 0.9rem; }
+    .planet-icon { font-size: 1.5rem; }
 }

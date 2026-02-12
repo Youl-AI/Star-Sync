@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/lib/marked.umd.min.js"></script>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.4.0/air-datepicker.min.css" rel="stylesheet">
@@ -88,13 +88,13 @@
 
             <div class="row">
                 <div class="dropdown-wrapper">
-                    <input type="number" id="hour" placeholder="Hour" autocomplete="off"
+                    <input type="number" id="hour" placeholder="시" autocomplete="off"
                            onfocus="showList('hourList')"
                            onclick="showList('hourList')">
                     <ul id="hourList" class="dropdown-list"></ul>
                 </div>
                 <div class="dropdown-wrapper">
-                    <input type="text" id="minute" placeholder="Minute" autocomplete="off"
+                    <input type="text" id="minute" placeholder="분" autocomplete="off"
                            onfocus="showList('minuteList')"
                            onclick="showList('minuteList')">
                     <ul id="minuteList" class="dropdown-list"></ul>

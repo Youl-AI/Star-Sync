@@ -7,6 +7,28 @@
 
 let currentLanguage = 'ko';
 
+// 12별자리 캐릭터 해석 사전
+const ZODIAC_INFO = {
+    "Aries": { ko: "개척자", en: "The Pioneer", icon: "🔥", desc: "새로운 시작과 열정" },
+    "Taurus": { ko: "수호자", en: "The Steward", icon: "🌿", desc: "안정과 끈기" },
+    "Gemini": { ko: "지식인", en: "The Communicator", icon: "🌬️", desc: "호기심과 정보" },
+    "Cancer": { ko: "치유자", en: "The Nurturer", icon: "🌊", desc: "감성과 보호" },
+    "Leo": { ko: "주인공", en: "The Royal", icon: "👑", desc: "자신감과 창조" },
+    "Virgo": { ko: "분석가", en: "The Analyst", icon: "🌾", desc: "디테일과 완벽" },
+    "Libra": { ko: "중재자", en: "The Diplomat", icon: "⚖️", desc: "조화와 균형" },
+    "Scorpio": { ko: "전략가", en: "The Alchemist", icon: "🦂", desc: "통찰과 변화" },
+    "Sagittarius": { ko: "모험가", en: "The Explorer", icon: "🏹", desc: "자유와 철학" },
+    "Capricorn": { ko: "경영자", en: "The Achiever", icon: "🐐", desc: "책임과 야망" },
+    "Aquarius": { ko: "혁명가", en: "The Innovator", icon: "🏺", desc: "독창성과 미래" },
+    "Pisces": { ko: "몽상가", en: "The Dreamer", icon: "🐟", desc: "공감과 예술" }
+};
+
+const ZODIAC_MAPPING = {
+    "ARI": "Aries", "TAU": "Taurus", "GEM": "Gemini", "CAN": "Cancer",
+    "LEO": "Leo", "VIR": "Virgo", "LIB": "Libra", "SCO": "Scorpio",
+    "SAG": "Sagittarius", "CAP": "Capricorn", "AQU": "Aquarius", "PIS": "Pisces"
+};
+
 // 🌏 데이터베이스
 const WORLD_DB = {
     // 🇰🇷 대한민국 (모든 시/군 포함)
@@ -407,7 +429,7 @@ function setLanguage(lang) {
     document.getElementById('lbl-concern').innerText = t.lblConcern;
     document.getElementById('concern').placeholder = t.placeholderConcern;
     document.getElementById('btnSubmit').innerText = t.btnSubmit;
-    document.getElementById('spinner').innerText = t.spinner;
+
     document.getElementById('btn-kakao-txt').innerText = t.kakaoBtn;
     document.getElementById('link-about').innerText = t.linkAbout;
     document.getElementById('link-privacy').innerText = t.linkPrivacy;
@@ -500,4 +522,32 @@ function saveResultImage() {
         console.error("캡처 에러:", err);
         alert("이미지 저장 중 오류가 발생했습니다 ㅠㅠ");
     });
+}
+
+function updatePlanetCard(elementId, signNameRaw) {
+    if (!signNameRaw) return;
+
+    // 예: "AQU" 또는 "Aries" 등 들어오는 값의 앞 3글자를 따서 대문자로 만듦 (AQU, ARI)
+    const shortCode = signNameRaw.substring(0, 3).toUpperCase();
+
+    // 1. 매핑 테이블에서 풀네임 찾기 (AQU -> Aquarius)
+    let fullName = ZODIAC_MAPPING[shortCode];
+
+    // 2. 만약 매핑에 없으면 그냥 원래 들어온 값 사용 (예외 처리)
+    if (!fullName) fullName = signNameRaw.split(' ')[0];
+
+    // 3. 사전에서 정보 찾기
+    const info = ZODIAC_INFO[fullName] || { ko: "미지", en: "Unknown", icon: "✨", desc: "신비로운 별" };
+
+    const label = currentLanguage === 'ko' ? info.ko : info.en;
+    const el = document.getElementById(elementId);
+
+    el.innerHTML = `
+        <div class="zodiac-result-box">
+            <span class="z-icon">${info.icon}</span>
+            <div class="z-text-group">
+                <span class="z-name">${shortCode}</span> <span class="z-desc">${label}</span>
+            </div>
+        </div>
+    `;
 }
