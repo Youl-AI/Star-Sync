@@ -537,7 +537,8 @@ async function analyze() {
             formattedHtml = formattedHtml.replace(/\n/g, '<br>');
             formattedHtml = formattedHtml.replace(/\[\[(.*?)\]\]/g, (match, itemName) => {
                 const cleanName = itemName.trim();
-                const searchUrl = `https://www.coupang.com/np/search?q=${encodeURIComponent(cleanName)}&channel=user`;
+                const MY_COUPANG_AF_ID = "AF7250650";
+                const searchUrl = `https://link.coupang.com/re/AFFSEARCH?lptag=${MY_COUPANG_AF_ID}&keyword=${encodeURIComponent(cleanName)}`;
                 return `<a href="${searchUrl}" target="_blank" class="lucky-badge">🎁 ${cleanName}</a>`;
             });
 
