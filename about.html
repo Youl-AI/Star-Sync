@@ -3,41 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>서비스 소개 | Star Sync</title>
+    <title>About Star Sync</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="content-container" style="margin-top: 50px;">
-        <h1 style="text-align: center; margin-bottom: 40px;">💫 About Star Sync</h1>
+    <div class="stars"></div>
+    <div class="nebula-bg"></div>
 
-        <section class="info-section">
-            <h3>🌟 우리의 미션</h3>
-            <p>
-                Star Sync는 불확실한 미래로 고민하는 현대인들에게 별들의 지혜를 빌려 <strong>가장 나다운 길</strong>을 찾도록 돕기 위해 시작되었습니다.
-                우리는 누구나 자신만의 우주를 품고 태어난다고 믿습니다. 그 우주가 보내는 신호를 해석하여 당신의 잠재력을 깨우는 것이 우리의 목표입니다.
-            </p>
+    <header class="app-header">
+        <div class="header-logo" onclick="location.href='index.html'" style="cursor: pointer;">
+            <span>✨</span> Star Sync
+        </div>
+        <div class="lang-switch">
+            <button id="sub-btn-ko" onclick="toggleSubLang('ko')" class="active">KR</button>
+            <button id="sub-btn-en" onclick="toggleSubLang('en')">EN</button>
+        </div>
+    </header>
 
-            <h3>🤖 기술과 감성의 조화</h3>
-            <p>
-                우리는 방대한 천문 데이터를 학습한 AI 모델을 활용합니다. 하지만 단순히 데이터만 나열하지 않습니다.
-                사용자의 고민에 공감하고, 때로는 따뜻한 위로를, 때로는 명확한 해결책을 제시하는 '인간적인 AI'를 지향합니다.
-            </p>
+    <div class="main-wrapper">
+        <div class="content-container" style="padding: 40px 20px; text-align: center;">
 
-            <h3>📬 문의하기</h3>
-            <p>
-                서비스 이용 중 궁금한 점이나 제안하고 싶은 내용이 있다면 언제든 연락해 주세요.<br>
-                이메일: hayoul1999@gmail.com
-            </p>
-        </section>
+            <div class="sub-content lang-ko">
+                <h2 style="color: #a29bfe; font-size: 2rem; margin-bottom: 30px;">💫 About Star Sync</h2>
 
-        <footer class="site-footer">
-            <div class="footer-links">
-                <a href="index.html">홈으로 돌아가기</a> |
-                <a href="privacy.html">개인정보처리방침</a>
+                <h3 style="color: #FFD700; margin-top: 20px;">🌟 우리의 미션</h3>
+                <p style="line-height: 1.6; opacity: 0.9; word-break: keep-all;">
+                    Star Sync는 불확실한 미래로 고민하는 현대인들에게 별들의 지혜를 빌려 <strong>가장 나다운 길</strong>을 찾도록 돕기 위해 시작되었습니다. 우리는 누구나 자신만의 우주를 품고 태어난다고 믿습니다. 그 우주가 보내는 신호를 해석하여 당신의 잠재력을 깨우는 것이 우리의 목표입니다.
+                </p>
+
+                <h3 style="color: #FFD700; margin-top: 40px;">🤖 기술과 감성의 조화</h3>
+                <p style="line-height: 1.6; opacity: 0.9; word-break: keep-all;">
+                    우리는 방대한 천문 데이터를 학습한 AI 모델을 활용합니다. 하지만 단순히 데이터만 나열하지 않습니다. 사용자의 고민에 공감하고, 때로는 따뜻한 위로를, 때로는 명확한 해결책을 제시하는 <strong>'인간적인 AI'</strong>를 지향합니다.
+                </p>
+
+                <h3 style="color: #FFD700; margin-top: 40px;">📮 문의하기</h3>
+                <p style="line-height: 1.6; opacity: 0.9;">
+                    서비스 이용 중 궁금한 점이나 제안하고 싶은 내용이 있다면 언제든 연락해 주세요.<br>
+                    <strong style="color: #a29bfe;">이메일:</strong> hayoul1999@gmail.com
+                </p>
             </div>
-            <p class="copyright">© 2026 Star Sync. All rights reserved.</p>
-        </footer>
+
+            <div class="sub-content lang-en" style="display: none;">
+                <h2 style="color: #a29bfe; font-size: 2rem; margin-bottom: 30px;">💫 About Star Sync</h2>
+
+                <h3 style="color: #FFD700; margin-top: 20px;">🌟 Our Mission</h3>
+                <p style="line-height: 1.6; opacity: 0.9;">
+                    Star Sync was created to help modern individuals navigate an uncertain future by borrowing the wisdom of the stars to find <strong>their true path</strong>. We believe everyone is born with their own universe. Our goal is to interpret the signals from that universe and awaken your potential.
+                </p>
+
+                <h3 style="color: #FFD700; margin-top: 40px;">🤖 Harmony of Tech & Emotion</h3>
+                <p style="line-height: 1.6; opacity: 0.9;">
+                    We utilize an AI model trained on vast astronomical data, but we don't just list facts. We strive for a <strong>'Human-like AI'</strong> that empathizes with your concerns, offering warm comfort and clear solutions.
+                </p>
+
+                <h3 style="color: #FFD700; margin-top: 40px;">📮 Contact Us</h3>
+                <p style="line-height: 1.6; opacity: 0.9;">
+                    If you have any questions or suggestions while using our service, please feel free to reach out.<br>
+                    <strong style="color: #a29bfe;">Email:</strong> hayoul1999@gmail.com
+                </p>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid rgba(162, 155, 254, 0.2); margin: 40px 0;">
+            <p style="font-size: 0.8rem; opacity: 0.6;">
+                <a href="index.html" style="color: inherit; text-decoration: none;">홈으로 (Home)</a> |
+                <a href="privacy.html" style="color: inherit; text-decoration: none;">개인정보처리방침 (Privacy)</a><br><br>
+                © 2026 Star Sync. All rights reserved.
+            </p>
+        </div>
     </div>
+
+    <script>
+        function toggleSubLang(lang) {
+            document.getElementById('sub-btn-ko').classList.toggle('active', lang === 'ko');
+            document.getElementById('sub-btn-en').classList.toggle('active', lang === 'en');
+            document.querySelector('.lang-ko').style.display = lang === 'ko' ? 'block' : 'none';
+            document.querySelector('.lang-en').style.display = lang === 'en' ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>
