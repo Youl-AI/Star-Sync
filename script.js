@@ -334,8 +334,7 @@ function saveResultImage() {
     if (!chartContainer) { alert("아직 분석 결과가 없습니다!"); return; }
 
     const userName = document.getElementById('name').value || "Guest";
-    let userConcern = document.getElementById('concern').value || "Destiny";
-    if (userConcern.length > 8) userConcern = userConcern.substring(0, 8) + "...";
+    let userConcern = window.aiKeyword || "2026운세";
 
     // 🌟 [핵심 로직] "테마"와 "점수" 핀셋 추출
     let themeText = "2026년, 당신의 우주가 펼쳐집니다."; // 기본값
@@ -407,7 +406,7 @@ function saveResultImage() {
         backgroundColor: "#151520",
         scale: 2, useCORS: true, logging: false,
         width: 600, height: 850,
-        windowWidth: 600, windowHeight: 850
+        windowWidth: 600, windowHeight: 750
     }).then(canvas => {
         const image = canvas.toDataURL("image/png");
         const link = document.createElement('a');
@@ -429,9 +428,25 @@ function updatePlanetCard(elementId, signNameRaw) {
     if (!fullName) fullName = signNameRaw.split(' ')[0];
     const info = ZODIAC_INFO[fullName] || { ko: "미지", en: "Unknown", icon: "✨", desc: "신비로운 별" };
     const label = currentLanguage === 'ko' ? info.ko : info.en;
+
+    // 위치(Sun, Moon, Rising)에 따라 친절한 제목 부여
+    let roleTitle = "";
+    if (elementId === 'res-sun') roleTitle = currentLanguage === 'ko' ? "나의 본질은" : "My Essence";
+    else if (elementId === 'res-moon') roleTitle = currentLanguage === 'ko' ? "나의 내면은" : "My Inner Self";
+    else if (elementId === 'res-rising') roleTitle = currentLanguage === 'ko' ? "나의 첫인상은" : "My First Impression";
+
     const el = document.getElementById(elementId);
     if (el) {
-        el.innerHTML = `<div class="zodiac-result-box"><span class="z-icon">${info.icon}</span><div class="z-text-group"><span class="z-name">${shortCode}</span> <span class="z-desc">${label}</span></div></div>`;
+        // 🚨 LIB, ARI 같은 영어 약자를 빼고, '나의 본질은 [중재자]' 형태로 변경
+        el.innerHTML = `
+            <div class="zodiac-result-box">
+                <span class="z-icon">${info.icon}</span>
+                <div class="z-text-group">
+                    <span class="z-role-title">${roleTitle}</span>
+                    <span class="z-desc-highlight">'${label}'</span>
+                </div>
+            </div>
+        `;
     }
 }
 
@@ -502,7 +517,7 @@ async function analyze() {
 
         if (response.ok) {
             let rawText = data.ai_message;
-
+            window.aiKeyword = data.keyword;
             if (data.chart_data) {
                 const zodiacMap = { "ARI": "Aries", "TAU": "Taurus", "GEM": "Gemini", "CAN": "Cancer", "LEO": "Leo", "VIR": "Virgo", "LIB": "Libra", "SCO": "Scorpio", "SAG": "Sagittarius", "CAP": "Capricorn", "AQU": "Aquarius", "PIS": "Pisces" };
                 ['sun', 'moon', 'rising'].forEach(type => {
@@ -635,13 +650,9 @@ function renderStelliumVisualizer(text, chartData) {
     }
 
     // 🌟 [핵심] 충돌 방지 로직 (지그재그 배치)
-    // 이전 별자리가 활성화되어 있다면, 현재 별자리는 멀리(Long) 보냅니다.
     for (let i = 0; i < 12; i++) {
         if (slotsData[i].active) {
-            // 바로 앞의 인덱스 (0번이면 11번 확인)
             const prevIdx = (i === 0) ? 11 : i - 1;
-
-            // 앞집이 활성화되어 있고, 앞집이 '가까운 거리(Short)'라면 -> 나는 '먼 거리(Long)'로 간다
             if (slotsData[prevIdx].active && !slotsData[prevIdx].isLong) {
                 slotsData[i].isLong = true;
             }
@@ -679,16 +690,20 @@ function renderStelliumVisualizer(text, chartData) {
                 planetsHtml = `<div class="panel-p-item" style="color:#aaa; font-size:0.75rem;">Placement Info</div>`;
             }
 
-            // 연결선과 패널에 distClass 적용
-            connectionLine = `<div class="radial-line ${distClass}"></div>`;
+            // 🚨 변경된 부분: 중앙 선(radial-line) 대신 좌우로 뻗는 hud-anchor 구조 적용
+            // 사용자의 distClass(지그재그 거리 옵션)도 잃지 않도록 hud-anchor에 포함시켰습니다.
+            connectionLine = ``;
             expandedPanel = `
-                <div class="expanded-data-panel ${distClass}">
-                    <div class="panel-content">
-                        <div class="panel-header">
-                            <div class="panel-tags">${tagsHtml}</div>
-                            <span class="panel-z-name">${data.name}</span>
+                <div class="hud-anchor ${distClass}">
+                    <div class="hud-line"></div>
+                    <div class="expanded-data-panel">
+                        <div class="panel-content">
+                            <div class="panel-header">
+                                <div class="panel-tags">${tagsHtml}</div>
+                                <span class="panel-z-name">${data.name}</span>
+                            </div>
+                            <div class="panel-planets-list">${planetsHtml}</div>
                         </div>
-                        <div class="panel-planets-list">${planetsHtml}</div>
                     </div>
                 </div>
             `;
@@ -706,6 +721,10 @@ function renderStelliumVisualizer(text, chartData) {
     if (!hasActiveData) return "";
 
     return `
+        <div class="chart-section-header">
+            <h3 class="chart-main-title">✨ 당신만의 우주 천궁도</h3>
+            <p class="chart-sub-title">태어난 순간, 별들이 머물던 운명의 지도</p>
+        </div>
         <div class="nebula-chart-container">
             <div class="cosmic-bg"></div><div class="orbit-rings"></div>
             <div class="chart-sectors-wrapper">${chartInnerHtml}</div>

@@ -60,7 +60,8 @@ async def analyze(request: AnalysisRequest):
         
         print("✅ 분석 완료!")
         return {
-            "ai_message": ai_message,
+            "ai_message": ai_message["report"],
+            "keyword": ai_message["keyword"],
             "chart_data": {
                 "sun": chart_data.get("Sun"),       # 예: "Aries (1st House)"
                 "moon": chart_data.get("Moon"),     # 예: "Taurus (2nd House)"

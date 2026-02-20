@@ -1049,12 +1049,14 @@ input[type=number] {
 
 .nebula-chart-container {
     position: relative;
-    width: 340px; /* 차트 링 크기 살짝 키움 */
+    width: 340px;  
     height: 340px;
-    /* 👇 패널이 밖으로 많이 나가므로 상하좌우 여백을 충분히 줍니다 */
-    margin: 100px auto 120px auto;
+    
+    /* 💥 [핵심 수정] 100px auto 120px auto 였던 것을 아래처럼 상하 대칭으로 변경! */
+    margin: 70px auto; /* 위, 아래 모두 70px 띄우고, 좌우는 중앙 정렬 */
+    
     border-radius: 50%;
-    overflow: visible !important; /* 잘림 방지 필수 */
+    overflow: visible !important; 
     z-index: 1;
 }
 
@@ -1477,7 +1479,10 @@ input[type=number] {
 
 /* 2. 차트 (크기 고정 및 마진 제거) */
 .share-card .nebula-chart-container {
-    margin: 0 !important;
+    margin-top: 30px !important;
+    margin-bottom: -50px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     transform: none !important;
     flex-shrink: 0;
     width: 300px !important;
@@ -1540,4 +1545,173 @@ input[type=number] {
     color: rgba(255, 255, 255, 0.4);
     text-transform: uppercase;
     letter-spacing: 2px;
+}
+
+/* =========================================
+   🚀 [최종] 패널 좌우 강제 배치 + 지그재그(충돌 방지) 지원
+   ========================================= */
+
+/* 1. 패널 닻(Anchor) - 심볼 위치(110px)에 고정, 글자 똑바로 보이게 역회전 */
+.hud-anchor {
+    position: absolute;
+    transform: translate(110px) rotate(calc(var(--rotation) * -1));
+    z-index: 20;
+    width: 0;
+    height: 0;
+    display: flex;
+    align-items: center;
+}
+
+    /* 🌟 JS의 dist-short, dist-long 에 따른 선 길이 자동 조절 */
+    .hud-anchor.dist-short {
+        --line-length: 40px;
+    }
+
+    .hud-anchor.dist-long {
+        --line-length: 110px;
+    }
+/* 앞 별자리와 겹치면 선을 훨씬 길게 뺌 */
+
+/* 2. 아이콘에서 패널을 이어주는 가로선 */
+.hud-line {
+    position: absolute;
+    top: 0;
+    width: var(--line-length); /* JS 연동된 선 길이 */
+    height: 1px;
+    background: rgba(162, 155, 254, 0.8);
+    box-shadow: 0 0 5px rgba(162, 155, 254, 0.8);
+}
+
+/* 3. 패널 기본 설정 (수직 중앙 정렬) */
+.expanded-data-panel {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+}
+
+/* =========================================
+   ➡️ 오른쪽으로 밀어내는 섹터 (12시 ~ 5시 방향)
+   ========================================= */
+.sector-11 .hud-line, .sector-0 .hud-line, .sector-1 .hud-line,
+.sector-2 .hud-line, .sector-3 .hud-line, .sector-4 .hud-line {
+    left: 30px; /* 아이콘 오른쪽에서 선 시작 */
+}
+
+.sector-11 .expanded-data-panel, .sector-0 .expanded-data-panel, .sector-1 .expanded-data-panel,
+.sector-2 .expanded-data-panel, .sector-3 .expanded-data-panel, .sector-4 .expanded-data-panel {
+    left: calc(30px + var(--line-length)); /* 선 끝나는 지점에 패널 부착 */
+}
+
+/* =========================================
+   ⬅️ 왼쪽으로 밀어내는 섹터 (6시 ~ 11시 방향)
+   ========================================= */
+.sector-5 .hud-line, .sector-6 .hud-line, .sector-7 .hud-line,
+.sector-8 .hud-line, .sector-9 .hud-line, .sector-10 .hud-line {
+    right: 30px; /* 아이콘 왼쪽에서 선 시작 */
+}
+
+.sector-5 .expanded-data-panel, .sector-6 .expanded-data-panel, .sector-7 .expanded-data-panel,
+.sector-8 .expanded-data-panel, .sector-9 .expanded-data-panel, .sector-10 .expanded-data-panel {
+    right: calc(30px + var(--line-length)); /* 선 끝나는 지점에 패널 부착 */
+}
+
+/* =========================================
+   📍 글자 뒤집힘 방지용 각도(Rotation) 매핑
+   ========================================= */
+.sector-0 .hud-anchor {
+    --rotation: 300deg;
+}
+
+.sector-1 .hud-anchor {
+    --rotation: 330deg;
+}
+
+.sector-2 .hud-anchor {
+    --rotation: 0deg;
+}
+
+.sector-3 .hud-anchor {
+    --rotation: 30deg;
+}
+
+.sector-4 .hud-anchor {
+    --rotation: 60deg;
+}
+
+.sector-5 .hud-anchor {
+    --rotation: 90deg;
+}
+
+.sector-6 .hud-anchor {
+    --rotation: 120deg;
+}
+
+.sector-7 .hud-anchor {
+    --rotation: 150deg;
+}
+
+.sector-8 .hud-anchor {
+    --rotation: 180deg;
+}
+
+.sector-9 .hud-anchor {
+    --rotation: 210deg;
+}
+
+.sector-10 .hud-anchor {
+    --rotation: 240deg;
+}
+
+.sector-11 .hud-anchor {
+    --rotation: 270deg;
+}
+
+.z-role-title {
+    font-size: 0.75rem;
+    color: #a29bfe; /* 연보라색으로 친절한 느낌 */
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 600;
+}
+
+.z-desc-highlight {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8); /* 글씨가 또렷하게 보이도록 그림자 */
+}
+
+/* =========================================
+   🌌 [추가] 차트 섹션 제목 디자인
+   ========================================= */
+.chart-section-header {
+    text-align: center;
+    margin-top: 0px; /* 해시태그 박스와의 간격 */
+    margin-bottom: 30px; /* 아래 차트와의 간격 */
+    position: relative;
+    z-index: 10;
+}
+
+.chart-main-title {
+    font-size: 1.3rem;
+    color: #FFD700; /* 금색 강조 */
+    margin: 0 0 5px 0;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    letter-spacing: 1px;
+}
+
+.chart-sub-title {
+    font-size: 0.85rem;
+    color: #a29bfe;
+    margin: 0;
+    padding-bottom: 10px;
+    opacity: 0.8;
+}
+
+/* 🚨 기존에 추가하셨던 .nebula-chart-container 의 margin-top을 
+   제목이 들어갈 자리를 위해 150px -> 60px 정도로 줄여주세요! */
+.nebula-chart-container {
+    margin-top: 60px !important; /* 여기를 줄여야 제목과 차트가 예쁘게 붙습니다 */
+    /* 나머지는 그대로 유지 */
 }

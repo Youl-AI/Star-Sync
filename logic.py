@@ -93,7 +93,9 @@ def get_natal_chart_data(name, year, month, day, hour, minute, city, country="So
     
 def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     """
-    [업그레이드] 긴 줄글 대신, 요즘 스타일의 '핵심 요약' 포맷으로 출력
+    프롬프트를 통해 고민에 맞는 '핵심 키워드'를 첫 줄에 추출하고,
+    이를 파이썬에서 분리하여 딕셔너리 형태로 반환합니다.
+    긴 줄글 대신, 요즘 스타일의 '핵심 요약' 포맷으로 출력
     언어 설정(lang)에 따라 한글 또는 영어 페르소나를 선택하여 답변을 생성합니다.
     """
     
@@ -111,6 +113,10 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
 
     [출력 포맷 가이드] - 마크다운 엄수
 
+    🚨 반드시 맨 첫 줄에 `[키워드] 카테고리명` 형태로 고민에 맞는 키워드를 딱 1개만 출력하세요. 
+    (예: [키워드] 재물운, [키워드] 연애운, [키워드] 직업운, [키워드] 학업운, [키워드] 건강운, [키워드] 대인운, [키워드] 이동운 등)
+    그 다음 줄부터 아래의 보고서 포맷을 작성하세요.
+
     ### 🔭 [천체 관측 요약]
     * **핵심 배치:** (예: 태양-사자자리, 달-전갈자리)
     * **당신의 테마:** (20자 이내의 한 줄 정의)
@@ -127,7 +133,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     
     ### 🗝️ 행운의 솔루션
     * **행운의 색상:** (색상)
-    * **럭키 아이:** 반드시 [[아이템명]] 형식으로 표기 (예: [[가죽 다이어리]])
+    * **럭키 아이템:** 반드시 [[아이템명]] 형식으로 표기 (예: [[가죽 다이어리]])
     
     💌 [분석가 코멘트]
     (사용자의 고민 "{user_concern}"에 대한 냉철하면서도 따뜻한 데이터 기반 솔루션)
@@ -146,6 +152,10 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     3. **Data-Driven Metrics:** Express the flow of fortune not just with 0-100 scores, but also by incorporating financial/data analytics terminology (e.g., 'Bullish trend', 'Consolidation phase', 'Volatile', 'Upward curve').
     
     [Output Format Guide] - Strict Markdown Adherence
+
+    🚨 On the VERY FIRST line, output exactly one keyword representing the user's concern in the format: `[KEYWORD] CategoryName`
+    (e.g., [KEYWORD] Wealth, [KEYWORD] Love, [KEYWORD] Career, [KEYWORD] Health, [KEYWORD] Study)
+    Then, starting from the next line, follow the report format below.
     
     ### 🔭 [Celestial Observation Summary]
     * **Key Placements:** (e.g., Sun-Leo, Moon-Scorpio)
@@ -190,8 +200,23 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
             ),
             contents=user_msg
         )
-        return response.text
+        raw_text = response.text.strip()
+        
+        keyword = "2026운세" if lang == 'ko' else "2026Fortune"
+        report = raw_text
+        
+        lines = raw_text.split('\n')
+        first_line = lines[0].strip()
+        
+        if first_line.startswith("[키워드]") or first_line.startswith("[KEYWORD]"):
+            keyword = first_line.replace("[키워드]", "").replace("[KEYWORD]", "").strip()
+            report = '\n'.join(lines[1:]).strip()
+            
+        return {
+            "keyword": keyword,
+            "report": report
+        }
 
     except Exception as e:
         error_msg = "⚠️ Error occurred:" if lang == 'en' else "⚠️ 에러 발생:"
-        return f"{error_msg} {str(e)}"
+        return {"keyword": "Error", "report": f"{error_msg} {str(e)}"}
