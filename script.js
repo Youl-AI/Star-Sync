@@ -216,6 +216,13 @@ function setLanguage(lang) {
     setPlaceholder('hour', t.placeholderHour);
     setPlaceholder('minute', t.placeholderMinute);
     setPlaceholder('concern', t.placeholderConcern);
+
+    document.querySelectorAll('.lang-ko').forEach(el => {
+        el.style.display = (lang === 'ko') ? 'block' : 'none';
+    });
+    document.querySelectorAll('.lang-en').forEach(el => {
+        el.style.display = (lang === 'en') ? 'block' : 'none';
+    });
 }
 
 // ... (아래는 사용자님의 헬퍼 함수들 - 수정 없음) ...
