@@ -6,6 +6,7 @@ from kerykeion import AstrologicalSubject
 from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
 import pytz
+import re
 
 load_dotenv()
 
@@ -204,13 +205,15 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
         
         keyword = "2026운세" if lang == 'ko' else "2026Fortune"
         report = raw_text
+
+        match = re.search(r'\[(?:키워드|KEYWORD)\]\s*([^\n]+)', raw_text)
         
-        lines = raw_text.split('\n')
-        first_line = lines[0].strip()
-        
-        if first_line.startswith("[키워드]") or first_line.startswith("[KEYWORD]"):
-            keyword = first_line.replace("[키워드]", "").replace("[KEYWORD]", "").strip()
-            report = '\n'.join(lines[1:]).strip()
+        if match:
+            # 1. 찾은 키워드에서 불필요한 기호(*, # 등)를 혹시 몰라 한 번 더 제거
+            keyword = match.group(1).replace('*', '').replace('#', '').strip()
+            
+            # 2. 본문(report)에서는 [키워드]가 적힌 해당 줄만 깔끔하게 삭제
+            report = re.sub(r'\[(?:키워드|KEYWORD)\][^\n]*\n*', '', raw_text, count=1).strip()
             
         return {
             "keyword": keyword,
