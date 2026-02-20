@@ -1,7 +1,9 @@
 # ✨ Star Sync : AI 점성학 운세 & 천궁도 분석 서비스
 
 > **배포 주소:** [https://daily-star-sync.vercel.app](https://daily-star-sync.vercel.app)
+> 
 > **개발 기간:** 2026.01 ~ 2026.02 (약 1개월)
+> 
 > **개발 인원:** 1인 (기획, 디자인, 프론트엔드, 백엔드 전체 구현)
 
 ---
