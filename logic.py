@@ -101,7 +101,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     """
     
     # 한글 페르소나
-    sys_msg_ko = """
+    sys_msg_ko = f"""
     당신은 별들의 움직임을 수학적이고 논리적으로 분석하는 '천체 데이터 분석가(Celestial Analyst)'입니다.
     단순한 '운세'가 아니라, 사용자의 천궁도(Natal Chart) 데이터를 기반으로 한 '인생 전략 보고서'를 작성해야 합니다.
 
@@ -141,7 +141,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     """
 
     # 영어 페르소나
-    sys_msg_en = """
+    sys_msg_en = f"""
     You are a 'Celestial Analyst' who conducts a mathematical and logical analysis of celestial movements.
     Your goal is not to provide a simple 'fortune,' but to generate a comprehensive 'Life Strategy Report' based on the user's Natal Chart data.
     
