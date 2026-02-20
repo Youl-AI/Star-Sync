@@ -53,12 +53,12 @@
 
 ## 🚀 4. 핵심 기능 (Key Features)
 
-| 기능 | 설명 | 스크린샷 |
+| 기능 | 설명 | 기술 |
 |:---:|---|:---:|
-| **정밀 천궁도 계산** | Geopy를 통한 정확한 위경도/타임존 추출 후 Kerykeion 라이브러리로 행성 배치 계산 | <img src="https://via.placeholder.com/150/1e1e2e/fff?text=Chart+UI" width="150"> |
-| **AI 맞춤형 운세** | Gemini API 프롬프트 엔지니어링을 통해 '키워드, 테마, 점수' 등 정형화된 JSON 응답 추출 | <img src="https://via.placeholder.com/150/1e1e2e/fff?text=AI+Result" width="150"> |
-| **결과 카드 캡처** | `html2canvas`를 활용해 분석 결과를 인스타그램/카카오톡 공유에 최적화된 포스터(1200x1600)로 렌더링 | <img src="https://via.placeholder.com/150/1e1e2e/fff?text=Poster" width="150"> |
-| **수익화 연동 (BM)** | 럭키 아이템을 쿠팡 파트너스 트래킹 링크와 자동 연결하여 제휴 마케팅 수익 창출 지원 | <img src="https://via.placeholder.com/150/1e1e2e/fff?text=Coupang+Link" width="150"> |
+| **정밀 천궁도 계산** | Geopy를 통한 정확한 위경도/타임존 추출 후 Kerykeion 라이브러리로 행성 배치 계산 | Python, Geopy, Kerykeion |
+| **AI 맞춤형 운세** | Gemini API 프롬프트 엔지니어링을 통해 '키워드, 테마, 점수' 등 정형화된 JSON 응답 추출 | Gemini 3.0 Flash, Prompt Engineering |
+| **결과 카드 캡처** | `html2canvas`를 활용해 분석 결과를 인스타그램/카카오톡 공유에 최적화된 포스터(1200x1600)로 렌더링 | html2canvas, Vanilla JS |
+| **수익화 연동 (BM)** | 럭키 아이템을 쿠팡 파트너스 트래킹 링크와 자동 연결하여 제휴 마케팅 수익 창출 지원 | Coupang Partners API (Linking Logic) |
 
 <br>
 
