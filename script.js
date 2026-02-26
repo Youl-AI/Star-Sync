@@ -73,7 +73,6 @@ const WORLD_DB = {
     "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Cancun"]
 };
 
-// [중요] 번역 데이터 (이게 없어서 아까 영어가 떴던 겁니다)
 const translations = {
     'ko': {
         subtitle: "AI가 분석하는 당신의 운명 데이터",
@@ -113,7 +112,6 @@ const translations = {
    [2] 페이지 로드 시 초기화 (window.onload)
    ========================================= */
 window.onload = function () {
-    // 1. Air Datepicker 초기화 (사용자님 원래 달력)
     new AirDatepicker('#birthdate', {
         locale: {
             days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -134,7 +132,6 @@ window.onload = function () {
 
     populateTimeLists();
 
-    // 2. 국가 목록 생성
     const countryList = document.getElementById('countryList');
     Object.keys(WORLD_DB).forEach(country => {
         const li = document.createElement('li');
@@ -146,51 +143,42 @@ window.onload = function () {
         countryList.appendChild(li);
     });
 
-    // 3. 기본값 설정 (국가/도시)
     selectOption('country', 'South Korea', 'countryList');
     updateCities('South Korea');
     selectOption('city', 'Seoul', 'cityList');
 
-    // 4. 드롭다운 닫기 이벤트
     document.addEventListener('click', function (e) {
         if (!e.target.closest('.dropdown-wrapper')) {
             closeAllDropdowns();
         }
     });
 
-    // 5. 배경 효과
     createStars();
     setInterval(createShootingStar, 3500);
 
-    // 6. [중요] 언어 버튼 이벤트 연결 (버튼이 안 눌리는 문제 해결)
     const btnKo = document.getElementById('btn-ko');
     const btnEn = document.getElementById('btn-en');
 
     if (btnKo) btnKo.addEventListener('click', () => setLanguage('ko'));
     if (btnEn) btnEn.addEventListener('click', () => setLanguage('en'));
 
-    // 7. [중요] 초기 언어 설정 (한글로 시작)
     setLanguage('ko');
 };
 
 /* =========================================
    [3] 다국어(언어) 설정 함수 (setLanguage)
-   이 함수가 없어서 버튼이 작동하지 않았습니다.
    ========================================= */
 function setLanguage(lang) {
     currentLanguage = lang;
 
-    // 버튼 스타일 토글
     const btnKo = document.getElementById('btn-ko');
     const btnEn = document.getElementById('btn-en');
     if (btnKo) btnKo.classList.toggle('active', lang === 'ko');
     if (btnEn) btnEn.classList.toggle('active', lang === 'en');
 
-    // 텍스트 교체
     const t = translations[lang];
-    if (!t) return; // 안전장치
+    if (!t) return;
 
-    // 각 요소가 존재하는지 확인하고 텍스트 변경
     const setText = (id, text) => {
         const el = document.getElementById(id);
         if (el) el.innerText = text;
@@ -206,7 +194,6 @@ function setLanguage(lang) {
     setText('link-about', t.linkAbout);
     setText('link-privacy', t.linkPrivacy);
 
-    // 플레이스홀더 교체
     const setPlaceholder = (id, text) => {
         const el = document.getElementById(id);
         if (el) el.placeholder = text;
@@ -225,7 +212,6 @@ function setLanguage(lang) {
     });
 }
 
-// ... (아래는 사용자님의 헬퍼 함수들 - 수정 없음) ...
 function populateTimeLists() {
     const hourList = document.getElementById('hourList');
     for (let i = 0; i < 24; i++) {
@@ -343,9 +329,8 @@ function saveResultImage() {
     const userName = document.getElementById('name').value || "Guest";
     let userConcern = window.aiKeyword || "2026운세";
 
-    // 🌟 [핵심 로직] "테마"와 "점수" 핀셋 추출
-    let themeText = "2026년, 당신의 우주가 펼쳐집니다."; // 기본값
-    let scoreText = ""; // 점수가 없으면 표시 안 함
+    let themeText = "2026년, 당신의 우주가 펼쳐집니다.";
+    let scoreText = "";
 
     if (aiResponse) {
         const lines = aiResponse.innerText.split('\n');
@@ -353,30 +338,25 @@ function saveResultImage() {
         for (let line of lines) {
             let cleanLine = line.trim();
 
-            // 1. "테마" 찾기 (예: ✨ 당신의 테마: "내면의 전문성을...")
             if (cleanLine.includes("테마")) {
-                // 콜론(:) 뒤의 내용만 가져오기
                 let parts = cleanLine.split(/[:：]/);
                 if (parts.length > 1) {
-                    themeText = parts[1].trim().replace(/^"/, '').replace(/"$/, ''); // 따옴표 제거
+                    themeText = parts[1].trim().replace(/^"/, '').replace(/"$/, '');
                 } else {
                     themeText = cleanLine;
                 }
             }
 
-            // 2. "종합 운기" 또는 "점수" 찾기 (예: 🍀 종합 운기: 92점)
             if (cleanLine.includes("종합 운기") || cleanLine.includes("총점") || (cleanLine.includes("점수") && cleanLine.includes("점"))) {
-                scoreText = cleanLine.replace(/^[✨🍀⭐️\s]+/, ''); // 앞의 이모지 제거
+                scoreText = cleanLine.replace(/^[✨🍀⭐️\s]+/, '');
             }
         }
     }
 
-    // 가상 포스터 생성
     const captureDiv = document.createElement('div');
     captureDiv.className = 'share-card poster-style';
     document.body.appendChild(captureDiv);
 
-    // 헤더
     const header = document.createElement('div');
     header.innerHTML = `
         <div class="poster-header">
@@ -390,12 +370,9 @@ function saveResultImage() {
     `;
     captureDiv.appendChild(header);
 
-    // 차트 복사
     const chartClone = chartContainer.cloneNode(true);
     captureDiv.appendChild(chartClone);
 
-    // 🌟 [수정] 하단 메시지 박스 (테마 + 점수)
-    // 점수(scoreText)가 있으면 보여주고, 없으면 테마만 보여줌
     let scoreHtml = scoreText ? `<div class="message-score">${scoreText}</div>` : "";
 
     const messageBox = document.createElement('div');
@@ -408,7 +385,6 @@ function saveResultImage() {
     `;
     captureDiv.appendChild(messageBox);
 
-    // 캡처
     html2canvas(captureDiv, {
         backgroundColor: "#151520",
         scale: 2, useCORS: true, logging: false,
@@ -436,7 +412,6 @@ function updatePlanetCard(elementId, signNameRaw) {
     const info = ZODIAC_INFO[fullName] || { ko: "미지", en: "Unknown", icon: "✨", desc: "신비로운 별" };
     const label = currentLanguage === 'ko' ? info.ko : info.en;
 
-    // 위치(Sun, Moon, Rising)에 따라 친절한 제목 부여
     let roleTitle = "";
     if (elementId === 'res-sun') roleTitle = currentLanguage === 'ko' ? "나의 본질은" : "My Essence";
     else if (elementId === 'res-moon') roleTitle = currentLanguage === 'ko' ? "나의 내면은" : "My Inner Self";
@@ -444,7 +419,6 @@ function updatePlanetCard(elementId, signNameRaw) {
 
     const el = document.getElementById(elementId);
     if (el) {
-        // 🚨 LIB, ARI 같은 영어 약자를 빼고, '나의 본질은 [중재자]' 형태로 변경
         el.innerHTML = `
             <div class="zodiac-result-box">
                 <span class="z-icon">${info.icon}</span>
@@ -597,7 +571,6 @@ function renderStelliumVisualizer(text, chartData) {
     ];
 
     let slotsData = [];
-    // 1. 데이터 초기화
     zodiacs.forEach(z => {
         slotsData.push({ ...z, planets: [], houses: [], active: false, isLong: false });
     });
@@ -609,7 +582,6 @@ function renderStelliumVisualizer(text, chartData) {
         { ko: "명왕성", en: "Pluto" }
     ];
 
-    // (1) 서버 데이터 매핑
     if (chartData) {
         const pMap = { "sun": "태양", "moon": "달", "mercury": "수성", "venus": "금성", "mars": "화성", "jupiter": "목성", "saturn": "토성", "uranus": "천왕성", "neptune": "해왕성", "pluto": "명왕성" };
         Object.keys(pMap).forEach(key => {
@@ -632,7 +604,6 @@ function renderStelliumVisualizer(text, chartData) {
         }
     }
 
-    // (2) 텍스트 분석 매핑
     if (text) {
         const lines = text.split('\n');
         let targetLine = lines.find(line => line.includes("핵심 배치"));
@@ -660,7 +631,6 @@ function renderStelliumVisualizer(text, chartData) {
         }
     }
 
-    // 🌟 [핵심] 충돌 방지 로직 (지그재그 배치)
     for (let i = 0; i < 12; i++) {
         if (slotsData[i].active) {
             const prevIdx = (i === 0) ? 11 : i - 1;
@@ -670,7 +640,6 @@ function renderStelliumVisualizer(text, chartData) {
         }
     }
 
-    // (3) HTML 생성
     let chartInnerHtml = "";
     let hasActiveData = false;
 
@@ -683,7 +652,6 @@ function renderStelliumVisualizer(text, chartData) {
             hasActiveData = true;
             activeClass = "active-nebula";
 
-            // 🌟 거리 조절 클래스 추가
             const distClass = data.isLong ? "dist-long" : "dist-short";
 
             let tagsHtml = "";
@@ -701,8 +669,6 @@ function renderStelliumVisualizer(text, chartData) {
                 planetsHtml = `<div class="panel-p-item" style="color:#aaa; font-size:0.75rem;">Placement Info</div>`;
             }
 
-            // 🚨 변경된 부분: 중앙 선(radial-line) 대신 좌우로 뻗는 hud-anchor 구조 적용
-            // 사용자의 distClass(지그재그 거리 옵션)도 잃지 않도록 hud-anchor에 포함시켰습니다.
             connectionLine = ``;
             expandedPanel = `
                 <div class="hud-anchor ${distClass}">

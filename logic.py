@@ -57,7 +57,7 @@ def get_natal_chart_data(name, year, month, day, hour, minute, city, country="So
     (위치 찾기 실패 시 기본값 서울 사용 로직 추가 가능)
     """
     try:
-        # 1. 위도, 경도, 시간대 구하기
+        # 위도, 경도, 시간대 구하기
         lat, lng, tz_str, error = get_location_info(city, country)
         
         # 위치 찾기 실패 시 기본값(서울) 사용
@@ -92,6 +92,9 @@ def get_natal_chart_data(name, year, month, day, hour, minute, city, country="So
     except Exception as e:
         return {"error": f"차트 계산 실패: {str(e)}"}
     
+# ---------------------------------------------------------
+# 프롬프트 설정
+# ---------------------------------------------------------    
 def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     """
     프롬프트를 통해 고민에 맞는 '핵심 키워드'를 첫 줄에 추출하고,
@@ -180,10 +183,9 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     (A cool-headed yet supportive data-driven solution regarding the user's concern "{user_concern}")
     """
 
-    # 언어 설정에 따라 시스템 메시지 선택
     sys_msg = sys_msg_en if lang == 'en' else sys_msg_ko
     
-    # 사용자 프롬프트도 언어에 맞게 구성
+    # 사용자 프롬프트 언어에 맞게 구성
     user_msg = f"""
     [Client Info]
     - Chart Data: {chart_data}
@@ -209,10 +211,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
         match = re.search(r'\[(?:키워드|KEYWORD)\]\s*([^\n]+)', raw_text)
         
         if match:
-            # 1. 찾은 키워드에서 불필요한 기호(*, # 등)를 혹시 몰라 한 번 더 제거
             keyword = match.group(1).replace('*', '').replace('#', '').strip()
-            
-            # 2. 본문(report)에서는 [키워드]가 적힌 해당 줄만 깔끔하게 삭제
             report = re.sub(r'\[(?:키워드|KEYWORD)\][^\n]*\n*', '', raw_text, count=1).strip()
             
         return {
