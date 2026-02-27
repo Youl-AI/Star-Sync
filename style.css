@@ -1639,3 +1639,40 @@ input[type=number] {
 .nebula-chart-container {
     margin-top: 60px !important;
 }
+
+.coupang-top-banner {
+    display: none;
+    background-color: rgba(255, 215, 0, 0.1);
+    border: 1px solid #FFD700;
+    color: #FFD700;
+    padding: 12px 15px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: bold;
+    word-break: keep-all;
+    line-height: 1.5;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+.global-notice-banner {
+    position: relative;
+    z-index: 999;
+    margin-top: 70px;
+    width: 100%;
+    background-color: rgba(162, 155, 254, 0.15);
+    border-bottom: 1px solid rgba(162, 155, 254, 0.3);
+    text-align: center;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.global-notice-banner span {
+    color: #a29bfe;
+    font-size: 0.85rem;
+    font-weight: 600;
+    word-break: keep-all;
+    line-height: 1.4;
+}

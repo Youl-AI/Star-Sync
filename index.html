@@ -53,7 +53,9 @@
             <button id="btn-en" onclick="setLanguage('en')">EN</button>
         </div>
     </header>
-
+    <div class="global-notice-banner">
+        <span>📢 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</span>
+    </div>
     <div class="main-wrapper">
 
         <div class="content-container">
@@ -144,6 +146,9 @@
             <button onclick="analyze()" id="btnSubmit">분석 시작하기 🚀</button>
 
             <div id="resultArea">
+                <div id="coupangNotice" class="coupang-top-banner">
+                    📢 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+                </div>
                 <div class="astro-identity-card">
                     <div class="astro-item">
                         <span class="planet-icon">☀️</span>
@@ -171,9 +176,6 @@
                 </div>
 
                 <div class="result-card" id="aiResponse"></div>
-                <div class="coupang-notice" id="coupangNotice" style="display:none;">
-                    이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br>이에 따른 일정액의 수수료를 제공받습니다.
-                </div>
 
                 <button onclick="saveResultImage()" class="save-img-btn" style="display:none;" id="btnSaveImg">
                     📸 결과 이미지로 저장하기
