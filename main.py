@@ -1,9 +1,21 @@
-# main.py
 import os
+import hmac
+import hashlib
+import time
+import requests
+import json
+import urllib.parse
+from dotenv import load_dotenv
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from logic import get_natal_chart_data, get_ai_interpretation
+
+# 1. 환경 변수(.env)에서 쿠팡 API 키 불러오기
+load_dotenv()
+COUPANG_ACCESS_KEY = os.getenv("COUPANG_ACCESS_KEY")
+COUPANG_SECRET_KEY = os.getenv("COUPANG_SECRET_KEY")
 
 app = FastAPI(title="Star Sync API")
 
@@ -29,25 +41,65 @@ class AnalysisRequest(BaseModel):
     concern: str
     lang: str = "ko" 
 
+# 🌟 쿠팡 파트너스 API 단축 링크 생성 함수
+def get_coupang_affiliate_link(keyword: str) -> str:
+    # API 키가 없으면 기본 링크 반환 (로컬 테스트나 에러 방지용)
+    if not COUPANG_ACCESS_KEY or not COUPANG_SECRET_KEY:
+        return "https://link.coupang.com/a/dPGEq7"
+
+    DOMAIN = "https://api-gateway.coupang.com"
+    URL = "/v2/providers/affiliate_open_api/apis/openapi/v1/deeplink"
+    
+    encoded_keyword = urllib.parse.quote(keyword)
+    search_url = f"https://www.coupang.com/np/search?q={encoded_keyword}"
+    
+    request_data = {"coupangUrls": [search_url]}
+    
+    method = "POST"
+    datetime_str = time.strftime('%y%m%d', time.gmtime())
+    time_str = time.strftime('%H%M%S', time.gmtime())
+    message = datetime_str + time_str + method + URL
+    
+    signature = hmac.new(
+        bytes(COUPANG_SECRET_KEY, 'utf-8'),
+        message.encode('utf-8'),
+        hashlib.sha256
+    ).hexdigest()
+    
+    authorization = f"CEA algorithm=HmacSHA256, access-key={COUPANG_ACCESS_KEY}, signed-date={datetime_str}T{time_str}Z, signature={signature}"
+    
+    headers = {
+        "Authorization": authorization,
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        response = requests.post(DOMAIN + URL, headers=headers, data=json.dumps(request_data))
+        response_data = response.json()
+        
+        if response.status_code == 200 and response_data.get("data"):
+            return response_data["data"][0]["shortenUrl"]
+        else:
+            print("⚠️ 쿠팡 API 응답 에러:", response_data)
+            return "https://link.coupang.com/a/dPGEq7"
+            
+    except Exception as e:
+        print("🔥 쿠팡 API 통신 에러:", e)
+        return "https://link.coupang.com/a/dPGEq7"
+
 @app.get("/")
 def read_root():
     return {"status": "Server is running 🚀"}
 
 @app.post("/analyze")
 async def analyze(request: AnalysisRequest):
-    print(f"📝 요청 받음: {request.name}, {request.city}, 언어: {request.lang}") # 로그 출력
+    print(f"📝 요청 받음: {request.name}, {request.city}, 언어: {request.lang}")
     
     try:
         # 점성술 차트 데이터 계산
         chart_data = get_natal_chart_data(
-            request.name,
-            request.year,
-            request.month,
-            request.day,
-            request.hour,
-            request.minute,
-            request.city,
-            request.country
+            request.name, request.year, request.month, request.day,
+            request.hour, request.minute, request.city, request.country
         )
         
         # 차트 계산에서 에러가 났는지 확인
@@ -58,14 +110,20 @@ async def analyze(request: AnalysisRequest):
         # AI 해석 요청
         ai_message = get_ai_interpretation(chart_data, request.concern, lang=request.lang)
         
-        print("✅ 분석 완료!")
+        # 🌟 AI가 뽑아준 키워드로 쿠팡 링크 실시간 생성
+        keyword = ai_message.get("keyword", "행운의 아이템")
+        coupang_link = get_coupang_affiliate_link(keyword)
+        
+        print("✅ 분석 및 쿠팡 링크 생성 완료!")
+        
         return {
             "ai_message": ai_message["report"],
-            "keyword": ai_message["keyword"],
+            "keyword": keyword,
+            "coupang_link": coupang_link, # 프론트엔드로 생성된 링크 전달!
             "chart_data": {
-                "sun": chart_data.get("Sun"),       # 예: "Aries (1st House)"
-                "moon": chart_data.get("Moon"),     # 예: "Taurus (2nd House)"
-                "rising": chart_data.get("Rising")  # 예: "Gemini"
+                "sun": chart_data.get("Sun"),       
+                "moon": chart_data.get("Moon"),     
+                "rising": chart_data.get("Rising")  
             }
         }
 

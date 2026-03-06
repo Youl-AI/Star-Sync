@@ -518,11 +518,7 @@ async function analyze() {
             formattedHtml = formattedHtml.replace(/\n/g, '<br>');
             formattedHtml = formattedHtml.replace(/\[\[(.*?)\]\]/g, (match, itemName) => {
                 const cleanName = itemName.trim();
-                /*
-                const MY_COUPANG_AF_ID = "AF7250650";
-                const searchUrl = `https://link.coupang.com/re/AFFSEARCH?lptag=${MY_COUPANG_AF_ID}&keyword=${encodeURIComponent(cleanName)}`;
-                */
-                const officialLink = "https://link.coupang.com/a/dPGEq7";
+                const officialLink = data.coupang_link || "https://link.coupang.com/a/dPGEq7";
                 return `<a href="${officialLink}" target="_blank" class="lucky-badge" title="클릭 후 쿠팡에서 '${cleanName}'을 검색해보세요!">🎁 ${cleanName} (쿠팡에서 검색)</a>`;
             });
 
