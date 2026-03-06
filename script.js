@@ -519,7 +519,7 @@ async function analyze() {
             formattedHtml = formattedHtml.replace(/\[\[(.*?)\]\]/g, (match, itemName) => {
                 const cleanName = itemName.trim();
                 const officialLink = data.coupang_link || "https://link.coupang.com/a/dPGEq7";
-                return `<a href="${officialLink}" target="_blank" class="lucky-badge" title="클릭 후 쿠팡에서 '${cleanName}'을 검색해보세요!">🎁 ${cleanName} (쿠팡에서 검색)</a>`;
+                return `<a href="${officialLink}" target="_blank" class="lucky-badge" title="행운의 아이템 구경하기">🎁 ${cleanName} 보러가기</a>`;
             });
 
             if (formattedHtml.includes("핵심 배치")) {
