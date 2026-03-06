@@ -1679,23 +1679,27 @@ input[type=number] {
 
 @media screen and (max-width: 768px) {
     /* 1. 페이지 가로 스크롤(흔들림) 방어 */
-    html, body, .main-wrapper {
+    html, body, .main-wrapper, #aiResponse {
         overflow-x: hidden !important;
     }
 
-    /* 2. 바깥쪽 액자: 모바일 화면 너비에 딱 맞추고, 중앙 정렬 */
+    /* 2. 바깥쪽 액자: 중앙 정렬만 담당 */
     .chart-outer-wrapper {
         width: 100% !important;
         display: flex !important;
         justify-content: center !important;
-        overflow: hidden !important;
+        /* 🚨 [핵심 해결] 이전 코드의 overflow: hidden 삭제! */
+        /* 잘림 현상의 주범이므로 절대 숨김 처리하지 않고 다 보여주게 엽니다. */
+        overflow: visible !important;
     }
 
-    /* 3. 안쪽 차트: 원래의 큰 크기를 유지한 채 비율만 쏙 축소 */
+    /* 3. 안쪽 차트: 잘림 없이 원본 비율 그대로 축소 */
     .chart-inner-scaler {
-        /* 🚨 여기에 절대 width나 max-width를 넣지 마세요! (잘림 방지) */
-        transform: scale(0.65) !important; /* 크기는 0.55 ~ 0.7 사이에서 예쁘게 조절하세요 */
+        /* 🚨 [핵심 해결] 좁은 모바일 화면에서도 원본 크기를 강제로 유지하게 만듭니다. */
+        /* 이 코드가 있어야 양옆이 찌그러지거나 잘려나가지 않습니다. */
+        flex-shrink: 0 !important;
+        transform: scale(0.65) !important; /* 필요시 0.55 ~ 0.7 조절 */
         transform-origin: top center !important;
-        margin-bottom: -150px !important; /* 축소 후 아래에 남는 빈 공간 땡겨주기 */
+        margin-bottom: -150px !important;
     }
 }
