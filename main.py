@@ -130,7 +130,7 @@ async def analyze(request: AnalysisRequest):
         
         return {
             "ai_message": ai_message["report"],
-            "keyword": keyword,
+            "keyword": search_keyword,
             "coupang_link": coupang_link, # 프론트엔드로 생성된 링크 전달!
             "chart_data": {
                 "sun": chart_data.get("Sun"),       
