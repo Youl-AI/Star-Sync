@@ -1678,28 +1678,22 @@ input[type=number] {
 }
 
 @media screen and (max-width: 768px) {
-    /* 1. 가로 스크롤(화면 흔들림) 원천 차단 */
+    /* 1. 화면 가로 스크롤(흔들림) 완벽 차단 */
     body, html {
+        overflow-x: hidden !important;
+    }
+
+    /* 2. 우리가 새로 만든 차트 껍데기를 통째로 65% 축소 */
+    .mobile-chart-scaler {
+        display: block;
+        width: 100%;
+        transform: scale(0.65); /* 차트가 너무 작으면 0.7, 크면 0.55로 조절하세요 */
+        transform-origin: top center; /* 축소 기준점을 위쪽 중앙으로! */
+        margin-bottom: -150px; /* 축소되고 남은 아래쪽 텅 빈 여백을 위로 확 당겨줌 */
+    }
+
+    /* 3. 차트가 들어가는 부모 컨테이너도 가로폭 제한 */
+    #aiResponse {
         overflow-x: hidden;
-    }
-
-    .main-wrapper {
-        overflow-x: hidden;
-    }
-
-    /* 2. 천궁도 차트 전체 비율 축소 */
-    .nebula-chart-container {
-        /* 모바일 화면에 맞춰 차트 전체를 65% 크기로 축소 (필요시 0.6 등으로 조절) */
-        transform: scale(0.65);
-        /* 축소의 기준점을 위쪽 중앙으로 설정하여 레이아웃이 위로 예쁘게 붙게 함 */
-        transform-origin: top center;
-        /* 축소되면서 아래에 남는 텅 빈 여백(공백)을 위로 당겨서 없애줌 */
-        margin-bottom: -150px;
-    }
-
-    /* 3. 혹시나 꼬리표가 그래도 길다면 여백을 살짝 줄여줍니다 */
-    .expanded-data-panel {
-        max-width: 200px; /* 모바일에서는 텍스트 패널 너비를 제한 */
-        white-space: normal; /* 글씨가 길면 아래로 자동 줄바꿈되도록 설정 */
     }
 }
