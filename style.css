@@ -1678,22 +1678,23 @@ input[type=number] {
 }
 
 @media screen and (max-width: 768px) {
-    /* 1. 화면 가로 스크롤(흔들림) 완벽 차단 */
-    body, html {
+    /* 1. 페이지 전체의 가로 스크롤 및 화면 흔들림 원천 차단 */
+    html, body, .main-wrapper {
         overflow-x: hidden !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
     }
 
-    /* 2. 우리가 새로 만든 차트 껍데기를 통째로 65% 축소 */
-    .mobile-chart-scaler {
-        display: block;
-        width: 100%;
-        transform: scale(0.65); /* 차트가 너무 작으면 0.7, 크면 0.55로 조절하세요 */
-        transform-origin: top center; /* 축소 기준점을 위쪽 중앙으로! */
-        margin-bottom: -150px; /* 축소되고 남은 아래쪽 텅 빈 여백을 위로 확 당겨줌 */
-    }
+    /* 2. 자바스크립트에서 부여한 고유 ID를 정확히 타격하여 물리적 축소 진행 */
+    #mobile-target-chart {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        /* 🚨 최신/표준 해결책: zoom 속성 */
+        /* transform과 달리 요소가 차지하는 '실제 공간'까지 같이 축소하여 여백을 남기지 않습니다. */
+        zoom: 0.65 !important; /* 크기가 여전히 크다면 0.55 정도로 줄여주세요 */
 
-    /* 3. 차트가 들어가는 부모 컨테이너도 가로폭 제한 */
-    #aiResponse {
-        overflow-x: hidden;
+        display: block !important;
+        margin: 0 auto !important; /* 모바일 화면 중앙 정렬 */
     }
 }
