@@ -9,4 +9,3 @@ pydantic
 python-multipart
 python-dotenv
 requests
-re
