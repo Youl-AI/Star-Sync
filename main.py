@@ -43,7 +43,7 @@ class AnalysisRequest(BaseModel):
 
 # 🌟 쿠팡 파트너스 API 단축 링크 생성 함수
 def get_coupang_affiliate_link(keyword: str) -> str:
-    # API 키가 없으면 기본 링크 반환 (로컬 테스트나 에러 방지용)
+    # API 키가 없으면 기본 링크 반환
     if not COUPANG_ACCESS_KEY or not COUPANG_SECRET_KEY:
         return "https://link.coupang.com/a/dPGEq7"
 
@@ -56,9 +56,12 @@ def get_coupang_affiliate_link(keyword: str) -> str:
     request_data = {"coupangUrls": [search_url]}
     
     method = "POST"
-    datetime_str = time.strftime('%y%m%d', time.gmtime())
-    time_str = time.strftime('%H%M%S', time.gmtime())
-    message = datetime_str + time_str + method + URL
+    
+    # 🚨 [핵심 수정] 시간에 'T'와 'Z'를 포함한 정확한 GMT 포맷 생성
+    datetime_gmt = time.strftime('%y%m%d', time.gmtime()) + 'T' + time.strftime('%H%M%S', time.gmtime()) + 'Z'
+    
+    # 암호화할 메시지에도 정확히 동일한 포맷을 넣어야 합니다.
+    message = datetime_gmt + method + URL
     
     signature = hmac.new(
         bytes(COUPANG_SECRET_KEY, 'utf-8'),
@@ -66,7 +69,8 @@ def get_coupang_affiliate_link(keyword: str) -> str:
         hashlib.sha256
     ).hexdigest()
     
-    authorization = f"CEA algorithm=HmacSHA256, access-key={COUPANG_ACCESS_KEY}, signed-date={datetime_str}T{time_str}Z, signature={signature}"
+    # 헤더에 들어갈 인증 문자열 생성
+    authorization = f"CEA algorithm=HmacSHA256, access-key={COUPANG_ACCESS_KEY}, signed-date={datetime_gmt}, signature={signature}"
     
     headers = {
         "Authorization": authorization,
@@ -77,6 +81,7 @@ def get_coupang_affiliate_link(keyword: str) -> str:
         response = requests.post(DOMAIN + URL, headers=headers, data=json.dumps(request_data))
         response_data = response.json()
         
+        # 성공 시 진짜 단축 링크 반환
         if response.status_code == 200 and response_data.get("data"):
             return response_data["data"][0]["shortenUrl"]
         else:
