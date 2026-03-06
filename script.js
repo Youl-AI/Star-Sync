@@ -525,7 +525,7 @@ async function analyze() {
             if (formattedHtml.includes("핵심 배치")) {
                 const visualHTML = renderStelliumVisualizer(rawText, data.chart_data);
                 formattedHtml = formattedHtml.replace(/.*핵심 배치.*/, (match) => {
-                    return `<div id="mobile-target-chart">${visualHTML}</div><br>${match}`;
+                    return `<div class="chart-outer-wrapper"><div class="chart-inner-scaler">${visualHTML}</div></div><br>${match}`;
                 });
             }
 

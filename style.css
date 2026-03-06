@@ -1678,23 +1678,24 @@ input[type=number] {
 }
 
 @media screen and (max-width: 768px) {
-    /* 1. 페이지 전체의 가로 스크롤 및 화면 흔들림 원천 차단 */
+    /* 1. 페이지 가로 스크롤(흔들림) 방어 */
     html, body, .main-wrapper {
         overflow-x: hidden !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
     }
 
-    /* 2. 자바스크립트에서 부여한 고유 ID를 정확히 타격하여 물리적 축소 진행 */
-    #mobile-target-chart {
+    /* 2. 바깥쪽 액자: 모바일 화면 너비에 딱 맞추고, 중앙 정렬 */
+    .chart-outer-wrapper {
         width: 100% !important;
-        max-width: 100vw !important;
-        overflow-x: hidden !important;
-        /* 🚨 최신/표준 해결책: zoom 속성 */
-        /* transform과 달리 요소가 차지하는 '실제 공간'까지 같이 축소하여 여백을 남기지 않습니다. */
-        zoom: 0.65 !important; /* 크기가 여전히 크다면 0.55 정도로 줄여주세요 */
+        display: flex !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+    }
 
-        display: block !important;
-        margin: 0 auto !important; /* 모바일 화면 중앙 정렬 */
+    /* 3. 안쪽 차트: 원래의 큰 크기를 유지한 채 비율만 쏙 축소 */
+    .chart-inner-scaler {
+        /* 🚨 여기에 절대 width나 max-width를 넣지 마세요! (잘림 방지) */
+        transform: scale(0.65) !important; /* 크기는 0.55 ~ 0.7 사이에서 예쁘게 조절하세요 */
+        transform-origin: top center !important;
+        margin-bottom: -150px !important; /* 축소 후 아래에 남는 빈 공간 땡겨주기 */
     }
 }
