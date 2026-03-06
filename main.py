@@ -1,4 +1,5 @@
 import os
+import re
 import hmac
 import hashlib
 import time
@@ -114,10 +115,16 @@ async def analyze(request: AnalysisRequest):
 
         # AI 해석 요청
         ai_message = get_ai_interpretation(chart_data, request.concern, lang=request.lang)
+        report_text = ai_message.get("report", "")
         
         # 🌟 AI가 뽑아준 키워드로 쿠팡 링크 실시간 생성
-        keyword = ai_message.get("keyword", "행운의 아이템")
-        coupang_link = get_coupang_affiliate_link(keyword)
+        match = re.search(r'\[\[(.*?)\]\]', report_text)
+        if match:
+            search_keyword = match.group(1).strip() # 예: "가죽 명함 지갑"
+        else:
+            search_keyword = ai_message.get("keyword", "행운의 아이템") # 만약 대괄호가 없으면 예비용 사용
+            
+        coupang_link = get_coupang_affiliate_link(search_keyword)
         
         print("✅ 분석 및 쿠팡 링크 생성 완료!")
         
