@@ -333,7 +333,7 @@ function saveResultImage() {
     const userName = document.getElementById('name').value || "Guest";
 
     let userConcern = window.aiKeyword || "";
-    if (!userConcern || userConcern.length > 15 || userConcern.includes(" ")) {
+    if (!userConcern || userConcern.length > 30 || userConcern.includes(" ")) {
         userConcern = currentLanguage === 'en' ? "2026_Fortune" : "2026운세";
     }
 

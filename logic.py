@@ -118,7 +118,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
 
     [출력 포맷 가이드] - 마크다운 엄수
 
-    🚨 반드시 맨 첫 줄에 `Category: 카테고리명` 형태로 고민에 맞는 키워드를 딱 1개만 출력하세요. 
+    🚨 반드시 맨 첫 줄에 `### Category: 카테고리명` 형태로 고민에 맞는 키워드를 딱 1개만 출력하세요. 
     (예: Category: 재물운, Category: 연애운, Category: 직업운, Category: 학업운, Category: 건강운, Category: 대인운, Category: 이동운 등)
     그 다음 줄부터 아래의 보고서 포맷을 작성하세요.
 
@@ -161,7 +161,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     
     [Output Format Guide] - Strict Markdown Adherence
 
-    🚨 On the VERY FIRST line, output exactly one Category representing the user's concern in the format: `Category: CategoryName`
+    🚨 On the VERY FIRST line, output exactly one keyword representing the user's concern in the format: `### Category: CategoryName`
     (e.g., Category: Wealth, Category: Love, Category: Career, Category: Health, Category: Study)
     Then, starting from the next line, follow the report format below.
     
