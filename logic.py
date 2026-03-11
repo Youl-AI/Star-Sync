@@ -99,7 +99,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     """
     프롬프트를 통해 고민에 맞는 '핵심 키워드'를 첫 줄에 추출하고,
     이를 파이썬에서 분리하여 딕셔너리 형태로 반환합니다.
-    첫 줄의 [키워드] 자리에는 절대로 추천 아이템 이름을 쓰지 마세요.
+    첫 줄의 Category 자리에는 절대로 추천 아이템 이름을 쓰지 마세요.
     긴 줄글 대신, 요즘 스타일의 '핵심 요약' 포맷으로 출력
     언어 설정(lang)에 따라 한글 또는 영어 페르소나를 선택하여 답변을 생성합니다.
     """
@@ -118,8 +118,8 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
 
     [출력 포맷 가이드] - 마크다운 엄수
 
-    🚨 반드시 맨 첫 줄에 `[키워드] 카테고리명` 형태로 고민에 맞는 키워드를 딱 1개만 출력하세요. 
-    (예: [키워드] 재물운, [키워드] 연애운, [키워드] 직업운, [키워드] 학업운, [키워드] 건강운, [키워드] 대인운, [키워드] 이동운 등)
+    🚨 반드시 맨 첫 줄에 `Category: 카테고리명` 형태로 고민에 맞는 키워드를 딱 1개만 출력하세요. 
+    (예: Category: 재물운, Category: 연애운, Category: 직업운, Category: 학업운, Category: 건강운, Category: 대인운, Category: 이동운 등)
     그 다음 줄부터 아래의 보고서 포맷을 작성하세요.
 
     ### 🔭 [천체 관측 요약]
@@ -161,8 +161,8 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     
     [Output Format Guide] - Strict Markdown Adherence
 
-    🚨 On the VERY FIRST line, output exactly one keyword representing the user's concern in the format: `[KEYWORD] CategoryName`
-    (e.g., [KEYWORD] Wealth, [KEYWORD] Love, [KEYWORD] Career, [KEYWORD] Health, [KEYWORD] Study)
+    🚨 On the VERY FIRST line, output exactly one Category representing the user's concern in the format: `Category: CategoryName`
+    (e.g., Category: Wealth, Category: Love, Category: Career, Category: Health, Category: Study)
     Then, starting from the next line, follow the report format below.
     
     ### 🔭 [Celestial Observation Summary]
