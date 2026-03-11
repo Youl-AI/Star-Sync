@@ -49,12 +49,16 @@
             <span>✨</span> Star Sync
         </div>
         <div class="lang-switch">
+            <a href="blog-list.html" class="header-blog-link lang-ko" style="color: #a78bfa; text-decoration: none; font-weight: bold;">📑 칼럼 읽기</a>
+
+            <a href="blog-list.html" class="header-blog-link lang-en" style="color: #a78bfa; text-decoration: none; font-weight: bold; display: none;">📑 Read Blog</a>
             <button id="btn-ko" onclick="setLanguage('ko')" class="active">KR</button>
             <button id="btn-en" onclick="setLanguage('en')">EN</button>
         </div>
     </header>
     <div class="global-notice-banner">
-        <span>📢 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</span>
+        <span class="lang-ko">📢 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</span>
+        <span class="lang-en" style="display: none;">📢 As a part of Coupang Partners activities, we earn a small commission from qualifying purchases.</span>
     </div>
     <div class="main-wrapper">
 
@@ -147,13 +151,17 @@
 
             <div id="resultArea">
                 <div id="coupangNotice" class="coupang-top-banner">
-                    📢 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+                    <span class="lang-ko">📢 이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</span>
+                    <span class="lang-en" style="display: none;">📢 As a part of Coupang Partners activities, we earn a small commission from qualifying purchases.</span>
                 </div>
                 <div class="astro-identity-card">
                     <div class="astro-item">
                         <span class="planet-icon">☀️</span>
                         <div class="planet-info">
-                            <span class="label">Sun (자아)</span>
+                            <span class="label">
+                                <span class="lang-ko">Sun (자아)</span>
+                                <span class="lang-en" style="display: none;">Sun (Ego)</span>
+                            </span>
                             <span class="value" id="res-sun">Analyzing...</span>
                         </div>
                     </div>
@@ -161,7 +169,10 @@
                     <div class="astro-item">
                         <span class="planet-icon">🌙</span>
                         <div class="planet-info">
-                            <span class="label">Moon (내면)</span>
+                            <span class="label">
+                                <span class="lang-ko">Moon (내면)</span>
+                                <span class="lang-en" style="display: none;">Moon (Inner Self)</span>
+                            </span>
                             <span class="value" id="res-moon">Analyzing...</span>
                         </div>
                     </div>
@@ -169,7 +180,10 @@
                     <div class="astro-item">
                         <span class="planet-icon">🏹</span>
                         <div class="planet-info">
-                            <span class="label">Rising (가면)</span>
+                            <span class="label">
+                                <span class="lang-ko">Rising (가면)</span>
+                                <span class="lang-en" style="display: none;">Rising (Persona)</span>
+                            </span>
                             <span class="value" id="res-rising">Analyzing...</span>
                         </div>
                     </div>
@@ -178,7 +192,8 @@
                 <div class="result-card" id="aiResponse"></div>
 
                 <button onclick="saveResultImage()" class="save-img-btn" style="display:none;" id="btnSaveImg">
-                    📸 결과 이미지로 저장하기
+                    <span class="lang-ko">📸 결과 이미지로 저장하기</span>
+                    <span class="lang-en" style="display:none;">📸 Save as Image</span>
                 </button>
 
                 <button onclick="shareKakao()" class="kakao-btn">
@@ -191,10 +206,79 @@
                     <div class="orbit"></div>
                     <div class="core"></div>
                 </div>
-                <p class="loading-text">별들의 신호를 해석하고 있습니다...</p>
+                <p>
+                    <span class="lang-ko">별들의 신호를 해석하고 있습니다...</span>
+                    <span class="lang-en" style="display: none;">Interpreting the signals of the stars...</span>
+                </p>
             </div>
 
-        </div> <section class="seo-content-wrapper">
+        </div>
+
+        <section class="blog-teaser-section lang-ko" style="max-width: 1100px; margin: 40px auto; padding: 0 20px;">
+            <h3 style="color: #f3f4f6; text-align: center; margin-bottom: 30px;">📖 Star Sync 최신 칼럼</h3>
+
+            <div class="blog-card-container">
+
+                <div class="blog-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 24px; display: flex; flex-direction: column;">
+                    <span style="color: #a78bfa; font-size: 0.85rem; font-weight: bold;">점성학 기초</span>
+                    <h4 style="color: #ffffff; font-size: 1.2rem; margin: 10px 0;">12하우스가 나의 잠재력에 미치는 진짜 영향</h4>
+                    <p style="color: #9ca3af; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;">태양궁만으로는 알 수 없는 내 삶의 무대, 12하우스의 비밀을 완벽하게 해부합니다.</p>
+                    <a href="blog.html" style="display: block; text-align: center; background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #c4b5fd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: auto;">읽어보기 ➔</a>
+                </div>
+
+                <div class="blog-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 24px; display: flex; flex-direction: column;">
+                    <span style="color: #a78bfa; font-size: 0.85rem; font-weight: bold;">2026 트렌드</span>
+                    <h4 style="color: #ffffff; font-size: 1.2rem; margin: 10px 0;">바람의 시대: 명왕성 물병자리 이동과 변화</h4>
+                    <p style="color: #9ca3af; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;">명왕성이 물병자리로 이동한 2026년, 우리 삶에 찾아올 거대한 변화와 기회.</p>
+                    <a href="blog2.html" style="display: block; text-align: center; background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #c4b5fd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: auto;">읽어보기 ➔</a>
+                </div>
+
+                <div class="blog-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 24px; display: flex; flex-direction: column;">
+                    <span style="color: #a78bfa; font-size: 0.85rem; font-weight: bold;">자기이해</span>
+                    <h4 style="color: #ffffff; font-size: 1.2rem; margin: 10px 0;">남들이 보는 나 vs 진짜 나: 상승궁의 비밀</h4>
+                    <p style="color: #9ca3af; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;">당신의 첫인상과 사회적 페르소나를 결정하는 상승궁(Rising Sign)에 대해 알아봅니다.</p>
+                    <a href="blog3.html" style="display: block; text-align: center; background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #c4b5fd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: auto;">읽어보기 ➔</a>
+                </div>
+
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="blog-list.html" style="display: inline-block; background: #8b5cf6; color: white; padding: 14px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);">📑 더 많은 점성학 칼럼 보기</a>
+            </div>
+        </section>
+
+        <section class="blog-teaser-section lang-en" style="max-width: 1100px; margin: 40px auto; padding: 0 20px; display: none;">
+            <h3 style="color: #f3f4f6; text-align: center; margin-bottom: 30px;">📖 Latest Astrology Insights</h3>
+
+            <div class="blog-card-container">
+                <div class="blog-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 24px; display: flex; flex-direction: column;">
+                    <span style="color: #a78bfa; font-size: 0.85rem; font-weight: bold;">Basics</span>
+                    <h4 style="color: #ffffff; font-size: 1.2rem; margin: 10px 0;">The Impact of the 12 Houses</h4>
+                    <p style="color: #9ca3af; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;">Beyond your Sun sign, we dissect the secrets of the 12 houses from an AI perspective.</p>
+                    <a href="blog.html" style="display: block; text-align: center; background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #c4b5fd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: auto;">Read Article ➔</a>
+                </div>
+
+                <div class="blog-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 24px; display: flex; flex-direction: column;">
+                    <span style="color: #a78bfa; font-size: 0.85rem; font-weight: bold;">2026 Trends</span>
+                    <h4 style="color: #ffffff; font-size: 1.2rem; margin: 10px 0;">Age of Air: Pluto in Aquarius</h4>
+                    <p style="color: #9ca3af; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;">Preview the massive changes and opportunities coming to our lives in 2026.</p>
+                    <a href="blog2.html" style="display: block; text-align: center; background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #c4b5fd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: auto;">Read Article ➔</a>
+                </div>
+
+                <div class="blog-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 24px; display: flex; flex-direction: column;">
+                    <span style="color: #a78bfa; font-size: 0.85rem; font-weight: bold;">Self-Discovery</span>
+                    <h4 style="color: #ffffff; font-size: 1.2rem; margin: 10px 0;">The Secret of Your Rising Sign</h4>
+                    <p style="color: #9ca3af; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1;">Discover your social persona and first impression determined by your Ascendant.</p>
+                    <a href="blog3.html" style="display: block; text-align: center; background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #c4b5fd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: auto;">Read Article ➔</a>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="blog-list.html" style="display: inline-block; background: #8b5cf6; color: white; padding: 14px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);">📑 View All Columns</a>
+            </div>
+        </section>
+
+        <section class="seo-content-wrapper lang-ko">
             <div class="seo-card">
                 <h3>🌌 왜 Star Sync인가요?</h3>
                 <p>
@@ -211,76 +295,71 @@
                 <p class="intro-text">태양 별자리는 당신의 본질적인 자아를 나타냅니다. 각 별자리가 가진 고유한 에너지를 확인해 보세요.</p>
 
                 <div class="zodiac-grid">
-                    <div class="zodiac-item">
-                        <strong>♈ 양자리 (Aries)</strong>
-                        <p>3월 21일 ~ 4월 19일. 불의 원소. 새로운 시작을 두려워하지 않는 개척자입니다. 열정적이고 에너지가 넘치며, 리더십이 강한 것이 특징입니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♉ 황소자리 (Taurus)</strong>
-                        <p>4월 20일 ~ 5월 20일. 흙의 원소. 안정과 평화를 사랑하며, 뛰어난 미적 감각을 지녔습니다. 신중하고 인내심이 강해 목표를 끝까지 완수합니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♊ 쌍둥이자리 (Gemini)</strong>
-                        <p>5월 21일 ~ 6월 21일. 공기의 원소. 호기심이 많고 재치 있는 언변을 자랑합니다. 정보 습득력이 빠르며 변화에 유연하게 대처합니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♋ 게자리 (Cancer)</strong>
-                        <p>6월 22일 ~ 7월 22일. 물의 원소. 감수성이 풍부하고 보호 본능이 강합니다. 가족과 가까운 사람들을 소중히 여기며 따뜻한 마음씨를 가졌습니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♌ 사자자리 (Leo)</strong>
-                        <p>7월 23일 ~ 8월 22일. 불의 원소. 언제나 당당하고 자신감이 넘칩니다. 창조적이며 무대 위에서 빛나는 주인공 같은 존재감을 발휘합니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♍ 처녀자리 (Virgo)</strong>
-                        <p>8월 23일 ~ 9월 22일. 흙의 원소. 분석적이고 섬세하며 완벽을 추구합니다. 실용적인 해결책을 제시하는 능력이 탁월합니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♎ 천칭자리 (Libra)</strong>
-                        <p>9월 23일 ~ 10월 22일. 공기의 원소. 조화와 균형을 중시합니다. 사교적이며 뛰어난 외교적 수완으로 사람들 사이의 갈등을 중재합니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♏ 전갈자리 (Scorpio)</strong>
-                        <p>10월 23일 ~ 11월 22일. 물의 원소. 깊은 통찰력과 강한 의지를 가졌습니다. 신비로운 매력이 있으며 한 번 마음먹은 일은 집요하게 파고듭니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♐ 사수자리 (Sagittarius)</strong>
-                        <p>11월 23일 ~ 12월 21일. 불의 원소. 자유롭고 낙천적인 모험가입니다. 철학적인 사색을 즐기며 더 넓은 세상을 향해 나아갑니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♑ 염소자리 (Capricorn)</strong>
-                        <p>12월 22일 ~ 1월 19일. 흙의 원소. 책임감이 강하고 현실적인 야망가입니다. 성실함과 노력으로 결국 정상에 오르는 대기만성형 인재가 많습니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♒ 물병자리 (Aquarius)</strong>
-                        <p>1월 20일 ~ 2월 18일. 공기의 원소. 독창적이고 혁신적인 사고를 합니다. 기존의 틀을 깨고 미래지향적인 가치를 추구합니다.</p>
-                    </div>
-                    <div class="zodiac-item">
-                        <strong>♓ 물고기자리 (Pisces)</strong>
-                        <p>2월 19일 ~ 3월 20일. 물의 원소. 상상력이 풍부하고 공감 능력이 뛰어납니다. 예술적인 감각이 있으며 영적인 세계에 관심이 많습니다.</p>
-                    </div>
+                    <div class="zodiac-item"><strong>♈ 양자리 (Aries)</strong><p>3월 21일 ~ 4월 19일. 불의 원소. 새로운 시작을 두려워하지 않는 개척자입니다. 열정적이고 에너지가 넘치며, 리더십이 강한 것이 특징입니다.</p></div>
+                    <div class="zodiac-item"><strong>♉ 황소자리 (Taurus)</strong><p>4월 20일 ~ 5월 20일. 흙의 원소. 안정과 평화를 사랑하며, 뛰어난 미적 감각을 지녔습니다. 신중하고 인내심이 강해 목표를 끝까지 완수합니다.</p></div>
+                    <div class="zodiac-item"><strong>♊ 쌍둥이자리 (Gemini)</strong><p>5월 21일 ~ 6월 21일. 공기의 원소. 호기심이 많고 재치 있는 언변을 자랑합니다. 정보 습득력이 빠르며 변화에 유연하게 대처합니다.</p></div>
+                    <div class="zodiac-item"><strong>♋ 게자리 (Cancer)</strong><p>6월 22일 ~ 7월 22일. 물의 원소. 감수성이 풍부하고 보호 본능이 강합니다. 가족과 가까운 사람들을 소중히 여기며 따뜻한 마음씨를 가졌습니다.</p></div>
+                    <div class="zodiac-item"><strong>♌ 사자자리 (Leo)</strong><p>7월 23일 ~ 8월 22일. 불의 원소. 언제나 당당하고 자신감이 넘칩니다. 창조적이며 무대 위에서 빛나는 주인공 같은 존재감을 발휘합니다.</p></div>
+                    <div class="zodiac-item"><strong>♍ 처녀자리 (Virgo)</strong><p>8월 23일 ~ 9월 22일. 흙의 원소. 분석적이고 섬세하며 완벽을 추구합니다. 실용적인 해결책을 제시하는 능력이 탁월합니다.</p></div>
+                    <div class="zodiac-item"><strong>♎ 천칭자리 (Libra)</strong><p>9월 23일 ~ 10월 22일. 공기의 원소. 조화와 균형을 중시합니다. 사교적이며 뛰어난 외교적 수완으로 사람들 사이의 갈등을 중재합니다.</p></div>
+                    <div class="zodiac-item"><strong>♏ 전갈자리 (Scorpio)</strong><p>10월 23일 ~ 11월 22일. 물의 원소. 깊은 통찰력과 강한 의지를 가졌습니다. 신비로운 매력이 있으며 한 번 마음먹은 일은 집요하게 파고듭니다.</p></div>
+                    <div class="zodiac-item"><strong>♐ 사수자리 (Sagittarius)</strong><p>11월 23일 ~ 12월 21일. 불의 원소. 자유롭고 낙천적인 모험가입니다. 철학적인 사색을 즐기며 더 넓은 세상을 향해 나아갑니다.</p></div>
+                    <div class="zodiac-item"><strong>♑ 염소자리 (Capricorn)</strong><p>12월 22일 ~ 1월 19일. 흙의 원소. 책임감이 강하고 현실적인 야망가입니다. 성실함과 노력으로 결국 정상에 오르는 대기만성형 인재가 많습니다.</p></div>
+                    <div class="zodiac-item"><strong>♒ 물병자리 (Aquarius)</strong><p>1월 20일 ~ 2월 18일. 공기의 원소. 독창적이고 혁신적인 사고를 합니다. 기존의 틀을 깨고 미래지향적인 가치를 추구합니다.</p></div>
+                    <div class="zodiac-item"><strong>♓ 물고기자리 (Pisces)</strong><p>2월 19일 ~ 3월 20일. 물의 원소. 상상력이 풍부하고 공감 능력이 뛰어납니다. 예술적인 감각이 있으며 영적인 세계에 관심이 많습니다.</p></div>
                 </div>
 
                 <hr class="seo-divider">
 
                 <h3>❓ 자주 묻는 질문 (FAQ)</h3>
                 <ul class="faq-list">
-                    <li>
-                        <strong>Q. Star Sync 서비스는 정말 무료인가요?</strong>
-                        <span>A. 네, 그렇습니다. Star Sync의 모든 기본 운세 분석 기능은 100% 무료로 제공됩니다. 별도의 회원가입이나 로그인 없이 즉시 이용하실 수 있습니다.</span>
-                    </li>
-                    <li>
-                        <strong>Q. 태어난 시간을 정확히 모르는데 괜찮나요?</strong>
-                        <span>A. 태어난 시간을 알면 '상승궁(Ascendant)'과 '하우스' 배치를 더 정확하게 알 수 있어 정밀도가 높아집니다. 하지만 시간을 모를 경우 '정오(12:00)'로 설정하거나 '모름'으로 두셔도 행성 간의 각도(Aspect)를 기반으로 충분히 의미 있는 분석 결과를 받아보실 수 있습니다.</span>
-                    </li>
-                    <li>
-                        <strong>Q. 제 개인정보(생년월일)는 저장되나요?</strong>
-                        <span>A. 절대 저장되지 않습니다. 입력하신 정보는 오직 AI가 별자리를 계산하는 그 순간에만 사용되며, 분석이 끝난 후 브라우저를 닫으면 모든 데이터는 즉시 휘발되어 사라집니다. 안심하고 이용하세요.</span>
-                    </li>
-                    <li>
-                        <strong>Q. 2026년 운세 외에 다른 것도 볼 수 있나요?</strong>
-                        <span>A. 네, Star Sync는 단순한 연간 운세뿐만 아니라 '연애운', '직업/재물운', '인간관계 조언' 등 구체적인 고민에 대한 답변도 가능합니다. 고민 입력창에 구체적인 상황을 적어주시면 AI가 더 깊이 있는 조언을 해드립니다.</span>
-                    </li>
+                    <li><strong>Q. Star Sync 서비스는 정말 무료인가요?</strong><span>A. 네, 그렇습니다. Star Sync의 모든 기본 운세 분석 기능은 100% 무료로 제공됩니다. 별도의 회원가입이나 로그인 없이 즉시 이용하실 수 있습니다.</span></li>
+                    <li><strong>Q. 태어난 시간을 정확히 모르는데 괜찮나요?</strong><span>A. 태어난 시간을 알면 '상승궁(Ascendant)'과 '하우스' 배치를 더 정확하게 알 수 있어 정밀도가 높아집니다. 하지만 시간을 모를 경우 '정오(12:00)'로 설정하거나 '모름'으로 두셔도 행성 간의 각도(Aspect)를 기반으로 충분히 의미 있는 분석 결과를 받아보실 수 있습니다.</span></li>
+                    <li><strong>Q. 제 개인정보(생년월일)는 저장되나요?</strong><span>A. 절대 저장되지 않습니다. 입력하신 정보는 오직 AI가 별자리를 계산하는 그 순간에만 사용되며, 분석이 끝난 후 브라우저를 닫으면 모든 데이터는 즉시 휘발되어 사라집니다. 안심하고 이용하세요.</span></li>
+                    <li><strong>Q. 2026년 운세 외에 다른 것도 볼 수 있나요?</strong><span>A. 네, Star Sync는 단순한 연간 운세뿐만 아니라 '연애운', '직업/재물운', '인간관계 조언' 등 구체적인 고민에 대한 답변도 가능합니다. 고민 입력창에 구체적인 상황을 적어주시면 AI가 더 깊이 있는 조언을 해드립니다.</span></li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="seo-content-wrapper lang-en" style="display: none;">
+            <div class="seo-card">
+                <h3>🌌 Why Star Sync?</h3>
+                <p>
+                    <strong>Star Sync</strong> is a next-generation astrological analysis service that combines the vast data of <strong>Western Astrology</strong> accumulated over thousands of years with <strong>Generative AI</strong>, the pinnacle of modern technology.
+                    While traditional fortune-telling sites simply output pre-written text based on your birthdate, Star Sync calculates the exact <strong>Natal Chart</strong> of where the planets were located the very moment you were born in real-time.
+                </p>
+                <p>
+                    The AI precisely analyzes the aspects and house placements between major planets like the Sun (Ego), Moon (Inner Self), Mercury (Intellect), Venus (Love), and Mars (Energy). It translates your hidden potential and the flow of 2026 into the most specific and understandable language.
+                </p>
+
+                <hr class="seo-divider">
+
+                <h3>✨ The 12 Zodiac Signs</h3>
+                <p class="intro-text">Your Sun sign represents your essential self. Discover the unique energy of each zodiac sign.</p>
+
+                <div class="zodiac-grid">
+                    <div class="zodiac-item"><strong>♈ Aries</strong><p>March 21 - April 19. Fire sign. A pioneer unafraid of new beginnings. Known for being passionate, energetic, and a strong leader.</p></div>
+                    <div class="zodiac-item"><strong>♉ Taurus</strong><p>April 20 - May 20. Earth sign. Loves stability and peace, with an excellent aesthetic sense. Cautious and patient, they always see their goals through to the end.</p></div>
+                    <div class="zodiac-item"><strong>♊ Gemini</strong><p>May 21 - June 21. Air sign. Highly curious and boasts witty eloquence. Quick to absorb information and highly adaptable to change.</p></div>
+                    <div class="zodiac-item"><strong>♋ Cancer</strong><p>June 22 - July 22. Water sign. Rich in emotional sensitivity and strong protective instincts. Cherishes family and loved ones with a warm heart.</p></div>
+                    <div class="zodiac-item"><strong>♌ Leo</strong><p>July 23 - August 22. Fire sign. Always confident and self-assured. Creative and exudes a main-character presence that shines on stage.</p></div>
+                    <div class="zodiac-item"><strong>♍ Virgo</strong><p>August 23 - September 22. Earth sign. Analytical, detail-oriented, and a perfectionist. Excels at providing practical solutions.</p></div>
+                    <div class="zodiac-item"><strong>♎ Libra</strong><p>September 23 - October 22. Air sign. Values harmony and balance. Sociable and acts as an excellent mediator in conflicts with great diplomatic skills.</p></div>
+                    <div class="zodiac-item"><strong>♏ Scorpio</strong><p>October 23 - November 22. Water sign. Possesses deep insight and strong willpower. Has a mysterious charm and relentlessly pursues what they set their mind to.</p></div>
+                    <div class="zodiac-item"><strong>♐ Sagittarius</strong><p>November 23 - December 21. Fire sign. A free-spirited and optimistic adventurer. Enjoys philosophical contemplation and ventures out into the wider world.</p></div>
+                    <div class="zodiac-item"><strong>♑ Capricorn</strong><p>December 22 - January 19. Earth sign. Highly responsible and a realistic pragmatist. A late bloomer who eventually reaches the top through hard work and diligence.</p></div>
+                    <div class="zodiac-item"><strong>♒ Aquarius</strong><p>January 20 - February 18. Air sign. Original and innovative thinker. Breaks the mold and pursues future-oriented values.</p></div>
+                    <div class="zodiac-item"><strong>♓ Pisces</strong><p>February 19 - March 20. Water sign. Highly imaginative and empathetic. Has great artistic sense and a deep interest in the spiritual realm.</p></div>
+                </div>
+
+                <hr class="seo-divider">
+
+                <h3>❓ Frequently Asked Questions (FAQ)</h3>
+                <ul class="faq-list">
+                    <li><strong>Q. Is Star Sync really free?</strong><span>A. Yes, it is. All basic fortune-telling analysis features of Star Sync are provided 100% free of charge. You can use it immediately without signing up or logging in.</span></li>
+                    <li><strong>Q. Is it okay if I don't know my exact birth time?</strong><span>A. Knowing your exact birth time increases precision by determining your Ascendant and House placements. However, if you don't know it, you can set it to 'Noon (12:00)' or 'Unknown'. You will still receive a highly meaningful analysis based on planetary aspects.</span></li>
+                    <li><strong>Q. Is my personal information (birthdate) saved?</strong><span>A. It is never saved. The information you enter is only used at the moment the AI calculates your chart. Once the analysis is complete and you close the browser, all data vanishes immediately. Please use it with peace of mind.</span></li>
+                    <li><strong>Q. Can I see other readings besides the horoscope?</strong><span>A. Yes, besides simple horoscopes, Star Sync can provide answers to specific concerns such as love, career/wealth, and relationship advice. If you describe your specific situation in the concern input field, the AI will offer deeper advice.</span></li>
                 </ul>
             </div>
         </section>
@@ -291,6 +370,19 @@
             <a href="privacy.html" id="link-privacy">개인정보처리방침</a>
         </div>
         <p class="copyright">© 2026 Star Sync. All rights reserved.</p>
+        <div style="margin-top: 30px; text-align: center; padding-bottom: 20px;">
+            <a href="mailto:your-email@example.com" style="color: #6b7280; text-decoration: none; font-size: 0.9rem; font-weight: bold;">
+                <span class="lang-ko">📧 문의하기 (Contact Us)</span>
+                <span class="lang-en" style="display: none;">📧 Contact Us</span>
+            </a>
+        </div>
+        <div style="margin-top: 20px; text-align: center;">
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="blog-list.html" class="lang-ko" style="color: #6b7280; text-decoration: none; font-size: 0.9rem;">점성학 칼럼(Blog)</a>
+
+                <a href="blog-list.html" class="lang-en" style="color: #6b7280; text-decoration: none; font-size: 0.9rem; display: none;">Astrology Blog</a>
+            </div>
+        </div>
     </footer>
 
     <script src="script.js"></script>

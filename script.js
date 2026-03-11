@@ -324,12 +324,21 @@ function createShootingStar() {
 function saveResultImage() {
     const chartContainer = document.querySelector('.nebula-chart-container');
     const aiResponse = document.getElementById('aiResponse');
-    if (!chartContainer) { alert("아직 분석 결과가 없습니다!"); return; }
+
+    if (!chartContainer) {
+        alert(currentLanguage === 'en' ? "No analysis result yet!" : "아직 분석 결과가 없습니다!");
+        return;
+    }
 
     const userName = document.getElementById('name').value || "Guest";
-    let userConcern = window.aiKeyword || "2026운세";
 
-    let themeText = "2026년, 당신의 우주가 펼쳐집니다.";
+    let userConcern = window.aiKeyword || "";
+    if (!userConcern || userConcern.length > 15 || userConcern.includes(" ")) {
+        userConcern = currentLanguage === 'en' ? "2026_Fortune" : "2026운세";
+    }
+
+    const defaultThemeText = currentLanguage === 'en' ? "2026, Your universe unfolds." : "2026년, 당신의 우주가 펼쳐집니다.";
+    let themeText = defaultThemeText;
     let scoreText = "";
 
     if (aiResponse) {
@@ -338,7 +347,7 @@ function saveResultImage() {
         for (let line of lines) {
             let cleanLine = line.trim();
 
-            if (cleanLine.includes("테마")) {
+            if (cleanLine.includes("테마") || cleanLine.toLowerCase().includes("theme")) {
                 let parts = cleanLine.split(/[:：]/);
                 if (parts.length > 1) {
                     themeText = parts[1].trim().replace(/^"/, '').replace(/"$/, '');
@@ -347,7 +356,7 @@ function saveResultImage() {
                 }
             }
 
-            if (cleanLine.includes("종합 운기") || cleanLine.includes("총점") || (cleanLine.includes("점수") && cleanLine.includes("점"))) {
+            if (cleanLine.includes("종합 운기") || cleanLine.includes("총점") || cleanLine.toLowerCase().includes("score") || (cleanLine.includes("점수") && cleanLine.includes("점"))) {
                 scoreText = cleanLine.replace(/^[✨🍀⭐️\s]+/, '');
             }
         }
@@ -357,13 +366,17 @@ function saveResultImage() {
     captureDiv.className = 'share-card poster-style';
     document.body.appendChild(captureDiv);
 
+    const titleText = currentLanguage === 'en' ? `${userName}'s Universe` : `${userName}님의 우주`;
+    const yearTag = currentLanguage === 'en' ? "#Year_2026" : "#2026년";
+    const analyzedByText = currentLanguage === 'en' ? "ANALYZED BY STAR SYNC" : "Star Sync 분석";
+
     const header = document.createElement('div');
     header.innerHTML = `
         <div class="poster-header">
             <div class="poster-subtitle">STAR SYNC ANALYSIS</div>
-            <h1 class="poster-title">${userName}님의 우주</h1>
+            <h1 class="poster-title">${titleText}</h1>
             <div class="poster-tags">
-                <span class="tag-badge">#2026년</span>
+                <span class="tag-badge">${yearTag}</span>
                 <span class="tag-badge">#${userConcern}</span>
             </div>
         </div>
@@ -381,7 +394,7 @@ function saveResultImage() {
         <div class="message-label">MY THEME & SCORE</div>
         <div class="message-text">"${themeText}"</div>
         ${scoreHtml}
-        <div class="poster-footer">Analyzed by Star Sync</div>
+        <div class="poster-footer">${analyzedByText}</div>
     `;
     captureDiv.appendChild(messageBox);
 
@@ -393,13 +406,15 @@ function saveResultImage() {
     }).then(canvas => {
         const image = canvas.toDataURL("image/png");
         const link = document.createElement('a');
+
+        const downloadName = currentLanguage === 'en' ? "StarSync_Poster.png" : "StarSync_결과.png";
+        link.download = `${userName}_${downloadName}`;
         link.href = image;
-        link.download = `${userName}_StarSync_Poster.png`;
         link.click();
         document.body.removeChild(captureDiv);
     }).catch(err => {
         console.error("캡처 에러:", err);
-        alert("저장 중 오류가 발생했습니다.");
+        alert(currentLanguage === 'en' ? "Error saving image." : "저장 중 오류가 발생했습니다.");
         document.body.removeChild(captureDiv);
     });
 }
@@ -522,9 +537,9 @@ async function analyze() {
                 return `<a href="${officialLink}" target="_blank" class="lucky-badge" title="행운의 아이템 구경하기">🎁 ${cleanName}</a>`;
             });
 
-            if (formattedHtml.includes("핵심 배치")) {
+            if (formattedHtml.includes("핵심 배치") || formattedHtml.includes("Key Placements")) {
                 const visualHTML = renderStelliumVisualizer(rawText, data.chart_data);
-                formattedHtml = formattedHtml.replace(/.*핵심 배치.*/, (match) => {
+                formattedHtml = formattedHtml.replace(/.*(?:핵심 배치|Key Placements).*/, (match) => {
                     return `<div class="chart-outer-wrapper"><div class="chart-inner-scaler">${visualHTML}</div></div><br>${match}`;
                 });
             }
@@ -554,7 +569,7 @@ async function analyze() {
 }
 
 /* =========================================
-   [5] 리얼 천궁도 시각화 엔진 (Real Chart)
+   [5] 리얼 천궁도 시각화 엔진 (Real Chart - 완벽 다국어 변환 적용)
    ========================================= */
 function renderStelliumVisualizer(text, chartData) {
     const zodiacs = [
@@ -581,8 +596,9 @@ function renderStelliumVisualizer(text, chartData) {
     if (chartData) {
         const pMap = { "sun": "태양", "moon": "달", "mercury": "수성", "venus": "금성", "mars": "화성", "jupiter": "목성", "saturn": "토성", "uranus": "천왕성", "neptune": "해왕성", "pluto": "명왕성" };
         Object.keys(pMap).forEach(key => {
-            if (chartData[key]) {
-                const code = chartData[key].substring(0, 3).toUpperCase();
+            const val = chartData[key] || chartData[key.charAt(0).toUpperCase() + key.slice(1)];
+            if (val) {
+                const code = val.substring(0, 3).toUpperCase();
                 const idx = slotsData.findIndex(s => s.code === code);
                 if (idx !== -1) {
                     slotsData[idx].active = true;
@@ -590,8 +606,9 @@ function renderStelliumVisualizer(text, chartData) {
                 }
             }
         });
-        if (chartData["rising"]) {
-            const code = chartData["rising"].substring(0, 3).toUpperCase();
+        const risingVal = chartData["rising"] || chartData["Rising"];
+        if (risingVal) {
+            const code = risingVal.substring(0, 3).toUpperCase();
             const idx = slotsData.findIndex(s => s.code === code);
             if (idx !== -1) {
                 slotsData[idx].active = true;
@@ -602,14 +619,14 @@ function renderStelliumVisualizer(text, chartData) {
 
     if (text) {
         const lines = text.split('\n');
-        let targetLine = lines.find(line => line.includes("핵심 배치"));
+        let targetLine = lines.find(line => /핵심 배치|Key Placements/i.test(line));
         if (targetLine) {
             slotsData.forEach((slot, idx) => {
-                if (targetLine.includes(slot.name)) {
-                    const textIdx = targetLine.indexOf(slot.name);
+                if (targetLine.includes(slot.name) || targetLine.toLowerCase().includes(slot.en.toLowerCase())) {
+                    const textIdx = targetLine.indexOf(slot.name) !== -1 ? targetLine.indexOf(slot.name) : targetLine.toLowerCase().indexOf(slot.en.toLowerCase());
                     const snippet = targetLine.substring(Math.max(0, textIdx - 20), Math.min(targetLine.length, textIdx + 30));
 
-                    const hMatch = snippet.match(/(\d+)[하H]/);
+                    const hMatch = snippet.match(/(\d+)(?:하|H|st|nd|rd|th)/i);
                     if (hMatch) {
                         slotsData[idx].active = true;
                         if (!slotsData[idx].houses.some(h => h.includes("HOUSE"))) {
@@ -639,6 +656,11 @@ function renderStelliumVisualizer(text, chartData) {
     let chartInnerHtml = "";
     let hasActiveData = false;
 
+    const pTrans = {
+        "태양": "Sun", "달": "Moon", "수성": "Mercury", "금성": "Venus", "화성": "Mars",
+        "목성": "Jupiter", "토성": "Saturn", "천왕성": "Uranus", "해왕성": "Neptune", "명왕성": "Pluto"
+    };
+
     slotsData.forEach((data, index) => {
         let activeClass = "";
         let connectionLine = "";
@@ -652,20 +674,37 @@ function renderStelliumVisualizer(text, chartData) {
 
             let tagsHtml = "";
             data.houses.forEach(h => {
-                if (h === "ASC") tagsHtml += `<span class="panel-house asc-house">RISING Sign</span>`;
-                else tagsHtml += `<span class="panel-house">${h}</span>`;
+                if (h === "ASC") {
+                    tagsHtml += `<span class="panel-house asc-house">RISING Sign</span>`;
+                } else {
+                    let displayHouse = h;
+                    if (currentLanguage === 'en') {
+                        const hNum = h.replace(/[^0-9]/g, '');
+                        let suffix = "th";
+                        if (hNum === "1") suffix = "st";
+                        else if (hNum === "2") suffix = "nd";
+                        else if (hNum === "3") suffix = "rd";
+                        displayHouse = `${hNum}${suffix} House`;
+                    }
+                    tagsHtml += `<span class="panel-house">${displayHouse}</span>`;
+                }
             });
 
             let planetsHtml = "";
-            data.planets.forEach(pName => {
-                if (SYMBOLS[pName]) planetsHtml += `<div class="panel-p-item">${SYMBOLS[pName]} <span>${pName}</span></div>`;
+            data.planets.forEach(pNameKo => {
+                const displayPlanetName = currentLanguage === 'en' ? pTrans[pNameKo] : pNameKo;
+                if (SYMBOLS[pNameKo]) planetsHtml += `<div class="panel-p-item">${SYMBOLS[pNameKo]} <span>${displayPlanetName}</span></div>`;
             });
 
             if (planetsHtml === "" && !data.houses.includes("ASC")) {
-                planetsHtml = `<div class="panel-p-item" style="color:#aaa; font-size:0.75rem;">Placement Info</div>`;
+                const emptyText = currentLanguage === 'en' ? "Placement Info" : "배치 정보";
+                planetsHtml = `<div class="panel-p-item" style="color:#aaa; font-size:0.75rem;">${emptyText}</div>`;
             }
 
             connectionLine = ``;
+
+            const displayZodiacName = currentLanguage === 'en' ? data.en : data.name;
+
             expandedPanel = `
                 <div class="hud-anchor ${distClass}">
                     <div class="hud-line"></div>
@@ -673,7 +712,7 @@ function renderStelliumVisualizer(text, chartData) {
                         <div class="panel-content">
                             <div class="panel-header">
                                 <div class="panel-tags">${tagsHtml}</div>
-                                <span class="panel-z-name">${data.name}</span>
+                                <span class="panel-z-name">${displayZodiacName}</span>
                             </div>
                             <div class="panel-planets-list">${planetsHtml}</div>
                         </div>
@@ -693,10 +732,13 @@ function renderStelliumVisualizer(text, chartData) {
 
     if (!hasActiveData) return "";
 
+    const mainTitle = currentLanguage === 'en' ? "✨ Your Personal Natal Chart" : "✨ 당신만의 우주 천궁도";
+    const subTitle = currentLanguage === 'en' ? "The map of destiny where the stars lingered at the moment of your birth" : "태어난 순간, 별들이 머물던 운명의 지도";
+
     return `
         <div class="chart-section-header">
-            <h3 class="chart-main-title">✨ 당신만의 우주 천궁도</h3>
-            <p class="chart-sub-title">태어난 순간, 별들이 머물던 운명의 지도</p>
+            <h3 class="chart-main-title">${mainTitle}</h3>
+            <p class="chart-sub-title">${subTitle}</p>
         </div>
         <div class="nebula-chart-container">
             <div class="cosmic-bg"></div><div class="orbit-rings"></div>
