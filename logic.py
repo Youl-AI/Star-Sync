@@ -212,11 +212,11 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
         keyword = "2026운세" if lang == 'ko' else "2026Fortune"
         report = raw_text
 
-        match = re.search(r'\[(?:키워드|KEYWORD)\]\s*([^\n]+)', raw_text)
+        match = re.search(r'\*?\*?\[(?:키워드|keyword)\]\*?\*?\s*([^\n]+)', raw_text, flags=re.IGNORECASE)
         
         if match:
             keyword = match.group(1).replace('*', '').replace('#', '').strip()
-            report = re.sub(r'\[(?:키워드|KEYWORD)\][^\n]*\n*', '', raw_text, count=1).strip()
+            report = re.sub(r'\*?\*?\[(?:키워드|keyword)\][^\n]*\n*', '', raw_text, count=1, flags=re.IGNORECASE).strip()
             
         return {
             "keyword": keyword,
