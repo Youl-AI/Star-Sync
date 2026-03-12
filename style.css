@@ -1726,18 +1726,28 @@ input[type=number] {
 
 @media screen and (max-width: 768px) {
     .nebula-chart-container {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow: hidden;
-
-        transform: scale(0.85);
-        transform-origin: center top;
-        margin-bottom: -50px;
+        transform: scale(0.65) !important;
+        transform-origin: center top !important;
+        margin-bottom: -150px !important;
     }
+}
 
-    .nebula-chart-container canvas,
-    .nebula-chart-container svg {
-        max-width: 100% !important;
-        height: auto !important;
-    }
+.expanded-data-panel {
+    transition: z-index 0.2s ease;
+}
+
+.expanded-data-panel:hover,
+.expanded-data-panel:active,
+.expanded-data-panel:focus-within {
+    z-index: 9999 !important;
+}
+
+.panel-content {
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.expanded-data-panel:hover .panel-content,
+.expanded-data-panel:active .panel-content {
+    transform: scale(1.08) !important;
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4) !important;
 }
