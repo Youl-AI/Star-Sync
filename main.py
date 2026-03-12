@@ -129,9 +129,10 @@ async def analyze(request: AnalysisRequest):
         print("✅ 분석 및 쿠팡 링크 생성 완료!")
         
         return {
-            "ai_message": ai_message["report"],
-            "keyword": search_keyword,
-            "coupang_link": coupang_link, # 프론트엔드로 생성된 링크 전달!
+            "ai_message": ai_message["report"],       
+            "keyword": ai_message.get("keyword", "2026운세"), 
+            
+            "coupang_link": coupang_link, 
             "chart_data": {
                 "sun": chart_data.get("Sun"),       
                 "moon": chart_data.get("Moon"),     

@@ -332,7 +332,7 @@ function saveResultImage() {
 
     const userName = document.getElementById('name').value || "Guest";
 
-    let userConcern = window.aiKeyword || "";
+    let userConcern = window.aiKeyword || (currentLanguage === 'en' ? "2026_Fortune" : "2026운세");
     if (!userConcern || userConcern.length > 30 || userConcern.includes(" ")) {
         userConcern = currentLanguage === 'en' ? "2026_Fortune" : "2026운세";
     }
