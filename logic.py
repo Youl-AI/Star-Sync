@@ -208,6 +208,12 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
             contents=user_msg
         )
         raw_text = response.text.strip()
+
+        # --------------------------------------------------
+        print("--- [DEBUG] AI가 실제로 뱉은 전체 문장 시작 ---")
+        print(raw_text)
+        print("--- [DEBUG] AI가 실제로 뱉은 전체 문장 끝 ---")
+        # --------------------------------------------------
         
         keyword = "2026운세" if lang == 'ko' else "2026Fortune"
         report = raw_text
@@ -216,6 +222,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
         
         if match:
             keyword = match.group(1).replace('*', '').replace('#', '').strip()
+            print(f"--- [DEBUG] 추출된 키워드: {keyword} ---") # 이것도 추가!
             report = re.sub(r'\*?\*?\[(?:키워드|keyword)\][^\n]*\n*', '', raw_text, count=1, flags=re.IGNORECASE).strip()
             
         return {
