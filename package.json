@@ -1,0 +1,20 @@
+{
+  "name": "star-sync",
+  "version": "1.0.0",
+  "description": "AI Astrology Fortune & Natal Chart Analysis Service",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'No build required for static site'"
+  },
+  "keywords": [
+    "astrology",
+    "ai",
+    "fortune",
+    "natal-chart"
+  ],
+  "author": "Star Sync",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  }
+}
