@@ -73,6 +73,101 @@ const WORLD_DB = {
     "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Cancun"]
 };
 
+// 영문명 → 한글 표기. 드롭다운 표시는 "한글 (English)", 서버 전송은 영문 유지
+const KO_LABELS = {
+    "South Korea": "대한민국", "United States": "미국", "Japan": "일본", "China": "중국",
+    "United Kingdom": "영국", "France": "프랑스", "Germany": "독일", "Italy": "이탈리아",
+    "Spain": "스페인", "Netherlands": "네덜란드", "Switzerland": "스위스", "Russia": "러시아",
+    "Australia": "호주", "Canada": "캐나다", "India": "인도", "Vietnam": "베트남",
+    "Thailand": "태국", "Philippines": "필리핀", "Singapore": "싱가포르", "Taiwan": "대만",
+    "Indonesia": "인도네시아", "United Arab Emirates": "아랍에미리트", "Saudi Arabia": "사우디아라비아",
+    "Turkey": "터키", "Egypt": "이집트", "South Africa": "남아프리카공화국", "Brazil": "브라질",
+    "Argentina": "아르헨티나", "Mexico": "멕시코",
+
+    "Seoul": "서울", "Busan": "부산", "Daegu": "대구", "Incheon": "인천", "Gwangju": "광주",
+    "Daejeon": "대전", "Ulsan": "울산", "Sejong": "세종", "Suwon": "수원", "Seongnam": "성남",
+    "Uijeongbu": "의정부", "Anyang": "안양", "Bucheon": "부천", "Gwangmyeong": "광명",
+    "Pyeongtaek": "평택", "Dongducheon": "동두천", "Ansan": "안산", "Goyang": "고양",
+    "Gwacheon": "과천", "Guri": "구리", "Namyangju": "남양주", "Osan": "오산", "Siheung": "시흥",
+    "Gunpo": "군포", "Uiwang": "의왕", "Hanam": "하남", "Yongin": "용인", "Paju": "파주",
+    "Icheon": "이천", "Anseong": "안성", "Gimpo": "김포", "Hwaseong": "화성",
+    "Gwangju (Gyeonggi)": "광주(경기)", "Yangju": "양주", "Pocheon": "포천", "Yeoju": "여주",
+    "Yeoncheon": "연천", "Gapyeong": "가평", "Yangpyeong": "양평", "Chuncheon": "춘천",
+    "Wonju": "원주", "Gangneung": "강릉", "Donghae": "동해", "Taebaek": "태백", "Sokcho": "속초",
+    "Samcheok": "삼척", "Hongcheon": "홍천", "Hoengseong": "횡성", "Yeongwol": "영월",
+    "Pyeongchang": "평창", "Jeongseon": "정선", "Cheorwon": "철원", "Hwacheon": "화천",
+    "Yanggu": "양구", "Inje": "인제", "Goseong (Gangwon)": "고성(강원)", "Yangyang": "양양",
+    "Cheongju": "청주", "Chungju": "충주", "Jecheon": "제천", "Boeun": "보은", "Okcheon": "옥천",
+    "Yeongdong": "영동", "Jeungpyeong": "증평", "Jincheon": "진천", "Goesan": "괴산",
+    "Eumseong": "음성", "Danyang": "단양", "Cheonan": "천안", "Gongju": "공주",
+    "Boryeong": "보령", "Asan": "아산", "Seosan": "서산", "Nonsan": "논산", "Gyeryong": "계룡",
+    "Dangjin": "당진", "Geumsan": "금산", "Buyeo": "부여", "Seocheon": "서천",
+    "Cheongyang": "청양", "Hongseong": "홍성", "Yesan": "예산", "Taean": "태안",
+    "Jeonju": "전주", "Gunsan": "군산", "Iksan": "익산", "Jeongeup": "정읍", "Namwon": "남원",
+    "Gimje": "김제", "Wanju": "완주", "Jinan": "진안", "Muju": "무주", "Jangsu": "장수",
+    "Imsil": "임실", "Sunchang": "순창", "Gochang": "고창", "Buan": "부안", "Mokpo": "목포",
+    "Yeosu": "여수", "Suncheon": "순천", "Naju": "나주", "Gwangyang": "광양", "Damyang": "담양",
+    "Gokseong": "곡성", "Gurye": "구례", "Goheung": "고흥", "Boseong": "보성", "Hwasun": "화순",
+    "Jangheung": "장흥", "Gangjin": "강진", "Haenam": "해남", "Yeongam": "영암", "Muan": "무안",
+    "Hampyeong": "함평", "Yeonggwang": "영광", "Jangseong": "장성", "Wando": "완도",
+    "Jindo": "진도", "Sinan": "신안", "Pohang": "포항", "Gyeongju": "경주", "Gimcheon": "김천",
+    "Andong": "안동", "Gumi": "구미", "Yeongju": "영주", "Yeongcheon": "영천", "Sangju": "상주",
+    "Mungyeong": "문경", "Gyeongsan": "경산", "Gunwi": "군위", "Uiseong": "의성",
+    "Cheongsong": "청송", "Yeongyang": "영양", "Yeongdeok": "영덕", "Cheongdo": "청도",
+    "Goryeong": "고령", "Seongju": "성주", "Chilgok": "칠곡", "Yecheon": "예천",
+    "Bonghwa": "봉화", "Uljin": "울진", "Ulleung": "울릉", "Changwon": "창원", "Jinju": "진주",
+    "Tongyeong": "통영", "Sacheon": "사천", "Gimhae": "김해", "Miryang": "밀양", "Geoje": "거제",
+    "Yangsan": "양산", "Uiryeong": "의령", "Haman": "함안", "Changnyeong": "창녕",
+    "Goseong (Gyeongnam)": "고성(경남)", "Namhae": "남해", "Hadong": "하동", "Sancheong": "산청",
+    "Hamyang": "함양", "Geochang": "거창", "Hapcheon": "합천", "Jeju City": "제주",
+    "Seogwipo": "서귀포",
+
+    "Tokyo": "도쿄", "Yokohama": "요코하마", "Osaka": "오사카", "Nagoya": "나고야",
+    "Sapporo": "삿포로", "Kobe": "고베", "Kyoto": "교토", "Fukuoka": "후쿠오카",
+    "Okinawa": "오키나와", "Beijing": "베이징", "Shanghai": "상하이", "Guangzhou": "광저우",
+    "Shenzhen": "선전", "Chengdu": "청두", "New York": "뉴욕", "Los Angeles": "로스앤젤레스",
+    "Chicago": "시카고", "San Francisco": "샌프란시스코", "Seattle": "시애틀",
+    "Las Vegas": "라스베이거스", "Honolulu": "호놀룰루", "Washington": "워싱턴",
+    "Boston": "보스턴", "London": "런던", "Paris": "파리", "Berlin": "베를린", "Rome": "로마",
+    "Madrid": "마드리드", "Barcelona": "바르셀로나", "Amsterdam": "암스테르담",
+    "Zurich": "취리히", "Geneva": "제네바", "Moscow": "모스크바", "Sydney": "시드니",
+    "Melbourne": "멜버른", "Brisbane": "브리즈번", "Toronto": "토론토", "Vancouver": "밴쿠버",
+    "Montreal": "몬트리올", "Mumbai": "뭄바이", "Delhi": "델리", "Ho Chi Minh City": "호치민",
+    "Hanoi": "하노이", "Da Nang": "다낭", "Bangkok": "방콕", "Chiang Mai": "치앙마이",
+    "Phuket": "푸껫", "Manila": "마닐라", "Cebu City": "세부", "Taipei": "타이베이",
+    "Kaohsiung": "가오슝", "Jakarta": "자카르타", "Bali (Denpasar)": "발리(덴파사르)",
+    "Dubai": "두바이", "Abu Dhabi": "아부다비", "Istanbul": "이스탄불", "Cairo": "카이로",
+    "Cape Town": "케이프타운", "Johannesburg": "요하네스버그", "Sao Paulo": "상파울루",
+    "Rio de Janeiro": "리우데자네이루", "Buenos Aires": "부에노스아이레스",
+    "Mexico City": "멕시코시티", "Cancun": "칸쿤"
+};
+
+const KO_REVERSE = {};
+Object.keys(KO_LABELS).forEach(en => { KO_REVERSE[KO_LABELS[en]] = en; });
+
+// 드롭다운 표시용: "서울 (Seoul)" — 매핑 없으면 영문 그대로
+function displayLabel(name) {
+    return KO_LABELS[name] ? `${KO_LABELS[name]} (${name})` : name;
+}
+
+const EN_NAMES = new Set(Object.keys(WORLD_DB));
+Object.values(WORLD_DB).forEach(list => list.forEach(c => EN_NAMES.add(c)));
+
+// 입력값 → 서버 전송용 영문: "서울 (Seoul)" → "Seoul", "서울" → "Seoul", "Seoul" → "Seoul"
+function toEnglishValue(value) {
+    if (!value) return value;
+    const v = value.trim();
+    if (EN_NAMES.has(v)) return v;
+    if (KO_REVERSE[v]) return KO_REVERSE[v];
+    const i = v.indexOf(" (");
+    if (i > -1 && v.endsWith(")")) {
+        const inner = v.slice(i + 2, -1);
+        if (EN_NAMES.has(inner)) return inner;
+        return inner;
+    }
+    return v;
+}
+
 const translations = {
     'ko': {
         subtitle: "AI가 분석하는 당신의 운명 데이터",
@@ -83,6 +178,8 @@ const translations = {
         placeholderName: "이름을 입력해 주세요.",
         placeholderHour: "시",
         placeholderMinute: "분",
+        placeholderCountry: "국가 (예: 대한민국)",
+        placeholderCity: "도시 (예: 서울)",
         placeholderConcern: "요즘 가장 큰 고민이 무엇인가요?",
         btnSubmit: "분석 시작하기 🚀",
         spinner: "💫 별들의 신호를 수신 중...",
@@ -99,6 +196,8 @@ const translations = {
         placeholderName: "Type your name.",
         placeholderHour: "Hour",
         placeholderMinute: "Minute",
+        placeholderCountry: "Country",
+        placeholderCity: "City",
         placeholderConcern: "What is your main concern?",
         btnSubmit: "Start Analysis 🚀",
         spinner: "💫 Reading the stars...",
@@ -135,17 +234,17 @@ window.onload = function () {
     const countryList = document.getElementById('countryList');
     Object.keys(WORLD_DB).forEach(country => {
         const li = document.createElement('li');
-        li.textContent = country;
+        li.textContent = displayLabel(country);
         li.onclick = function () {
-            selectOption('country', country, 'countryList');
+            selectOption('country', displayLabel(country), 'countryList');
             updateCities(country);
         };
         countryList.appendChild(li);
     });
 
-    selectOption('country', 'South Korea', 'countryList');
+    selectOption('country', displayLabel('South Korea'), 'countryList');
     updateCities('South Korea');
-    selectOption('city', 'Seoul', 'cityList');
+    selectOption('city', displayLabel('Seoul'), 'cityList');
 
     document.addEventListener('click', function (e) {
         if (!e.target.closest('.dropdown-wrapper')) {
@@ -202,6 +301,8 @@ function setLanguage(lang) {
     setPlaceholder('name', t.placeholderName);
     setPlaceholder('hour', t.placeholderHour);
     setPlaceholder('minute', t.placeholderMinute);
+    setPlaceholder('country', t.placeholderCountry);
+    setPlaceholder('city', t.placeholderCity);
     setPlaceholder('concern', t.placeholderConcern);
 
     document.querySelectorAll('.lang-ko').forEach(el => {
@@ -286,8 +387,8 @@ function updateCities(country) {
     if (WORLD_DB[country]) {
         WORLD_DB[country].forEach(city => {
             const li = document.createElement('li');
-            li.textContent = city;
-            li.onclick = function () { selectOption('city', city, 'cityList'); };
+            li.textContent = displayLabel(city);
+            li.onclick = function () { selectOption('city', displayLabel(city), 'cityList'); };
             cityList.appendChild(li);
         });
     }
@@ -385,6 +486,9 @@ function saveResultImage() {
 
     const chartClone = chartContainer.cloneNode(true);
     captureDiv.appendChild(chartClone);
+
+    const legendEl = document.querySelector('.chart-legend');
+    if (legendEl) captureDiv.appendChild(legendEl.cloneNode(true));
 
     let scoreHtml = scoreText ? `<div class="message-score">${scoreText}</div>` : "";
 
@@ -496,8 +600,8 @@ async function analyze() {
         year: y, month: m, day: d,
         hour: parseInt(document.getElementById('hour').value),
         minute: parseInt(document.getElementById('minute').value),
-        country: document.getElementById('country').value || "South Korea",
-        city: document.getElementById('city').value || "Seoul",
+        country: toEnglishValue(document.getElementById('country').value) || "South Korea",
+        city: toEnglishValue(document.getElementById('city').value) || "Seoul",
         concern: document.getElementById('concern').value,
         lang: currentLanguage
     };
@@ -655,6 +759,7 @@ function renderStelliumVisualizer(text, chartData) {
     }
 
     let chartInnerHtml = "";
+    let legendHtml = "";
     let hasActiveData = false;
 
     const pTrans = {
@@ -720,6 +825,16 @@ function renderStelliumVisualizer(text, chartData) {
                     </div>
                 </div>
             `;
+
+            legendHtml += `
+                <div class="legend-item">
+                    <div class="panel-header">
+                        <div class="panel-tags">${tagsHtml}</div>
+                        <span class="panel-z-name">${data.sym} ${displayZodiacName}</span>
+                    </div>
+                    <div class="panel-planets-list">${planetsHtml}</div>
+                </div>
+            `;
         }
 
         chartInnerHtml += `
@@ -746,5 +861,6 @@ function renderStelliumVisualizer(text, chartData) {
             <div class="chart-sectors-wrapper">${chartInnerHtml}</div>
             <div class="center-core"><span>KEY</span><br>CHART</div>
         </div>
+        <div class="chart-legend">${legendHtml}</div>
     `;
 }

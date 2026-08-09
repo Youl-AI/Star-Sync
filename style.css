@@ -126,6 +126,7 @@ body {
 .header-logo {
     font-size: 1.5rem;
     font-weight: 800;
+    white-space: nowrap;
     background: linear-gradient(to right, #fff, #a29bfe);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -142,7 +143,12 @@ body {
 
 .lang-switch {
     display: flex;
+    align-items: center;
     gap: 10px;
+}
+
+.header-blog-link {
+    white-space: nowrap;
 }
 
     .lang-switch button {
@@ -513,7 +519,30 @@ button#btnSubmit {
     }
 
     .app-header {
-        padding: 0 20px;
+        padding: 0 12px;
+    }
+
+    .header-logo {
+        font-size: 1.1rem;
+    }
+
+    .header-logo span {
+        font-size: 1.3rem;
+        margin-right: 5px;
+    }
+
+    .lang-switch {
+        gap: 6px;
+    }
+
+    .header-blog-link {
+        font-size: 0.8rem;
+    }
+
+    .lang-switch button {
+        padding: 5px 10px;
+        margin-left: 0;
+        font-size: 0.75rem;
     }
 }
 
@@ -1176,8 +1205,9 @@ input[type=number] {
     border: 1px solid rgba(255, 215, 0, 0.4);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    padding: 10px 12px;
-    min-width: 120px;
+    padding: 7px 9px;
+    min-width: 92px;
+    max-width: 120px;
     text-align: left;
     backdrop-filter: blur(5px);
 }
@@ -1208,7 +1238,7 @@ input[type=number] {
     }
 
 .panel-z-name {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: bold;
     color: #fff;
     margin-top: 2px;
@@ -1224,7 +1254,7 @@ input[type=number] {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     color: #ddd;
 }
 
@@ -1446,6 +1476,26 @@ input[type=number] {
     aspect-ratio: 1 / 1;
 }
 
+/* 공유 포스터: 방사형 라벨 대신 범례 그리드 고정 (캡처 뷰포트와 무관하게 동일 결과) */
+.share-card .hud-anchor {
+    display: none !important;
+}
+
+.share-card .chart-legend {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 65px 20px 0;
+}
+
+.share-card .legend-item {
+    background: rgba(25, 25, 40, 0.95);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    border-radius: 10px;
+    padding: 6px 8px;
+    text-align: left;
+}
+
 .poster-message-box {
     width: 100%;
     background: rgba(20, 20, 30, 0.9);
@@ -1510,7 +1560,7 @@ input[type=number] {
     }
 
     .hud-anchor.dist-long {
-        --line-length: 110px;
+        --line-length: 185px;
     }
 
 .hud-line {
@@ -1663,13 +1713,13 @@ input[type=number] {
 .global-notice-banner {
     position: relative;
     z-index: 999;
-    margin-top: 70px;
+    margin-top: 40px;
     width: 100%;
     background-color: rgba(162, 155, 254, 0.15);
-    border-bottom: 1px solid rgba(162, 155, 254, 0.3);
+    border-top: 1px solid rgba(162, 155, 254, 0.3);
     text-align: center;
     padding: 10px 15px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     box-sizing: border-box;
 }
 
@@ -1695,9 +1745,9 @@ input[type=number] {
 
     .chart-inner-scaler {
         flex-shrink: 0 !important;
-        transform: scale(0.65) !important;
+        transform: scale(0.8) !important;
         transform-origin: top center !important;
-        margin-bottom: -150px !important;
+        margin-bottom: -60px !important;
     }
 }
 
@@ -1728,11 +1778,40 @@ input[type=number] {
         transform: translateY(-5px);
     }
 
+/* 모바일 차트 축소는 .chart-inner-scaler가 담당 — 컨테이너 중복 스케일(0.65×0.65=0.42) 버그 제거 */
+
+.chart-legend {
+    display: none;
+}
+
 @media screen and (max-width: 768px) {
-    .nebula-chart-container {
-        transform: scale(0.65) !important;
-        transform-origin: center top !important;
-        margin-bottom: -150px !important;
+    .hud-anchor {
+        display: none !important;
+    }
+
+    .chart-legend {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 15px auto 0;
+        max-width: 420px;
+        padding: 0 10px;
+    }
+
+    .legend-item {
+        background: rgba(25, 25, 40, 0.95);
+        border: 1px solid rgba(255, 215, 0, 0.4);
+        border-radius: 10px;
+        padding: 8px 10px;
+        text-align: left;
+    }
+
+    .legend-item .panel-z-name {
+        font-size: 0.9rem;
+    }
+
+    .legend-item .panel-p-item {
+        font-size: 0.8rem;
     }
 }
 
