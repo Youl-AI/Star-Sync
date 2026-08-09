@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://daily-star-sync.vercel.app/sitemap.xml
+Sitemap: https://byeolsaem.com/sitemap.xml

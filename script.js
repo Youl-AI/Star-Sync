@@ -469,7 +469,7 @@ function saveResultImage() {
 
     const titleText = currentLanguage === 'en' ? `${userName}'s Universe` : `${userName}님의 우주`;
     const yearTag = currentLanguage === 'en' ? "#Year_2026" : "#2026년";
-    const analyzedByText = currentLanguage === 'en' ? "ANALYZED BY STAR SYNC" : "Star Sync 분석";
+    const analyzedByText = currentLanguage === 'en' ? "ANALYZED BY BYEOLSAEM" : "별샘 분석";
 
     const header = document.createElement('div');
     header.innerHTML = `
@@ -511,7 +511,7 @@ function saveResultImage() {
         const image = canvas.toDataURL("image/png");
         const link = document.createElement('a');
 
-        const downloadName = currentLanguage === 'en' ? "StarSync_Poster.png" : "StarSync_결과.png";
+        const downloadName = currentLanguage === 'en' ? "Byeolsaem_Poster.png" : "별샘_결과.png";
         link.download = `${userName}_${downloadName}`;
         link.href = image;
         link.click();
@@ -556,7 +556,7 @@ function shareKakao() {
         Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
-                title: 'Star Sync ✨',
+                title: '별샘 ✨',
                 description: 'Check out my 2026 fortune analysis by AI!',
                 imageUrl: 'https://cdn-icons-png.flaticon.com/512/2647/2647287.png',
                 link: { mobileWebUrl: window.location.href, webUrl: window.location.href },
