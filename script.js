@@ -551,6 +551,7 @@ async function analyze() {
 
             loadingArea.style.display = "none";
             resultArea.style.display = "block";
+            resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (document.getElementById('btnSaveImg')) {
                 document.getElementById('btnSaveImg').style.display = 'flex';
             }

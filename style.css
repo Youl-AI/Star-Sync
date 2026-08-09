@@ -442,12 +442,15 @@ button#btnSubmit {
     border: none;
 }
 
+    .info-section h1,
     .info-section h2 {
         text-align: center;
         color: #a29bfe;
         font-size: 2rem;
         margin-bottom: 25px;
         text-shadow: 0 0 10px rgba(162, 155, 254, 0.3);
+        background: none;
+        -webkit-text-fill-color: initial;
     }
 
     .info-section h3 {
@@ -504,6 +507,7 @@ button#btnSubmit {
         padding: 25px;
     }
 
+    .info-section h1,
     .info-section h2 {
         font-size: 1.6rem;
     }
