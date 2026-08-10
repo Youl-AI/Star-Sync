@@ -7,6 +7,8 @@ from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
 import pytz
 import re
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 load_dotenv()
 
@@ -24,6 +26,20 @@ client = genai.Client(api_key=MY_API_KEY)
 # 모델 설정 (Gemini 3.0 Flash Preview)
 # ---------------------------------------------------------
 MODEL_NAME = "gemini-3-flash-preview"
+
+# ---------------------------------------------------------
+# 운세 대상 연도
+# ---------------------------------------------------------
+def get_fortune_year():
+    """
+    운세가 다루는 연도를 반환합니다.
+    11월부터는 다음 해를 봅니다 — 신년운세 수요가 11~12월에 시작되므로,
+    12월 방문자에게 이미 끝나가는 해의 지표를 주면 안 됩니다.
+    서버가 UTC로 돌아도 한국 기준이 되도록 KST로 판단합니다.
+    """
+    now = datetime.now(ZoneInfo("Asia/Seoul"))
+    return now.year + 1 if now.month >= 11 else now.year
+
 
 def get_location_info(city, country):
     """
@@ -103,7 +119,9 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     긴 줄글 대신, 요즘 스타일의 '핵심 요약' 포맷으로 출력
     언어 설정(lang)에 따라 한글 또는 영어 페르소나를 선택하여 답변을 생성합니다.
     """
-    
+
+    fortune_year = get_fortune_year()
+
     # 한글 페르소나
     sys_msg_ko = f"""
     당신은 별들의 움직임을 수학적이고 논리적으로 분석하는 '천체 데이터 분석가(Celestial Analyst)'입니다.
@@ -126,7 +144,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     * **핵심 배치:** (예: 태양-사자자리, 달-전갈자리)
     * **당신의 테마:** (20자 이내의 한 줄 정의)
 
-    ### 📊 2026년 인생 지표
+    ### 📊 {fortune_year}년 인생 지표
     * **종합 운기:** (0~100점)점
     * **직업:** (★/☆ 으로 별 1~5개) - (전문적 분석)
     * **재물:** (★/☆ 으로 별 1~5개) - (전문적 분석)
@@ -169,7 +187,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
     * **Key Placements:** (e.g., Sun-Leo, Moon-Scorpio)
     * **Your Theme:** (One-line definition within 15 words)
     
-    ### 📊 2026 Life Indicators
+    ### 📊 {fortune_year} Life Indicators
     * **Overall Score:** (0~100) Points
     * **Career:** (5 Star with ★/☆) - (Professional Analysis)
     * **Wealth:** (5 Star with ★/☆) - (Professional Analysis)
@@ -209,7 +227,7 @@ def get_ai_interpretation(chart_data, user_concern, lang='ko'):
         )
         raw_text = response.text.strip()
              
-        keyword = "2026운세" if lang == 'ko' else "2026Fortune"
+        keyword = f"{fortune_year}운세" if lang == 'ko' else f"{fortune_year}Fortune"
         report = raw_text
 
         match = re.search(r'(?:###\s*)?(?:Category|카테고리|KEYWORD|키워드)[\:\s\]]*([^\n]+)', raw_text, flags=re.IGNORECASE)
