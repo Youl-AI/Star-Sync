@@ -54,6 +54,10 @@ export function HeroSequence() {
   const [chartDrawn, setChartDrawn] = useState(false);
   // RitualForm이 알려주는 현재 단계. 위쪽 문구를 갈아끼우는 데만 쓴다.
   const [ritualStep, setRitualStep] = useState(0);
+  // 이번 전환이 "다시 보기"인지. 달이 중앙으로 옮겨가는 altar 구간에서는 아직
+  // scene이 "complete"가 아니라서, 이 표시가 없으면 결과를 보러 가는 길에도
+  // "어느 밤에 태어나셨나요?"가 잠깐 떴다가 바뀐다.
+  const [resuming, setResuming] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const ritualRef = useRef<HTMLDivElement>(null);
@@ -193,12 +197,16 @@ export function HeroSequence() {
   }, []);
 
   // 결과 화면에서는 더 이상 묻는 것이 없으므로 질문 대신 도착을 알린다.
+  // 결과로 곧장 가는 중(resuming)이라면 그 도중에도 질문을 띄우지 않는다.
   const promptText =
-    scene === "complete" ? "당신의 하늘입니다" : RITUAL_PROMPTS[ritualStep];
+    scene === "complete" || resuming
+      ? "당신의 하늘입니다"
+      : RITUAL_PROMPTS[ritualStep];
 
   // 입력 의식을 여는 유일한 진입점. 목표 장면을 정한 뒤 GSAP 타임라인을 깨운다.
   const openRitual = (target: Scene) => {
     pendingTargetRef.current = target;
+    setResuming(target === "complete");
     ctxRef.current?.startRitual?.();
   };
 
@@ -355,6 +363,7 @@ export function HeroSequence() {
                     clearBirthProfile();
                     setChartDrawn(false);
                     setRitualStep(0);
+                    setResuming(false);
                     pendingTargetRef.current = "ritual";
                     setScene("ritual");
                   }}
