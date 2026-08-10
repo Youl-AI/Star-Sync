@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { requestRitual } from "@/lib/ritual";
@@ -17,6 +17,8 @@ interface DoorProps {
   glyph: ReactNode;
   /** 큰 문 하나는 설명이 길고 여백이 넉넉하다. 작은 문 둘은 한 줄 태그라인만. */
   size: "lg" | "sm";
+  /** 스크롤 등장 순서. globals.css의 [data-reveal] 규칙이 이 값만큼 지연시킨다. */
+  revealIndex?: number;
   className?: string;
 }
 
@@ -30,13 +32,23 @@ interface DoorProps {
  * 출생 정보가 없다는 걸 확인한 뒤에만 클릭을 가로채서, 새 입력 폼을 띄우는 대신
  * 히어로의 입력 의식으로 되돌려 보낸다 — 입력 지점은 사이트 전체에서 하나다.
  */
-export function Door({ href, title, description, glyph, size, className = "" }: DoorProps) {
+export function Door({
+  href,
+  title,
+  description,
+  glyph,
+  size,
+  revealIndex = 0,
+  className = "",
+}: DoorProps) {
   const { profile, ready } = useBirthProfile();
   const needsBirthData = ready && profile === null;
 
   return (
     <Link
       href={href}
+      data-reveal
+      style={{ "--reveal-i": revealIndex } as CSSProperties}
       className={`${DOOR_CELL} ${size === "lg" ? "p-8" : "p-6"} ${className}`}
       onClick={(e) => {
         if (!needsBirthData) return;

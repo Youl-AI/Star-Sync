@@ -30,6 +30,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" className={`${pretendard.variable} ${maruburi.variable}`}>
       <body className="min-h-[100dvh] bg-ink text-starlight antialiased">
+        {/* 스크롤 등장 대상은 CSS에서 opacity 0으로 시작해 IntersectionObserver가
+            켜주기를 기다린다. 자바스크립트가 아예 실행되지 않는 환경에서는 그
+            신호가 영영 오지 않아 본문이 통째로 보이지 않게 되므로, 그때는 처음부터
+            보이게 되돌린다. */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1;transform:none}`}</style>
+        </noscript>
         {/* SkyBackdrop을 layout에서 한 번만 마운트해 모든 페이지가 배경을 공유한다.
             SkyBackdrop 자신은 fixed + z-0(컴포지팅 버그 회피, SkyBackdrop.tsx 주석 참고)이므로
             일반 흐름 콘텐츠보다 스택 레벨상 위에 그려질 수 있다. 이를 막기 위해 {children}을

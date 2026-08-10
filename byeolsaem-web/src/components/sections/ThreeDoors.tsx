@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { Door } from "./Door";
 import { YearlyTagline } from "./YearlyTagline";
 
@@ -65,12 +66,21 @@ function YearlyGlyph() {
 export function ThreeDoors() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-28 md:py-40">
-      <h2 className="max-w-xl break-keep font-display text-3xl md:text-4xl">당신의 하늘로 통하는 세 개의 문</h2>
+      <h2
+        data-reveal
+        style={{ "--reveal-i": 0 } as CSSProperties}
+        className="max-w-xl break-keep font-display text-3xl md:text-4xl"
+      >
+        당신의 하늘로 통하는 세 개의 문
+      </h2>
 
+      {/* 큰 문이 먼저 서고 작은 문 둘이 차례로 따라 선다(globals.css의
+          [data-reveal] 규칙 참고). */}
       <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-5 md:grid-rows-2">
         <Door
           href="/natal"
           size="lg"
+          revealIndex={1}
           className="md:col-span-3 md:row-span-2"
           glyph={<NatalGlyph />}
           title="천궁도"
@@ -80,6 +90,7 @@ export function ThreeDoors() {
         <Door
           href="/synastry"
           size="sm"
+          revealIndex={2}
           className="md:col-span-2"
           glyph={<SynastryGlyph />}
           title="궁합"
@@ -95,6 +106,7 @@ export function ThreeDoors() {
         <Door
           href="/yearly"
           size="sm"
+          revealIndex={3}
           className="md:col-span-2"
           glyph={<YearlyGlyph />}
           title="연간 운세"
