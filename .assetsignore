@@ -5,3 +5,7 @@ logic.py
 requirements.txt
 measure_latency.py
 wrangler.jsonc
+RENEWAL_PLAN.md
+docs
+.superpowers
+.gitignore
