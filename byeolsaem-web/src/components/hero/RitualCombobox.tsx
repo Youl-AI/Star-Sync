@@ -43,6 +43,7 @@ export function RitualCombobox({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   // 목록을 이미 고른 값 그대로 두면 후보가 하나로 좁혀져, 다시 열었을 때 다른
   // 곳을 고를 수 없다. 고른 값과 검색어가 정확히 같을 때는 검색어가 없는 것으로
@@ -76,6 +77,22 @@ export function RitualCombobox({
     // 확정된 값으로 되돌린다.
     setQuery(value ?? "");
   };
+
+  // 목록을 닫는 기준을 입력 칸의 blur로 두면 안 된다. 목록의 스크롤바를 잡아
+  // 끄는 순간에도 포커스는 입력 칸에서 빠져나가므로, 드래그를 시작하자마자
+  // 목록이 사라져 스크롤이 불가능해진다. 그래서 blur 대신 "이 컴포넌트 바깥을
+  // 눌렀는가"로 판단한다. 키보드로 빠져나가는 경우(Tab)와 Escape는 아래
+  // handleKeyDown이 따로 처리한다.
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) close();
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+    // close는 value에만 의존하며, value가 바뀌면 새 리스너로 교체된다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, value]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -119,11 +136,15 @@ export function RitualCombobox({
         e.preventDefault();
         close();
       }
+      return;
     }
+
+    // Tab은 막지 않는다. 포커스는 다음 칸으로 넘어가되 목록만 접는다.
+    if (e.key === "Tab" && open) close();
   };
 
   return (
-    <div className="relative">
+    <div ref={rootRef} className="relative">
       <label htmlFor={inputId} className="sr-only">
         {label}
       </label>
@@ -149,7 +170,9 @@ export function RitualCombobox({
           setActiveIndex(0);
         }}
         onFocus={() => setOpen(true)}
-        onBlur={close}
+        // 항목을 고른 뒤에도 포커스는 이 칸에 남아 있다. 그래서 다시 누를 때는
+        // focus 이벤트가 오지 않으므로 click으로도 열어줘야 한다.
+        onClick={() => setOpen(true)}
         onKeyDown={handleKeyDown}
       />
 
@@ -159,6 +182,10 @@ export function RitualCombobox({
           id={listId}
           role="listbox"
           aria-label={label}
+          // Lenis가 휠 이벤트를 가로채 문서 스크롤로 돌려버리기 때문에, 이 표시가
+          // 없으면 목록 위에 마우스를 올리고 굴려도 목록은 그대로이고 페이지가
+          // 내려간다. 이 안에서는 브라우저 기본 스크롤을 그대로 쓰게 한다.
+          data-lenis-prevent
           // 칸 바로 아래 같은 너비로 붙는다. 목록이 뜬 동안 아래 내용이 밀리지
           // 않도록 absolute로 띄우고, 별하늘 위에서도 글씨가 읽히도록 배경을
           // 거의 불투명하게 깐다.
@@ -166,7 +193,7 @@ export function RitualCombobox({
           // 사방을 두른 테두리 대신 위쪽 금선 하나만 남긴다. 입력 칸의 밑줄이
           // 그대로 이어져 "선이 열리며 목록이 흘러나오는" 모양이 되고, 상자
           // 하나가 새로 얹힌 느낌을 주지 않는다.
-          className="absolute inset-x-0 top-full z-20 max-h-56 overflow-y-auto border-t border-gold/45 bg-ink/95 py-1 text-center shadow-[0_22px_44px_-26px_rgba(0,0,0,0.95)] backdrop-blur-md"
+          className="thin-scroll absolute inset-x-0 top-full z-20 max-h-56 overflow-y-auto border-t border-gold/45 bg-ink/95 py-1 text-center shadow-[0_22px_44px_-26px_rgba(0,0,0,0.95)] backdrop-blur-md"
         >
           {results.length === 0 && (
             <li className="px-4 py-3 text-center text-xs text-starlight-dim">{emptyText}</li>
@@ -177,9 +204,10 @@ export function RitualCombobox({
               id={`${listId}-${i}`}
               role="option"
               aria-selected={option === value}
-              // 마우스로 항목을 누르는 순간 입력 칸이 blur되어 목록이 먼저 닫히면
-              // 클릭이 허공에서 끝난다. mousedown 기본동작을 막아 포커스를 붙잡아
-              // 둔 뒤 click에서 확정한다.
+              // 항목을 누르는 순간 입력 칸이 blur되면 다음 칸으로 넘어갈 때 포커스
+              // 맥락이 끊긴다. 기본 동작을 막아 포커스를 붙잡아 두고 click에서
+              // 확정한다. 스크롤바는 항목이 아니라 목록 자체에서 눌리므로 이
+              // 처리에 걸리지 않고, 브라우저 기본 드래그가 그대로 동작한다.
               onMouseDown={(e) => e.preventDefault()}
               onMouseEnter={() => setActiveIndex(i)}
               onClick={() => commit(option)}

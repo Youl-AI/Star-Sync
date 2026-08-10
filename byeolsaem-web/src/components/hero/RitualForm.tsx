@@ -257,7 +257,13 @@ export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
 
             {needsDistrict && (
               <div className="mt-6">
+                {/* key에 광역명을 걸어 시도를 바꾸면 이 칸을 통째로 새로 만든다.
+                    그러지 않으면 칸 안에 남아 있던 이전 시·군·구 이름이 그대로
+                    보인다. 새로 만들어지면서 autoFocus가 다시 걸려, 시도를 고른
+                    직후 바로 다음 칸에서 이어 입력할 수 있다. */}
                 <RitualCombobox
+                  key={province}
+                  autoFocus
                   label="태어난 시·군·구"
                   placeholder="시 · 군 · 구"
                   value={district}

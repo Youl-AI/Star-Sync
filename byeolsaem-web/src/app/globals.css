@@ -96,6 +96,29 @@ body {
   font-style: normal;
 }
 
+/*
+ * 어두운 패널 안의 스크롤 영역. 시스템 기본 스크롤바는 폭이 넓고 밝아서 밤하늘
+ * 위에 밝은 막대가 하나 그어진 것처럼 보인다. 표준 프로퍼티(scrollbar-width/
+ * -color)와 WebKit 의사요소를 함께 둬 어느 엔진에서도 가늘고 흐리게 만든다.
+ */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-gold) 45%, transparent) transparent;
+}
+
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-gold) 40%, transparent);
+  border-radius: 3px;
+}
+
 /* 성운: 보라는 여기에만 (스펙 §1.1) */
 .nebula-bg {
   background:
