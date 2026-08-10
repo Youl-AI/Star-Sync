@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  /* 밤 */
+  --color-ink: #0b0e1a;
+  --color-ink-raised: #131629;
+  --color-nebula: #1a1f3d;
+  --color-starlight: #e8e4d8;
+  --color-starlight-dim: #9a96a8;
+  --color-gold: #c9a227;
+  --color-gold-soft: #e3c568;
+  /* 새벽 */
+  --color-paper: #f5f3ee;
+  --color-ink-text: #1d1b2e;
+  --color-ink-dim: #6b6878;
+  --color-gold-dark: #9c7c1a;
+
+  --font-display: var(--font-maruburi), serif;
+  --font-body: var(--font-pretendard), sans-serif;
+}
+
+html {
+  background: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-starlight);
+  font-variant-numeric: tabular-nums;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/*
+ * 행성/어스펙트 기호(♂ ♃ ☽ ☿ ☌ △ □ 등)가 컬러 이모지로 렌더되는 것을 막는 유틸리티.
+ * 이 심볼들은 브랜드 요소이며 제거 대상이 아니다 — OS/폰트에 따라 컬러 이모지 폰트로
+ * 대체되지 않도록 3중으로 방어한다:
+ *   1) font-variant-emoji: text — 표준 CSS 프로퍼티. 지원 브라우저(Chrome 130+/Firefox 135+ 등)에서는
+ *      이것만으로 텍스트 프리젠테이션이 강제된다. 지원이 고르지 않아 단독으로 신뢰하지 않는다.
+ *   2) font-family 폴백 체인 — 컬러 이모지 폰트(Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji)를
+ *      의도적으로 제외하고, 해당 글리프를 흑백으로 보유한 시스템/심볼 전용 폰트를 우선순위에 둔다.
+ *      브라우저는 목록의 폰트 중 글리프를 가진 첫 폰트에서 렌더링을 멈추므로, 이 목록에서 매치되면
+ *      OS 기본 컬러 이모지 폴백까지 내려가지 않는다.
+ *   3) variation selector U+FE0E(text presentation selector) — 마크업에서 심볼 문자 뒤에 병기.
+ *      1), 2)가 모두 실패하는 환경에서도 유니코드 표준 자체가 텍스트 렌더링을 지시하는 최후 방어선.
+ */
+.astro-symbol {
+  font-variant-emoji: text;
+  font-family:
+    "Segoe UI Symbol",
+    "Apple Symbols",
+    "Noto Sans Symbols2",
+    "Noto Sans Symbols",
+    var(--font-body),
+    sans-serif;
+  font-style: normal;
+}
+
+/* 성운: 보라는 여기에만 (스펙 §1.1) */
+.nebula-bg {
+  background:
+    radial-gradient(ellipse 60% 50% at 62% 38%, rgba(109, 90, 207, 0.16), transparent 70%),
+    linear-gradient(115deg, #0b0d1c 0%, #0e1024 45%, #221d4a 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
