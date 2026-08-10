@@ -21,8 +21,11 @@ export function ArchCard({
       className="border border-gold/30 bg-gold/5 p-[7px]"
     >
       <div
-        style={{ borderRadius: `${r - 7}px ${r - 7}px 6px 6px` }}
-        className="relative h-full overflow-hidden border border-gold/60 bg-gradient-to-b from-nebula/90 to-ink shadow-[0_0_44px_6px_rgba(201,162,39,0.12),inset_0_1px_0_rgba(232,228,216,0.07)]"
+        style={{
+          borderRadius: `${r - 7}px ${r - 7}px 6px 6px`,
+          boxShadow: `0 0 44px 6px color-mix(in srgb, var(--color-gold) 12%, transparent), inset 0 1px 0 color-mix(in srgb, var(--color-starlight) 7%, transparent)`,
+        }}
+        className="relative h-full overflow-hidden border border-gold/60 bg-gradient-to-b from-nebula/90 to-ink"
       >
         <svg viewBox="0 0 14 14" className="absolute left-1/2 top-2.5 size-3 -translate-x-1/2" aria-hidden>
           <path d="M7 .5 8 4.6l4.5.6L9 8l1 4.5L7 9.9 4 12.5 5 8 1.5 5.2l4.5-.6Z" fill="var(--color-gold-soft)" />

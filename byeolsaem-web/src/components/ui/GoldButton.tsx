@@ -19,6 +19,6 @@ export function GoldButton({
       {children}
     </Link>
   ) : (
-    <button className={base}>{children}</button>
+    <button type="button" className={base}>{children}</button>
   );
 }
