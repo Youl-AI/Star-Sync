@@ -9,6 +9,9 @@ import { TalismanChip } from "@/components/ui/TalismanChip";
 import { Moon } from "./Moon";
 import { RitualForm } from "./RitualForm";
 import { MockChart } from "./MockChart";
+import { useBirthProfile } from "@/hooks/useBirthProfile";
+import { clearBirthProfile, saveBirthProfile } from "@/lib/birth-profile";
+import { OPEN_RITUAL_EVENT } from "@/lib/ritual";
 
 gsap.registerPlugin(Flip);
 
@@ -29,9 +32,9 @@ export type Scene = "arrival" | "altar" | "ritual" | "complete";
 // 효과를 transform 없이 낼 수 있다.
 const MOON_POSITION: Record<Scene, string> = {
   arrival: "-right-[130px] -top-[110px] md:-right-[210px] md:-top-[170px]",
-  altar: "left-1/2 top-[18%] -ml-[130px] -mt-[130px] md:-ml-[200px] md:-mt-[200px]",
-  ritual: "left-1/2 top-[18%] -ml-[130px] -mt-[130px] md:-ml-[200px] md:-mt-[200px]",
-  complete: "left-1/2 top-[18%] -ml-[130px] -mt-[130px] md:-ml-[200px] md:-mt-[200px]",
+  altar: "left-1/2 top-[18dvh] -ml-[130px] -mt-[130px] md:-ml-[200px] md:-mt-[200px]",
+  ritual: "left-1/2 top-[18dvh] -ml-[130px] -mt-[130px] md:-ml-[200px] md:-mt-[200px]",
+  complete: "left-1/2 top-[18dvh] -ml-[130px] -mt-[130px] md:-ml-[200px] md:-mt-[200px]",
 };
 
 export function HeroSequence() {
@@ -49,6 +52,22 @@ export function HeroSequence() {
   // 호출 시점에 아직 반영되지 않을 수 있다. ref는 대입 즉시(동기) 값이 바뀌므로
   // 같은 이벤트 루프 틱 안에서 벌어지는 연속 클릭도 확실히 막는다.
   const isTransitioningRef = useRef(false);
+
+  // 이미 출생 정보를 남긴 사람인지. 저장소는 클라이언트에서만 읽히므로
+  // profileReady가 true가 되기 전에는 "처음 온 사람" 쪽 문구를 그린다.
+  const { profile, ready: profileReady } = useBirthProfile();
+
+  // startRitual이 도착해야 할 장면. 처음 온 사람은 입력 폼("ritual"), 이미
+  // 입력을 마친 사람은 결과("complete")로 곧장 간다. GSAP context에 등록된
+  // 함수는 인자 전달 방식이 문서화돼 있지 않으므로 상태를 ref로 건네준다
+  // (setState는 배칭되어 같은 틱 안에서 반영이 보장되지 않는다).
+  const pendingTargetRef = useRef<Scene>("ritual");
+  // 진행 중인 장면. window 이벤트 리스너가 낡은 클로저로 scene을 보지 않도록
+  // 별도 ref에 미러링한다.
+  const sceneRef = useRef<Scene>("arrival");
+  useEffect(() => {
+    sceneRef.current = scene;
+  }, [scene]);
 
   // gsap.context는 이 컴포넌트가 만든 모든 트윈/타임라인(Flip 포함)을 추적해서
   // unmount 시 ctx.revert() 한 번으로 정리할 수 있게 해준다.
@@ -70,14 +89,14 @@ export function HeroSequence() {
       ).matches;
 
       if (reducedMotion) {
-        setScene("ritual");
+        setScene(pendingTargetRef.current);
         isTransitioningRef.current = false;
         return;
       }
 
       const moonEl = document.getElementById("hero-moon");
       if (!moonEl) {
-        setScene("ritual");
+        setScene(pendingTargetRef.current);
         isTransitioningRef.current = false;
         return;
       }
@@ -85,7 +104,7 @@ export function HeroSequence() {
       const tl = gsap.timeline({
         defaults: { ease: "power2.out" },
         onComplete: () => {
-          setScene("ritual");
+          setScene(pendingTargetRef.current);
           isTransitioningRef.current = false;
         },
       });
@@ -161,6 +180,23 @@ export function HeroSequence() {
     };
   }, []);
 
+  // 입력 의식을 여는 유일한 진입점. 목표 장면을 정한 뒤 GSAP 타임라인을 깨운다.
+  const openRitual = (target: Scene) => {
+    pendingTargetRef.current = target;
+    ctxRef.current?.startRitual?.();
+  };
+
+  // 페이지 아래쪽 "세 개의 문"에서 올라오는 요청. 각 문이 자기만의 입력 폼을
+  // 만드는 대신 이 이벤트를 쏘고, 입력은 언제나 여기 히어로에서만 받는다.
+  // 이미 의식이 시작된 뒤라면 무시한다(진행 중인 흐름을 되감지 않는다).
+  useEffect(() => {
+    const onOpen = () => {
+      if (sceneRef.current === "arrival") openRitual("ritual");
+    };
+    window.addEventListener(OPEN_RITUAL_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_RITUAL_EVENT, onOpen);
+  }, []);
+
   // ritual → complete 전환에서는 관심사 버튼(포커스를 갖고 있던 요소)이 통째로
   // 언마운트된다. arrival → altar 때와 달리 옮겨갈 곳을 안내해줄 GSAP 콜백이
   // 없으므로, 여기서 별도로 scene이 "complete"가 되는 순간 결과 컨테이너로
@@ -173,70 +209,75 @@ export function HeroSequence() {
   }, [scene]);
 
   return (
-    <section
-      ref={sectionRef}
-      // overflow-hidden은 "arrival"/"altar" 장면에서 달이 화면 모서리에 반쯤 잘려
-      // 보이는 비대칭 구도를 만들기 위한 것(위 MOON_POSITION 주석 참고)이다. 그 두
-      // 장면을 벗어나면 달은 이미 중앙에 자리를 잡아 더 이상 자를 필요가 없고,
-      // 오히려 의식 폼과 목업 결과가 섹션의 min-height(고정 100dvh, absolute 자식은
-      // 높이 계산에 기여하지 않음)를 넘어설 때 overflow-hidden이 내용을 완전히
-      // 잘라내 버려 스크롤로도 닿지 못하게 만든다(모바일 키보드 검증 항목 참고).
-      // 그래서 "ritual"/"complete"에서는 overflow를 풀어 문서 스크롤이 넘치는
-      // 내용을 그대로 포함하도록 한다.
-      className={`relative min-h-[100dvh] ${
-        scene === "ritual" || scene === "complete" ? "overflow-visible" : "overflow-hidden"
-      }`}
-      id="hero"
-    >
-      <Moon className={MOON_POSITION[scene]} />
+    // 히어로는 두 층으로 나뉜다.
+    //
+    // (1) 무대(stage): 정확히 100dvh 고정. 달과 헤드라인이 이 안에서 absolute로
+    //     배치된다. overflow-hidden은 "arrival"에서 달이 화면 모서리에 반쯤 잘려
+    //     보이는 비대칭 구도를 만든다(MOON_POSITION 주석 참고). 높이가 절대
+    //     변하지 않으므로 달의 top-[18dvh]나 헤드라인의 bottom-20이 장면 전환
+    //     도중에 흔들리지 않는다.
+    //
+    // (2) 의식/결과: 일반 흐름(flow) 안에 있고 음수 마진으로 무대 위 52dvh
+    //     지점까지 끌어올려 겹친다. absolute가 아니라 flow인 것이 핵심이다 —
+    //     absolute 자식은 부모 높이에 기여하지 않아서, 예전 구조에서는 결과
+    //     카드가 100dvh를 넘어가는 순간 아래 섹션(TodayTeaser)이 그 위를 덮어
+    //     "다른 정보로 보기" 버튼이 클릭조차 되지 않았다(Playwright pointer
+    //     intercept로 실측 확인). 이제 히어로가 자기 내용만큼 실제 높이를 갖는다.
+    <section ref={sectionRef} className="relative min-h-[100dvh]" id="hero">
+      <div className="relative h-[100dvh] overflow-hidden">
+        <Moon className={MOON_POSITION[scene]} />
 
-      {(scene === "arrival" || scene === "altar") && (
-        <div
-          ref={headlineRef}
-          aria-hidden={scene !== "arrival"}
-          // pointer-events-none은 마우스만 막고 키보드 Tab 순서는 그대로 둔다.
-          // altar 장면(노출 약 1.5s)에서 안의 GoldButton과 "오늘의 하늘" 링크가
-          // 여전히 포커스 가능한 채로 aria-hidden 조상 안에 남는 axe
-          // aria-hidden-focus 위반을 막기 위해 inert도 함께 건다. 위의 flushSync
-          // 콜백이 이 블록을 aria-hidden/inert로 만드는 것과 같은 동기 구간에서
-          // ritualRef로 포커스를 명시적으로 옮기므로(주석 참고), 포커스가 body로
-          // 새는 창은 생기지 않는다.
-          inert={scene !== "arrival"}
-          className={`absolute bottom-20 left-6 md:bottom-24 md:left-14 ${
-            scene !== "arrival" ? "pointer-events-none" : ""
-          }`}
-        >
-          <h1 className="font-display text-3xl leading-snug text-starlight md:text-6xl">
-            <span className="block whitespace-nowrap">당신이 태어난 밤,</span>
-            <em className="block whitespace-nowrap not-italic text-gold-soft">
-              하늘은 기억하고 있어요
-            </em>
-          </h1>
-          <p className="mt-5 text-sm text-starlight-dim md:text-base">
-            태어난 순간의 행성 배치로 읽는 나의 이야기
-          </p>
-          <div className="mt-8 flex items-center gap-6">
-            <GoldButton
-              variant="solid"
-              onClick={() => ctxRef.current?.startRitual?.()}
-            >
-              나의 밤하늘 보기
-            </GoldButton>
-            <a
-              href="/today"
-              className="border-b border-starlight-dim/40 pb-0.5 text-sm text-starlight-dim transition-colors hover:text-starlight"
-            >
-              오늘의 하늘
-            </a>
+        {(scene === "arrival" || scene === "altar") && (
+          <div
+            ref={headlineRef}
+            aria-hidden={scene !== "arrival"}
+            // pointer-events-none은 마우스만 막고 키보드 Tab 순서는 그대로 둔다.
+            // altar 장면(노출 약 1.5s)에서 안의 GoldButton과 "오늘의 하늘" 링크가
+            // 여전히 포커스 가능한 채로 aria-hidden 조상 안에 남는 axe
+            // aria-hidden-focus 위반을 막기 위해 inert도 함께 건다. 위의 flushSync
+            // 콜백이 이 블록을 aria-hidden/inert로 만드는 것과 같은 동기 구간에서
+            // ritualRef로 포커스를 명시적으로 옮기므로(주석 참고), 포커스가 body로
+            // 새는 창은 생기지 않는다.
+            inert={scene !== "arrival"}
+            className={`absolute bottom-20 left-6 md:bottom-24 md:left-14 ${
+              scene !== "arrival" ? "pointer-events-none" : ""
+            }`}
+          >
+            <h1 className="font-display text-3xl leading-snug text-starlight md:text-6xl">
+              <span className="block whitespace-nowrap">당신이 태어난 밤,</span>
+              <em className="block whitespace-nowrap not-italic text-gold-soft">
+                하늘은 기억하고 있어요
+              </em>
+            </h1>
+            <p className="mt-5 text-sm text-starlight-dim md:text-base">
+              태어난 순간의 행성 배치로 읽는 나의 이야기
+            </p>
+            <div className="mt-8 flex items-center gap-6">
+              <GoldButton
+                variant="solid"
+                onClick={() => openRitual(profile ? "complete" : "ritual")}
+              >
+                {profileReady && profile ? "내 밤하늘 다시 보기" : "나의 밤하늘 보기"}
+              </GoldButton>
+              <a
+                href="/today"
+                className="border-b border-starlight-dim/40 pb-0.5 text-sm text-starlight-dim transition-colors hover:text-starlight"
+              >
+                오늘의 하늘
+              </a>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {scene !== "arrival" && (
         <div
           ref={ritualRef}
           tabIndex={-1}
-          className="absolute inset-x-0 top-[52%] px-6 pb-16 text-center focus:outline-none"
+          // -mt-[48dvh]: 무대(100dvh) 위 52dvh 지점에서 시작하도록 끌어올린다.
+          // 예전의 `absolute top-[52%]`와 같은 위치지만, 흐름 안에 남아 있어
+          // 아래로 자라는 만큼 히어로 섹션의 높이도 함께 자란다.
+          className="relative -mt-[48dvh] px-6 pb-24 text-center focus:outline-none"
           id="hero-ritual"
         >
           <p className="font-display text-2xl text-starlight md:text-3xl">
@@ -245,7 +286,16 @@ export function HeroSequence() {
 
           {scene === "ritual" && (
             <div className="mt-10">
-              <RitualForm onComplete={() => setScene("complete")} />
+              {/* 여기가 사이트 전체에서 출생 정보를 받는 유일한 지점이다.
+                  받은 즉시 저장해두면 /natal·/today·/synastry·/yearly가 각자
+                  다시 묻지 않고 같은 값을 읽어 쓴다. 저장이 실패해도(시크릿
+                  모드 등) 이번 세션의 결과 화면은 그대로 진행된다. */}
+              <RitualForm
+                onComplete={(data) => {
+                  saveBirthProfile(data);
+                  setScene("complete");
+                }}
+              />
             </div>
           )}
 
@@ -274,6 +324,20 @@ export function HeroSequence() {
                   <TalismanChip symbol="☉" label="태양 양자리" />
                   <TalismanChip symbol="☽" label="달 게자리" />
                 </div>
+                {/* 저장된 정보를 버리고 처음부터 다시 입력하는 유일한 출구.
+                    잘못 입력했거나 다른 사람의 하늘을 보려는 경우를 위한 것이다. */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearBirthProfile();
+                    setChartDrawn(false);
+                    pendingTargetRef.current = "ritual";
+                    setScene("ritual");
+                  }}
+                  className="text-[11px] tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight"
+                >
+                  다른 정보로 보기
+                </button>
               </div>
             </div>
           )}

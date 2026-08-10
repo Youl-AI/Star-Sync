@@ -14,7 +14,7 @@ export function YearlyTagline() {
     setLabel(`${getFortuneYear(new Date())}년, 흘러갈 열두 달`);
   }, []);
 
-  return (
-    <p className="mt-1.5 min-h-[1.25em] break-keep text-sm text-starlight-dim">{label}</p>
-  );
+  // 여백·글자색·줄바꿈 규칙은 이 문구를 감싸는 Door의 설명 슬롯이 이미 갖고
+  // 있다. 여기서는 값이 비어 있는 첫 프레임에도 높이가 무너지지 않게만 한다.
+  return <span className="block min-h-[1.25em]">{label}</span>;
 }

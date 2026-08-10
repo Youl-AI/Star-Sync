@@ -1,9 +1,9 @@
-import Link from "next/link";
+import { Door } from "./Door";
 import { YearlyTagline } from "./YearlyTagline";
 
 // 세 개의 문에 쓰이는 미니 비주얼. Task 4~10의 미니 성좌 스타일(가는 금색 선 +
 // 별점 원)을 재사용하되 문마다 다른 형상을 그린다 — 벤토 셀이 빈 카드로 보이지
-// 않도록 하는 장치.
+// 않도록 하는 장치. 서버에서 그려져 Door(클라이언트)에 슬롯으로 넘어간다.
 function NatalGlyph() {
   return (
     <svg viewBox="0 0 140 90" className="h-24 w-full max-w-[220px]" aria-hidden>
@@ -59,13 +59,6 @@ function YearlyGlyph() {
   );
 }
 
-// 셀 배경은 반투명해야 뒤의 WebGL 별하늘이 실제로 비쳐 보인다(.nebula-bg는
-// 완전 불투명 + 보라 레이어라 재사용 금지 — 스펙 §1.1, Task 11 리뷰 Critical 1).
-// bg-ink-raised/40 정도의 옅은 금색-중립 표면 + 얇은 금색 테두리로 카드감만
-// 남기고, blur는 별이 뭉개지지 않도록 아주 약하게만 준다.
-const DOOR_CELL =
-  "group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gold/20 bg-ink-raised/40 backdrop-blur-[2px] transition-colors hover:border-gold/50 hover:bg-ink-raised/50";
-
 // 레이아웃 패밀리: 비대칭 벤토 (5열 그리드, 큰 문 col-span-3/row-span-2 + 작은
 // 문 두 개 col-span-2 세로 스택). 모바일에서는 grid-cols-1로 접혀 세 문이
 // 순서대로 쌓인다.
@@ -75,26 +68,23 @@ export function ThreeDoors() {
       <h2 className="max-w-xl break-keep font-display text-3xl md:text-4xl">당신의 하늘로 통하는 세 개의 문</h2>
 
       <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-5 md:grid-rows-2">
-        <Link href="/natal" className={`${DOOR_CELL} p-8 md:col-span-3 md:row-span-2`}>
-          <NatalGlyph />
-          <div>
-            <h3 className="break-keep font-display text-2xl text-starlight">천궁도</h3>
-            <p className="mt-2 max-w-xs break-keep text-sm leading-relaxed text-starlight-dim">
-              태어난 순간 하늘에 새겨진 나의 원형. 태양과 달, 열 개의 행성이 그리는 이야기.
-            </p>
-            <span className="mt-4 inline-block text-xs tracking-wide text-gold-soft group-hover:text-gold">
-              자세히 보기 →
-            </span>
-          </div>
-        </Link>
+        <Door
+          href="/natal"
+          size="lg"
+          className="md:col-span-3 md:row-span-2"
+          glyph={<NatalGlyph />}
+          title="천궁도"
+          description="태어난 순간 하늘에 새겨진 나의 원형. 태양과 달, 열 개의 행성이 그리는 이야기."
+        />
 
-        <Link href="/synastry" className={`${DOOR_CELL} p-6 md:col-span-2`}>
-          <SynastryGlyph />
-          <div>
-            <h3 className="font-display text-xl text-starlight">궁합</h3>
-            <p className="mt-1.5 break-keep text-sm text-starlight-dim">두 하늘이 겹치는 자리</p>
-          </div>
-        </Link>
+        <Door
+          href="/synastry"
+          size="sm"
+          className="md:col-span-2"
+          glyph={<SynastryGlyph />}
+          title="궁합"
+          description="두 하늘이 겹치는 자리"
+        />
 
         {/* 링크는 연도 없는 경로로 둔다: 정적 export라 연도가 붙은 라우트를
             빌드 시점에 박제하면 해가 바뀌는 순간 죽은 링크가 된다(URL은 재빌드
@@ -102,13 +92,14 @@ export function ThreeDoors() {
             /yearly 페이지가 실제 구현될 때 그 안에서 getFortuneYear로 연도를
             해석하게 한다. 화면에 보이는 연도 문구만 YearlyTagline에서 클라이언트
             마운트 시점에 채운다(TodayDate.tsx와 동일 패턴). */}
-        <Link href="/yearly" className={`${DOOR_CELL} p-6 md:col-span-2`}>
-          <YearlyGlyph />
-          <div>
-            <h3 className="font-display text-xl text-starlight">연간 운세</h3>
-            <YearlyTagline />
-          </div>
-        </Link>
+        <Door
+          href="/yearly"
+          size="sm"
+          className="md:col-span-2"
+          glyph={<YearlyGlyph />}
+          title="연간 운세"
+          description={<YearlyTagline />}
+        />
       </div>
     </section>
   );
