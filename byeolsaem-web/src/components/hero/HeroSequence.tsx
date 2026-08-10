@@ -4,7 +4,11 @@ import { flushSync } from "react-dom";
 import { gsap } from "gsap";
 import { Flip } from "gsap/Flip";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { ArchCard } from "@/components/ui/ArchCard";
+import { TalismanChip } from "@/components/ui/TalismanChip";
 import { Moon } from "./Moon";
+import { RitualForm } from "./RitualForm";
+import { MockChart } from "./MockChart";
 
 gsap.registerPlugin(Flip);
 
@@ -32,6 +36,9 @@ const MOON_POSITION: Record<Scene, string> = {
 
 export function HeroSequence() {
   const [scene, setScene] = useState<Scene>("arrival");
+  // "complete" 장면에서 목업 천궁도 드로잉이 끝났는지. 드로잉이 끝나야 그 아래
+  // 목업 결과 카드가 페이드인한다.
+  const [chartDrawn, setChartDrawn] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const ritualRef = useRef<HTMLDivElement>(null);
@@ -156,7 +163,17 @@ export function HeroSequence() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[100dvh] overflow-hidden"
+      // overflow-hidden은 "arrival"/"altar" 장면에서 달이 화면 모서리에 반쯤 잘려
+      // 보이는 비대칭 구도를 만들기 위한 것(위 MOON_POSITION 주석 참고)이다. 그 두
+      // 장면을 벗어나면 달은 이미 중앙에 자리를 잡아 더 이상 자를 필요가 없고,
+      // 오히려 의식 폼과 목업 결과가 섹션의 min-height(고정 100dvh, absolute 자식은
+      // 높이 계산에 기여하지 않음)를 넘어설 때 overflow-hidden이 내용을 완전히
+      // 잘라내 버려 스크롤로도 닿지 못하게 만든다(모바일 키보드 검증 항목 참고).
+      // 그래서 "ritual"/"complete"에서는 overflow를 풀어 문서 스크롤이 넘치는
+      // 내용을 그대로 포함하도록 한다.
+      className={`relative min-h-[100dvh] ${
+        scene === "ritual" || scene === "complete" ? "overflow-visible" : "overflow-hidden"
+      }`}
       id="hero"
     >
       <Moon className={MOON_POSITION[scene]} />
@@ -199,12 +216,40 @@ export function HeroSequence() {
         <div
           ref={ritualRef}
           tabIndex={-1}
-          className="absolute inset-x-0 top-[52%] px-6 text-center focus:outline-none"
+          className="absolute inset-x-0 top-[52%] px-6 pb-16 text-center focus:outline-none"
           id="hero-ritual"
         >
           <p className="font-display text-2xl text-starlight md:text-3xl">
             어느 밤에 태어나셨나요?
           </p>
+
+          {scene === "ritual" && (
+            <div className="mt-10">
+              <RitualForm onComplete={() => setScene("complete")} />
+            </div>
+          )}
+
+          {scene === "complete" && (
+            <div className="mt-10 flex flex-col items-center gap-8">
+              <MockChart onDrawn={() => setChartDrawn(true)} />
+              <div
+                className={`flex flex-col items-center gap-6 transition-opacity duration-700 ${
+                  chartDrawn ? "opacity-100" : "opacity-0"
+                }`}
+                inert={!chartDrawn}
+              >
+                <ArchCard
+                  name="봄의 불꽃"
+                  latin="MOCK RESULT"
+                  tagline="곧 진짜 하늘이 연결됩니다"
+                />
+                <div className="flex flex-wrap justify-center gap-2.5">
+                  <TalismanChip symbol="☉" label="태양 양자리" />
+                  <TalismanChip symbol="☽" label="달 게자리" />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>
