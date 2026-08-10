@@ -1,3 +1,4 @@
+import { Wordmark } from "@/components/brand/Wordmark";
 import { ArchCard } from "@/components/ui/ArchCard";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { LineDiamond } from "@/components/ui/LineDiamond";
@@ -13,6 +14,20 @@ export default function Home() {
       </span>
 
       <section className="mt-16 space-y-16">
+        <div>
+          <h2 className="font-display text-lg text-starlight-dim">Wordmark</h2>
+          <div className="mt-4 flex flex-wrap items-end gap-16">
+            <div>
+              <p className="mb-2 text-xs text-starlight-dim">nav</p>
+              <Wordmark size="nav" />
+            </div>
+            <div>
+              <p className="mb-2 text-xs text-starlight-dim">hero</p>
+              <Wordmark size="hero" />
+            </div>
+          </div>
+        </div>
+
         <div>
           <h2 className="font-display text-lg text-starlight-dim">GoldButton</h2>
           <div className="mt-4 flex flex-wrap items-center gap-4">
