@@ -3,6 +3,7 @@ import { mulberry32 } from "../lib/random";
 import { generateStars } from "../lib/stars";
 import { detectSkyTier } from "../lib/sky-tier";
 import { validateBirthDate } from "../lib/birth";
+import { getFortuneYear } from "../lib/date";
 
 describe("mulberry32", () => {
   it("같은 시드는 같은 수열", () => {
@@ -49,5 +50,20 @@ describe("validateBirthDate", () => {
   it("미래·1900 이전 거부", () => {
     expect(validateBirthDate(2999, 1, 1)).toBe(false);
     expect(validateBirthDate(1899, 12, 31)).toBe(false);
+  });
+});
+
+describe("getFortuneYear", () => {
+  it("1월~10월은 올해를 반환", () => {
+    expect(getFortuneYear(new Date(2026, 0, 1))).toBe(2026);
+    expect(getFortuneYear(new Date(2026, 9, 31))).toBe(2026);
+  });
+  it("11월부터는 내년을 반환", () => {
+    expect(getFortuneYear(new Date(2026, 10, 1))).toBe(2027);
+    expect(getFortuneYear(new Date(2026, 11, 31))).toBe(2027);
+  });
+  it("연말/연초 경계", () => {
+    expect(getFortuneYear(new Date(2025, 11, 31, 23, 59))).toBe(2026);
+    expect(getFortuneYear(new Date(2026, 0, 1, 0, 0))).toBe(2026);
   });
 });

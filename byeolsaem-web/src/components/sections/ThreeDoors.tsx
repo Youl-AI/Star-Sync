@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { YearlyTagline } from "./YearlyTagline";
 
 // 세 개의 문에 쓰이는 미니 비주얼. Task 4~10의 미니 성좌 스타일(가는 금색 선 +
 // 별점 원)을 재사용하되 문마다 다른 형상을 그린다 — 벤토 셀이 빈 카드로 보이지
@@ -95,11 +96,17 @@ export function ThreeDoors() {
           </div>
         </Link>
 
-        <Link href="/yearly/2027" className={`${DOOR_CELL} p-6 md:col-span-2`}>
+        {/* 링크는 연도 없는 경로로 둔다: 정적 export라 연도가 붙은 라우트를
+            빌드 시점에 박제하면 해가 바뀌는 순간 죽은 링크가 된다(URL은 재빌드
+            없이는 절대 바뀌지 않으므로 텍스트보다 더 심각한 하드코딩이다).
+            /yearly 페이지가 실제 구현될 때 그 안에서 getFortuneYear로 연도를
+            해석하게 한다. 화면에 보이는 연도 문구만 YearlyTagline에서 클라이언트
+            마운트 시점에 채운다(TodayDate.tsx와 동일 패턴). */}
+        <Link href="/yearly" className={`${DOOR_CELL} p-6 md:col-span-2`}>
           <YearlyGlyph />
           <div>
             <h3 className="font-display text-xl text-starlight">연간 운세</h3>
-            <p className="mt-1.5 break-keep text-sm text-starlight-dim">2027년, 흘러갈 열두 달</p>
+            <YearlyTagline />
           </div>
         </Link>
       </div>
