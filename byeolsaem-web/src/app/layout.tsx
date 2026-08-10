@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { SkyBackdrop } from "@/components/sky/SkyBackdrop";
 import { Veil } from "@/components/nav/Veil";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
 const pretendard = localFont({
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             relative z-10 래퍼로 감싸 명시적 스택 컨텍스트를 부여한다 — 페이지마다 이 래퍼를
             반복해서 챙길 필요가 없도록 layout 레벨에서 한 번에 처리한다. Veil 네비(z-40)는
             그보다 항상 위에 있다. */}
+        <SmoothScroll />
         <SkyBackdrop />
         <Veil />
         <div className="relative z-10">{children}</div>

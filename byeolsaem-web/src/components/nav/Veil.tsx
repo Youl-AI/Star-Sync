@@ -82,8 +82,12 @@ export function Veil() {
                 {l.label}
               </Link>
             ))}
+            {/* #hero-ritual은 HeroSequence가 "arrival" 장면을 벗어난 뒤에만 마운트되는
+                id라 첫 진입 시(가장 흔한 경우) 걸어두면 클릭해도 아무 일도 안 일어나는
+                깨진 링크가 된다. 항상 존재하는 히어로 섹션 자체(#hero)로 스크롤시켜
+                사용자를 실제 CTA("나의 밤하늘 보기")가 보이는 위치로 되돌려보낸다. */}
             <a
-              href="#hero-ritual"
+              href="#hero"
               className={`rounded-full px-4 py-2 text-xs tracking-wider transition-colors ${GOLD_OUTLINE_CLASSES}`}
             >
               내 밤하늘

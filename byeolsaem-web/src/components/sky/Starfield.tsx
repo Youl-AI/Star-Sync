@@ -32,7 +32,10 @@ const VERTEX_SHADER = /* glsl */ `
     vAlpha = aAlpha * twinkle;
 
     float attenuation = uSizeScale / max(0.001, -mvPosition.z);
-    gl_PointSize = clamp(aSize * uPixelRatio * attenuation, 1.0, 48.0);
+    // 상한을 48 -> 9로 낮췄다: 예전 상한(48px)에서는 가장 크고 가까운 별들이
+    // 죄다 이 값에 clamp되어 큼직한 원반으로 뭉개져 렌즈 보케처럼 보였다.
+    // 밤하늘은 아무리 밝은 별도 점광원이라 화면상 지름이 몇 픽셀을 넘지 않는다.
+    gl_PointSize = clamp(aSize * uPixelRatio * attenuation, 1.0, 9.0);
     gl_Position = projectionMatrix * mvPosition;
   }
 `;
@@ -46,7 +49,10 @@ const FRAGMENT_SHADER = /* glsl */ `
     // (사각 점 대신 가장자리가 자연스럽게 사라지는 원형 스프라이트).
     vec2 centered = gl_PointCoord - vec2(0.5);
     float dist = length(centered) * 2.0;
-    float falloff = smoothstep(1.0, 0.0, dist);
+    // 가장자리를 더 빨리 죽여(0.7 지점부터 0으로) 부드러운 원반 대신 또렷한
+    // 점처럼 보이게 한다 — 기존 smoothstep(1.0, 0.0, dist)는 반경 전체에 걸쳐
+    // 서서히 페이드되어 큰 포인트 크기와 만나면 보케(렌즈 흐림)처럼 보였다.
+    float falloff = smoothstep(0.7, 0.0, dist);
 
     float alpha = falloff * vAlpha;
     if (alpha < 0.01) discard;
