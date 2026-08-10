@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from logic import get_natal_chart_data, get_ai_interpretation
+from logic import get_natal_chart_data, get_ai_interpretation, get_fortune_year
 
 # 1. 환경 변수(.env)에서 쿠팡 API 키 불러오기
 load_dotenv()
@@ -130,7 +130,7 @@ async def analyze(request: AnalysisRequest):
         
         return {
             "ai_message": ai_message["report"],       
-            "keyword": ai_message.get("keyword", "2026운세"), 
+            "keyword": ai_message.get("keyword", f"{get_fortune_year()}운세"),
             
             "coupang_link": coupang_link, 
             "chart_data": {
