@@ -6,7 +6,12 @@ export function Moon({ className = "" }: { className?: string }) {
   return (
     <div id="hero-moon" className={`pointer-events-none absolute ${className}`} aria-hidden>
       <div className="relative">
-        <div className="size-[260px] rounded-full border border-gold/50 shadow-[0_0_90px_14px_rgba(201,162,39,0.16),inset_0_0_60px_rgba(201,162,39,0.12)] md:size-[400px]" />
+        <div
+          className="size-[260px] rounded-full border border-gold/50 md:size-[400px]"
+          style={{
+            boxShadow: `0 0 90px 14px color-mix(in srgb, var(--color-gold) 16%, transparent), inset 0 0 60px color-mix(in srgb, var(--color-gold) 12%, transparent)`,
+          }}
+        />
         <div className="absolute inset-[18%] rounded-full border border-gold/25" />
       </div>
     </div>
