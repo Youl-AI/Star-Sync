@@ -22,8 +22,12 @@ describe("generateStars", () => {
     expect(s1).toEqual(s2);
     for (const s of s1) {
       expect(Math.abs(s.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(s.y)).toBeLessThanOrEqual(1);
+      expect(Math.abs(s.z)).toBeLessThanOrEqual(1);
       expect(s.size).toBeGreaterThanOrEqual(0.5);
       expect(s.size).toBeLessThanOrEqual(2);
+      expect(s.phase).toBeGreaterThanOrEqual(0);
+      expect(s.phase).toBeLessThan(2 * Math.PI);
     }
   });
 });
