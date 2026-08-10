@@ -1,4 +1,3 @@
-import { SkyBackdrop } from "@/components/sky/SkyBackdrop";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ArchCard } from "@/components/ui/ArchCard";
 import { GoldButton } from "@/components/ui/GoldButton";
@@ -7,8 +6,7 @@ import { TalismanChip } from "@/components/ui/TalismanChip";
 
 export default function Home() {
   return (
-    <main className="relative min-h-[100dvh] p-10 pt-24">
-      <SkyBackdrop />
+    <main className="min-h-[100dvh] p-10 pt-24">
       <h1 className="font-display text-4xl text-starlight">별샘</h1>
       <p className="mt-2 text-starlight-dim">밤의 의식, 낮의 기록</p>
       <span className="mt-4 inline-block rounded-full border border-gold/50 px-4 py-2 text-sm text-gold-soft">

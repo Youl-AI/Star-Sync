@@ -25,10 +25,15 @@ export function SkyBackdrop() {
     // z-0(양수 아님)을 쓴다: 이 환경 Chromium에서 fixed 조상에 음수 z-index(-z-10)가
     // 걸리면 WebGL 캔버스의 GPU 컴포지팅 레이어가 화면에 전혀 합성되지 않는 버그가
     // 재현됨(같은 요소의 CSS 그라디언트는 정상 표시, three.js 드로우콜/씬 그래프도
-    // 전부 정상 — dev-browser로 격리 테스트해 확인). DOM에서 SkyBackdrop을 콘텐츠보다
-    // 먼저 렌더링하고, z-index:auto인 형제 콘텐츠는 이후 DOM 순서로 위에 그려지므로
-    // z-0 + 형제 콘텐츠 순서만으로 "배경" 의도는 동일하게 유지된다. Veil 네비(z-40)는
-    // 이 값보다 항상 위에 있다.
+    // 전부 정상 — dev-browser로 격리 테스트해 확인).
+    //
+    // 주의: z-0 + fixed는 자체 스택 컨텍스트를 만들고, CSS 페인트 순서상 positioned
+    // z-index:0 요소는 "일반 흐름(non-positioned) 콘텐츠" 페인트 단계보다 나중에
+    // 그려진다 — 이는 DOM 순서와 무관하다. 즉 이 배경을 콘텐츠보다 먼저 렌더링해도
+    // 위에 있는 GoldButton 등 position 없는 콘텐츠가 이 배경 아래로 가려질 수 있다
+    // (실제로 발생했던 버그). 그래서 이 컴포넌트만으로는 안전하지 않고, 반드시
+    // layout.tsx에서 {children}을 relative z-10 래퍼로 감싸 명시적 스택 레벨을 부여해야
+    // 한다(layout.tsx 주석 참고). Veil 네비는 명시적 z-40이라 항상 이 값보다 위다.
     <div className="nebula-bg pointer-events-none fixed inset-0 z-0" aria-hidden>
       {tier && tier !== "static" && (
         <div
