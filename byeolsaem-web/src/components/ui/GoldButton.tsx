@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GOLD_OUTLINE_CLASSES } from "./goldStyles";
 
 export function GoldButton({
   variant = "solid",
@@ -12,7 +13,7 @@ export function GoldButton({
   const cls =
     variant === "solid"
       ? "bg-gold text-ink font-bold hover:bg-gold-soft"
-      : "border border-gold/60 text-gold-soft hover:border-gold";
+      : GOLD_OUTLINE_CLASSES;
   const base = `inline-block rounded-full px-6 py-3 text-sm tracking-wide transition-colors active:scale-[0.98] ${cls}`;
   return href ? (
     <Link href={href} className={base}>

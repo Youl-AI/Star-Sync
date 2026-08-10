@@ -2,6 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Wordmark } from "../brand/Wordmark";
+import { GOLD_OUTLINE_CLASSES } from "../ui/goldStyles";
+
+// 모바일 오버레이가 md:hidden으로 사라지는 기준(Tailwind md)과 반드시 일치해야 한다.
+const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
 
 const LINKS = [
   { href: "/today", label: "오늘의 하늘" },
@@ -22,6 +26,17 @@ export function Veil() {
     const io = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting));
     io.observe(el);
     return () => io.disconnect();
+  }, []);
+
+  // 뷰포트가 데스크톱 폭(md)으로 전환되면 오버레이(md:hidden)가 사라지므로
+  // open 상태와 body scroll lock도 함께 정리한다 (기기 회전/창 크기 조절 대응).
+  useEffect(() => {
+    const mql = window.matchMedia(DESKTOP_MEDIA_QUERY);
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setOpen(false);
+    };
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
   }, []);
 
   // 오버레이가 열려 있는 동안: Escape로 닫기 + 배경 스크롤 잠금
@@ -69,7 +84,7 @@ export function Veil() {
             ))}
             <a
               href="#hero-ritual"
-              className="rounded-full border border-gold/60 px-4 py-2 text-xs tracking-wider text-gold-soft transition-colors hover:border-gold"
+              className={`rounded-full px-4 py-2 text-xs tracking-wider transition-colors ${GOLD_OUTLINE_CLASSES}`}
             >
               내 밤하늘
             </a>
