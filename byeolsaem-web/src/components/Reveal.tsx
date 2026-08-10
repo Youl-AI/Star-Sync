@@ -1,44 +1,53 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 /**
- * 뷰포트에 들어오면 안쪽의 data-reveal 요소들을 순서대로 들여보낸다.
+ * 안쪽 data-reveal 요소들을 각자 화면에 들어오는 순간 들여보낸다.
  *
- * 이 컴포넌트 자체는 아무것도 움직이지 않는다. 클래스 하나(reveal-in)를 켜는
- * 일만 하고, 실제 등장 순서와 속도는 globals.css의 [data-reveal] 규칙과 각
- * 요소의 --reveal-i 값이 정한다. 요소마다 자바스크립트 타이머를 걸면 프레임이
- * 밀릴 때 순서가 어긋나지만, CSS transition-delay는 브라우저가 알아서 맞춘다.
+ * 감시 대상이 섹션 전체가 아니라 요소 하나하나인 것이 핵심이다. 섹션은 위아래
+ * 여백까지 합쳐 700px이 넘어서, 섹션의 위쪽 모서리가 화면에 걸리는 시점은 정작
+ * 제목이 아직 화면 아래 1000px 밖에 있을 때다. 그 시점에 애니메이션을 시작하면
+ * 사용자가 제목을 볼 때쯤에는 이미 다 끝나 있어서 아무 일도 없었던 것처럼
+ * 보인다(실측: 리빌 발화 scrollY 90, 제목이 읽히는 위치는 scrollY 900 부근).
  *
- * GSAP은 히어로 전용이라 여기서 쓰지 않는다. 스크롤 이벤트 리스너도 쓰지
- * 않는다(스크롤 프레임마다 실행되어 버벅인다) — IntersectionObserver 한 번이면
- * 충분하다.
+ * 실제 움직임은 globals.css의 [data-reveal] 규칙이 맡는다. 여기서는 클래스만
+ * 켜고 끈다.
  *
- * 감소 모드에서는 옵저버를 기다리지 않고 즉시 켠다. globals.css의 전역
- * transition-duration: .01ms 규칙이 움직임 자체는 이미 없애지만, 옵저버가
- * 발화하기 전까지 요소가 opacity 0으로 남아 있는 것은 그 규칙으로 해결되지
- * 않기 때문이다.
+ * once가 아니라 토글인 이유: 위로 되감아 올라갈 때도 다시 들어와야 한다.
+ * 화면 밖으로 나간 요소는 클래스를 잃고 처음 상태로 돌아가므로, 다시 내려오든
+ * 올라오든 같은 등장을 반복한다.
  */
 export function Reveal({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
 
   useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+
+    const targets = root.querySelectorAll<HTMLElement>("[data-reveal]");
+
+    // 감소 모드에서는 옵저버를 아예 걸지 않고 처음부터 켜 둔다. globals.css의
+    // 전역 transition-duration: .01ms 규칙은 움직임만 없앨 뿐, 옵저버를 기다리는
+    // 동안 요소가 opacity 0으로 남아 있는 것은 해결해 주지 않는다.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setInView(true);
+      targets.forEach((t) => t.classList.add("reveal-in"));
       return;
     }
 
     const io = new IntersectionObserver(
-      ([e]) => e.isIntersecting && (setInView(true), io.disconnect()),
-      { threshold: 0.01, rootMargin: "0px 0px -10% 0px" },
+      (entries) => {
+        for (const entry of entries) {
+          entry.target.classList.toggle("reveal-in", entry.isIntersecting);
+        }
+      },
+      // 아래쪽 경계를 화면 안으로 18% 끌어올려, 요소가 화면 밑단에 겨우 걸친
+      // 순간이 아니라 눈에 들어오기 시작하는 위치에서 발화하게 한다.
+      { threshold: 0, rootMargin: "0px 0px -18% 0px" },
     );
-    if (ref.current) io.observe(ref.current);
+
+    targets.forEach((t) => io.observe(t));
     return () => io.disconnect();
   }, []);
 
-  return (
-    <div ref={ref} className={inView ? "reveal-in" : undefined}>
-      {children}
-    </div>
-  );
+  return <div ref={ref}>{children}</div>;
 }

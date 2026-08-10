@@ -68,9 +68,9 @@
 /*
  * 스크롤 등장 모션.
  *
- * 섹션을 통째로 하나의 덩어리로 띄우는 대신, 섹션 안에서 data-reveal을 단
- * 요소들이 --reveal-i 순서에 따라 조금씩 늦게 따라 들어온다. 순서를 CSS 변수로
- * 두면 자바스크립트가 요소마다 타이머를 걸 필요가 없다.
+ * 섹션을 통째로 하나의 덩어리로 띄우는 대신, data-reveal을 단 요소들이 각자
+ * 화면에 들어오는 순간 따라 올라온다. 발화 시점은 Reveal이 요소마다 건
+ * IntersectionObserver가 정하고, 여기서는 어떻게 움직일지만 정한다.
  *
  * transform과 opacity만 건드린다. blur는 매 프레임 GPU가 다시 그려야 해서
  * 저사양 기기에서 프레임이 떨어지는 데 비해 얻는 인상은 크지 않다.
@@ -79,14 +79,22 @@
   opacity: 0;
   transform: translateY(28px);
   transition:
-    opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(var(--reveal-i, 0) * 80ms);
+    opacity 640ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* 나갈 때는 지연 없이 곧바로 원위치로 돌아간다. 되감아 올라올 때 다시
+     제자리에서 시작할 수 있어야 하기 때문이다. */
+  transition-delay: 0s;
 }
 
-.reveal-in [data-reveal] {
+/*
+ * 나란히 놓여 같은 순간에 들어오는 요소들(세 개의 문, 2열 레이아웃의 카드 등)에
+ * 만 순서를 준다. 세로로 멀리 떨어진 요소는 어차피 각자 다른 시점에 발화하므로
+ * 지연이 크면 오히려 늦게 나타나는 것처럼 보인다.
+ */
+[data-reveal].reveal-in {
   opacity: 1;
   transform: none;
+  transition-delay: calc(var(--reveal-i, 0) * 60ms);
 }
 
 html {
