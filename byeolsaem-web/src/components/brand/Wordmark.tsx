@@ -20,7 +20,7 @@ export function Wordmark({ size = "nav" }: { size?: "nav" | "hero" }) {
       <svg viewBox="0 0 120 10" className="mt-0.5 h-2 w-28" aria-hidden>
         <path d="M4 5Q20 2 36 5T68 5T100 5T116 5" fill="none" stroke="var(--color-gold)" strokeOpacity=".55" strokeWidth=".8" />
       </svg>
-      <span className="font-display -mt-1 scale-y-[-1] bg-gradient-to-b from-starlight to-transparent bg-clip-text text-5xl tracking-[0.1em] text-transparent opacity-10 blur-[0.6px]" aria-hidden>
+      <span className="font-display -mt-1 scale-y-[-1] bg-gradient-to-t from-starlight to-transparent bg-clip-text text-5xl tracking-[0.1em] text-transparent opacity-10 blur-[0.6px]" aria-hidden>
         별샘
       </span>
     </span>

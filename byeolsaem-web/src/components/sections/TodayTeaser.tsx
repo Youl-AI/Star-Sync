@@ -17,7 +17,7 @@ export function TodayTeaser() {
           </p>
           <div className="mt-8">
             <GoldButton variant="outline" href="/today">
-              오늘의 카드 열기
+              오늘의 하늘
             </GoldButton>
           </div>
         </div>

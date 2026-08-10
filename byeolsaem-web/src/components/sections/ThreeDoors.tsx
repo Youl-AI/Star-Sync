@@ -58,8 +58,12 @@ function YearlyGlyph() {
   );
 }
 
+// 셀 배경은 반투명해야 뒤의 WebGL 별하늘이 실제로 비쳐 보인다(.nebula-bg는
+// 완전 불투명 + 보라 레이어라 재사용 금지 — 스펙 §1.1, Task 11 리뷰 Critical 1).
+// bg-ink-raised/40 정도의 옅은 금색-중립 표면 + 얇은 금색 테두리로 카드감만
+// 남기고, blur는 별이 뭉개지지 않도록 아주 약하게만 준다.
 const DOOR_CELL =
-  "nebula-bg group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gold/20 transition-colors hover:border-gold/50";
+  "group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gold/20 bg-ink-raised/40 backdrop-blur-[2px] transition-colors hover:border-gold/50 hover:bg-ink-raised/50";
 
 // 레이아웃 패밀리: 비대칭 벤토 (5열 그리드, 큰 문 col-span-3/row-span-2 + 작은
 // 문 두 개 col-span-2 세로 스택). 모바일에서는 grid-cols-1로 접혀 세 문이
@@ -69,7 +73,7 @@ export function ThreeDoors() {
     <section className="mx-auto max-w-6xl px-6 py-28 md:py-40">
       <h2 className="max-w-xl break-keep font-display text-3xl md:text-4xl">당신의 하늘로 통하는 세 개의 문</h2>
 
-      <div className="mt-12 grid gap-4 md:grid-cols-5 md:grid-rows-2">
+      <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-5 md:grid-rows-2">
         <Link href="/natal" className={`${DOOR_CELL} p-8 md:col-span-3 md:row-span-2`}>
           <NatalGlyph />
           <div>
