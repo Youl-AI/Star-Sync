@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Veil } from "@/components/nav/Veil";
 import "./globals.css";
 
 const pretendard = localFont({
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" className={`${pretendard.variable} ${maruburi.variable}`}>
       <body className="min-h-[100dvh] bg-ink text-starlight antialiased">
+        <Veil />
         {children}
       </body>
     </html>
