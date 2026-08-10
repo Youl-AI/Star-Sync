@@ -193,7 +193,7 @@ export function RitualCombobox({
           // 사방을 두른 테두리 대신 위쪽 금선 하나만 남긴다. 입력 칸의 밑줄이
           // 그대로 이어져 "선이 열리며 목록이 흘러나오는" 모양이 되고, 상자
           // 하나가 새로 얹힌 느낌을 주지 않는다.
-          className="thin-scroll absolute inset-x-0 top-full z-20 max-h-56 overflow-y-auto border-t border-gold/45 bg-ink/95 py-1 text-center shadow-[0_22px_44px_-26px_rgba(0,0,0,0.95)] backdrop-blur-md"
+          className="thin-scroll absolute inset-x-0 top-full z-20 max-h-56 overflow-y-auto border-t border-gold/45 bg-ink/95 py-1 text-center shadow-[0_22px_44px_-26px_rgba(0,0,0,0.95)] backdrop-blur-md motion-safe:animate-list-open"
         >
           {results.length === 0 && (
             <li className="px-4 py-3 text-center text-xs text-starlight-dim">{emptyText}</li>
@@ -211,7 +211,11 @@ export function RitualCombobox({
               onMouseDown={(e) => e.preventDefault()}
               onMouseEnter={() => setActiveIndex(i)}
               onClick={() => commit(option)}
-              className={`relative cursor-pointer px-4 py-2 text-sm transition-colors ${
+              // 항목이 차례로 따라 들어온다. 지연을 상한 없이 index에 비례시키면
+              // 31개짜리 목록(경기도)의 마지막 항목이 반 초 넘게 비어 있게 되므로
+              // 상한을 둔다. 어차피 화면에 한 번에 보이는 것은 예닐곱 개다.
+              style={{ animationDelay: `${Math.min(i * 18, 150)}ms` }}
+              className={`relative cursor-pointer px-4 py-2 text-sm transition-colors motion-safe:animate-list-item-in ${
                 i === activeIndex ? "text-starlight" : "text-starlight-dim"
               }`}
             >

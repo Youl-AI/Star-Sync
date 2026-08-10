@@ -19,6 +19,8 @@
   --font-body: var(--font-pretendard), sans-serif;
 
   --animate-prompt-in: prompt-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-list-open: list-open 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-list-item-in: list-item-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* 의식의 질문 문구가 갈릴 때. 아래에서 살짝 올라오며 나타난다. */
@@ -26,6 +28,36 @@
   from {
     opacity: 0;
     transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * 선택 목록이 열릴 때. 패널은 입력 칸의 밑줄에서 아래로 흘러내리듯 내려오고,
+ * 항목들이 그 뒤를 아주 짧은 간격으로 따라 올라온다.
+ *
+ * 세로로 늘리는(scaleY) 연출은 쓰지 않는다. 글자까지 함께 찌그러졌다 펴져서
+ * 짧은 순간이지만 눈에 띈다. translate와 opacity만 쓰면 그런 왜곡이 없고,
+ * 두 속성 모두 레이아웃을 다시 계산하지 않아 목록이 길어도 부담이 없다.
+ */
+@keyframes list-open {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes list-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
