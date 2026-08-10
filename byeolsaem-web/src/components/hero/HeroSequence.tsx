@@ -36,6 +36,11 @@ export function HeroSequence() {
   const headlineRef = useRef<HTMLDivElement>(null);
   const ritualRef = useRef<HTMLDivElement>(null);
   const ctxRef = useRef<gsap.Context | null>(null);
+  // CTA 더블클릭/Enter 재호출로 두 번째 타임라인이 생성되는 것을 막는 재진입 가드.
+  // useState가 아니라 useRef인 이유: setState는 배칭되어 같은 프레임 안의 두 번째
+  // 호출 시점에 아직 반영되지 않을 수 있다. ref는 대입 즉시(동기) 값이 바뀌므로
+  // 같은 이벤트 루프 틱 안에서 벌어지는 연속 클릭도 확실히 막는다.
+  const isTransitioningRef = useRef(false);
 
   // gsap.context는 이 컴포넌트가 만든 모든 트윈/타임라인(Flip 포함)을 추적해서
   // unmount 시 ctx.revert() 한 번으로 정리할 수 있게 해준다.
@@ -44,24 +49,37 @@ export function HeroSequence() {
     ctxRef.current = ctx;
 
     ctx.add("startRitual", () => {
+      // 재진입 가드: 이미 전환이 진행 중이면(scene이 아직 "arrival"에서 안 바뀌었어도)
+      // 즉시 무시한다. scene 상태가 "altar"로 바뀌어 pointer-events-none이 걸리기까지
+      // 약 150ms의 창이 있고, 그 사이의 더블클릭이나 키보드 Enter 재호출을 이 플래그가 막는다.
+      if (isTransitioningRef.current) {
+        return;
+      }
+      isTransitioningRef.current = true;
+
       const reducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
       if (reducedMotion) {
         setScene("ritual");
+        isTransitioningRef.current = false;
         return;
       }
 
       const moonEl = document.getElementById("hero-moon");
       if (!moonEl) {
         setScene("ritual");
+        isTransitioningRef.current = false;
         return;
       }
 
       const tl = gsap.timeline({
         defaults: { ease: "power2.out" },
-        onComplete: () => setScene("ritual"),
+        onComplete: () => {
+          setScene("ritual");
+          isTransitioningRef.current = false;
+        },
       });
 
       // 1) 헤드라인이 별빛처럼 위로 살짝 뜨며 흐려져 사라진다 (0.5s).
@@ -87,6 +105,20 @@ export function HeroSequence() {
         () => {
           const state = Flip.getState(moonEl);
           flushSync(() => setScene("altar"));
+
+          // 헤드라인 컨테이너가 이 순간 aria-hidden="true"로 바뀐다. 방금까지
+          // 포커스를 갖고 있던 CTA 버튼(마우스 클릭이든 Enter 키 호출이든)이 그
+          // 안에 그대로 남아있으면 "포커스 요소가 aria-hidden 조상 안에 있음"
+          // 위반(axe aria-hidden-focus)이 발생한다. blur()만으로는 포커스가
+          // body로 빠져 맥락이 끊기므로, 다음 단계에서 사용자가 답할 질문인
+          // "어느 밤에 태어나셨나요?" 문구 쪽으로 포커스를 옮겨 스크린리더
+          // 사용자에게도 흐름이 이어지게 한다. 이 시점은 aria-hidden이 걸리는
+          // 시점과 동일한 동기 구간(flushSync 직후)이라 위반 창이 생기지 않는다.
+          if (ritualRef.current) {
+            ritualRef.current.focus({ preventScroll: true });
+          } else {
+            (document.activeElement as HTMLElement | null)?.blur();
+          }
 
           // "어느 밤에 태어나셨나요?"는 altar 진입과 동시에 마운트되지만
           // 달이 자리 잡기 전까지는 보이지 않아야 한다.
@@ -115,7 +147,10 @@ export function HeroSequence() {
       );
     });
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      isTransitioningRef.current = false;
+    };
   }, []);
 
   return (
@@ -163,7 +198,8 @@ export function HeroSequence() {
       {scene !== "arrival" && (
         <div
           ref={ritualRef}
-          className="absolute inset-x-0 top-[52%] px-6 text-center"
+          tabIndex={-1}
+          className="absolute inset-x-0 top-[52%] px-6 text-center focus:outline-none"
           id="hero-ritual"
         >
           <p className="font-display text-2xl text-starlight md:text-3xl">
