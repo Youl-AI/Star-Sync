@@ -15,7 +15,7 @@ const STEP_LABELS = ["생년월일", "태어난 시간", "태어난 도시", "�
 const TOTAL_STEPS = STEP_LABELS.length;
 
 function parseDate(raw: string) {
-  const m = raw.trim().match(/^(\d{4})[.\-\s]?(\d{1,2})[.\-\s]?(\d{1,2})$/);
+  const m = raw.trim().match(/^(\d{4})\D*(\d{1,2})\D*(\d{1,2})\D*$/);
   if (!m) return null;
   return { y: Number(m[1]), mo: Number(m[2]), d: Number(m[3]) };
 }
