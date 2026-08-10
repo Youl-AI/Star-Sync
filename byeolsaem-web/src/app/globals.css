@@ -1,26 +1,48 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* 밤 */
+  --color-ink: #0b0e1a;
+  --color-ink-raised: #131629;
+  --color-nebula: #1a1f3d;
+  --color-starlight: #e8e4d8;
+  --color-starlight-dim: #9a96a8;
+  --color-gold: #c9a227;
+  --color-gold-soft: #e3c568;
+  /* 새벽 */
+  --color-paper: #f5f3ee;
+  --color-ink-text: #1d1b2e;
+  --color-ink-dim: #6b6878;
+  --color-gold-dark: #9c7c1a;
+
+  --font-display: var(--font-maruburi), serif;
+  --font-body: var(--font-pretendard), sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--color-ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  color: var(--color-starlight);
+  font-variant-numeric: tabular-nums;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* 성운: 보라는 여기에만 (스펙 §1.1) */
+.nebula-bg {
+  background:
+    radial-gradient(ellipse 60% 50% at 62% 38%, rgba(109, 90, 207, 0.16), transparent 70%),
+    linear-gradient(115deg, #0b0d1c 0%, #0e1024 45%, #221d4a 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
