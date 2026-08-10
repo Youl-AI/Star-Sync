@@ -1,5 +1,5 @@
 "use client";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { gsap } from "gsap";
 import { Flip } from "gsap/Flip";
@@ -42,6 +42,7 @@ export function HeroSequence() {
   const sectionRef = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const ritualRef = useRef<HTMLDivElement>(null);
+  const completeRef = useRef<HTMLDivElement>(null);
   const ctxRef = useRef<gsap.Context | null>(null);
   // CTA 더블클릭/Enter 재호출로 두 번째 타임라인이 생성되는 것을 막는 재진입 가드.
   // useState가 아니라 useRef인 이유: setState는 배칭되어 같은 프레임 안의 두 번째
@@ -160,6 +161,17 @@ export function HeroSequence() {
     };
   }, []);
 
+  // ritual → complete 전환에서는 관심사 버튼(포커스를 갖고 있던 요소)이 통째로
+  // 언마운트된다. arrival → altar 때와 달리 옮겨갈 곳을 안내해줄 GSAP 콜백이
+  // 없으므로, 여기서 별도로 scene이 "complete"가 되는 순간 결과 컨테이너로
+  // 포커스를 옮겨 body로 새는 것을 막는다. 결과 컨테이너 자체에는 role="status"
+  // sr-only 문구를 둬 스크린리더에 완료를 알린다(아래 JSX).
+  useEffect(() => {
+    if (scene === "complete") {
+      completeRef.current?.focus({ preventScroll: true });
+    }
+  }, [scene]);
+
   return (
     <section
       ref={sectionRef}
@@ -182,6 +194,14 @@ export function HeroSequence() {
         <div
           ref={headlineRef}
           aria-hidden={scene !== "arrival"}
+          // pointer-events-none은 마우스만 막고 키보드 Tab 순서는 그대로 둔다.
+          // altar 장면(노출 약 1.5s)에서 안의 GoldButton과 "오늘의 하늘" 링크가
+          // 여전히 포커스 가능한 채로 aria-hidden 조상 안에 남는 axe
+          // aria-hidden-focus 위반을 막기 위해 inert도 함께 건다. 위의 flushSync
+          // 콜백이 이 블록을 aria-hidden/inert로 만드는 것과 같은 동기 구간에서
+          // ritualRef로 포커스를 명시적으로 옮기므로(주석 참고), 포커스가 body로
+          // 새는 창은 생기지 않는다.
+          inert={scene !== "arrival"}
           className={`absolute bottom-20 left-6 md:bottom-24 md:left-14 ${
             scene !== "arrival" ? "pointer-events-none" : ""
           }`}
@@ -230,7 +250,14 @@ export function HeroSequence() {
           )}
 
           {scene === "complete" && (
-            <div className="mt-10 flex flex-col items-center gap-8">
+            <div
+              ref={completeRef}
+              tabIndex={-1}
+              className="mt-10 flex flex-col items-center gap-8 focus:outline-none"
+            >
+              <p role="status" className="sr-only">
+                천궁도 해석이 준비되었습니다
+              </p>
               <MockChart onDrawn={() => setChartDrawn(true)} />
               <div
                 className={`flex flex-col items-center gap-6 transition-opacity duration-700 ${
