@@ -17,6 +17,16 @@ gsap.registerPlugin(Flip);
 
 export type Scene = "arrival" | "altar" | "ritual" | "complete";
 
+// 의식 위에 걸리는 문구는 지금 묻고 있는 것을 따라간다. 도시를 고르는 중에도
+// "어느 밤에 태어나셨나요?"가 그대로 떠 있으면 방금 답한 질문이 남아있는 것처럼
+// 보인다. 인덱스는 RitualForm의 STEP_LABELS 순서와 같다.
+const RITUAL_PROMPTS = [
+  "어느 밤에 태어나셨나요?",
+  "그 밤, 몇 시였나요?",
+  "어느 하늘 아래였나요?",
+  "무엇이 가장 궁금하신가요?",
+] as const;
+
 // 장면별 달 위치. "arrival"은 화면 우상단 모서리에 반쯤 걸쳐 잘린 비대칭 구도,
 // 그 이후 장면은 중앙 상단으로 이동한다. 클래스 자체는 즉시 바뀌지만(top/left는
 // 절대 애니메이션하지 않는다), startRitual()이 전환 직전 시점의 GSAP Flip으로
@@ -42,6 +52,8 @@ export function HeroSequence() {
   // "complete" 장면에서 목업 천궁도 드로잉이 끝났는지. 드로잉이 끝나야 그 아래
   // 목업 결과 카드가 페이드인한다.
   const [chartDrawn, setChartDrawn] = useState(false);
+  // RitualForm이 알려주는 현재 단계. 위쪽 문구를 갈아끼우는 데만 쓴다.
+  const [ritualStep, setRitualStep] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const ritualRef = useRef<HTMLDivElement>(null);
@@ -180,6 +192,10 @@ export function HeroSequence() {
     };
   }, []);
 
+  // 결과 화면에서는 더 이상 묻는 것이 없으므로 질문 대신 도착을 알린다.
+  const promptText =
+    scene === "complete" ? "당신의 하늘입니다" : RITUAL_PROMPTS[ritualStep];
+
   // 입력 의식을 여는 유일한 진입점. 목표 장면을 정한 뒤 GSAP 타임라인을 깨운다.
   const openRitual = (target: Scene) => {
     pendingTargetRef.current = target;
@@ -280,8 +296,14 @@ export function HeroSequence() {
           className="relative -mt-[48dvh] px-6 pb-24 text-center focus:outline-none"
           id="hero-ritual"
         >
-          <p className="font-display text-2xl text-starlight md:text-3xl">
-            어느 밤에 태어나셨나요?
+          {/* key를 문구 자체로 두면 문구가 바뀔 때마다 요소가 새로 마운트되어
+              CSS 애니메이션이 다시 돈다. 단계가 넘어갈 때 글자가 스르르 갈리는
+              느낌을 별도 상태 없이 얻는 방법이다. */}
+          <p
+            key={promptText}
+            className="motion-safe:animate-prompt-in font-display text-2xl text-starlight md:text-3xl"
+          >
+            {promptText}
           </p>
 
           {scene === "ritual" && (
@@ -291,6 +313,7 @@ export function HeroSequence() {
                   다시 묻지 않고 같은 값을 읽어 쓴다. 저장이 실패해도(시크릿
                   모드 등) 이번 세션의 결과 화면은 그대로 진행된다. */}
               <RitualForm
+                onStepChange={setRitualStep}
                 onComplete={(data) => {
                   saveBirthProfile(data);
                   setScene("complete");
@@ -331,6 +354,7 @@ export function HeroSequence() {
                   onClick={() => {
                     clearBirthProfile();
                     setChartDrawn(false);
+                    setRitualStep(0);
                     pendingTargetRef.current = "ritual";
                     setScene("ritual");
                   }}

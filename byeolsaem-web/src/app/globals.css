@@ -17,6 +17,44 @@
 
   --font-display: var(--font-maruburi), serif;
   --font-body: var(--font-pretendard), sans-serif;
+
+  --animate-prompt-in: prompt-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 의식의 질문 문구가 갈릴 때. 아래에서 살짝 올라오며 나타난다. */
+@keyframes prompt-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * 스크롤 등장 모션.
+ *
+ * 섹션을 통째로 하나의 덩어리로 띄우는 대신, 섹션 안에서 data-reveal을 단
+ * 요소들이 --reveal-i 순서에 따라 조금씩 늦게 따라 들어온다. 순서를 CSS 변수로
+ * 두면 자바스크립트가 요소마다 타이머를 걸 필요가 없다.
+ *
+ * transform과 opacity만 건드린다. blur는 매 프레임 GPU가 다시 그려야 해서
+ * 저사양 기기에서 프레임이 떨어지는 데 비해 얻는 인상은 크지 않다.
+ */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--reveal-i, 0) * 80ms);
+}
+
+.reveal-in [data-reveal] {
+  opacity: 1;
+  transform: none;
 }
 
 html {

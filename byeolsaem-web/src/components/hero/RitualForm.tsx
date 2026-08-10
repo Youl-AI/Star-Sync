@@ -1,7 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { KO_CITIES, validateBirthDate } from "@/lib/birth";
+import { validateBirthDate } from "@/lib/birth";
+import {
+  OVERSEAS,
+  PROVINCES,
+  filterDistricts,
+  filterProvinces,
+  formatPlace,
+  matchesQuery,
+} from "@/lib/regions";
+import {
+  formatDateInput,
+  formatTimeInput,
+  parseDate,
+  parseTime,
+} from "@/lib/ritual-input";
+import { RitualCombobox } from "./RitualCombobox";
+import { NEXT_LINK, SKIP_LINK, UNDERLINE_INPUT } from "./ritualStyles";
 
 export interface RitualData {
   date: string;
@@ -11,35 +27,33 @@ export interface RitualData {
 }
 
 const CONCERNS = ["재물운", "연애운", "직업운", "학업운", "건강운", "대인운", "이동운"];
-const STEP_LABELS = ["생년월일", "태어난 시간", "태어난 도시", "관심사"] as const;
+const STEP_LABELS = ["생년월일", "태어난 시간", "태어난 곳", "관심사"] as const;
 const TOTAL_STEPS = STEP_LABELS.length;
 
-function parseDate(raw: string) {
-  const m = raw.trim().match(/^(\d{4})\D*(\d{1,2})\D*(\d{1,2})\D*$/);
-  if (!m) return null;
-  return { y: Number(m[1]), mo: Number(m[2]), d: Number(m[3]) };
+function districtsOf(province: string): string[] {
+  return PROVINCES.find((p) => p.name === province)?.districts ?? [];
 }
 
-function parseTime(raw: string): { ok: true; value: string | null } | { ok: false } {
-  const trimmed = raw.trim();
-  if (trimmed === "") return { ok: true, value: null };
-  const m = trimmed.match(/^([01]?\d|2[0-3])[:.\s]?([0-5]\d)$/);
-  if (!m) return { ok: false };
-  return { ok: true, value: `${m[1].padStart(2, "0")}:${m[2]}` };
+// 광역자치단체 목록에 "해외"를 덧붙여, 국내 목록에 없는 곳에서 태어난 사람도
+// 막히지 않게 한다. 고르면 두 번째 칸이 목록 대신 자유 입력으로 바뀐다.
+function searchProvinces(query: string): string[] {
+  const names = filterProvinces(query).map((p) => p.name);
+  return matchesQuery(OVERSEAS, [], query) ? [...names, OVERSEAS] : names;
 }
 
-const UNDERLINE_INPUT =
-  "w-full border-0 border-b border-gold/60 bg-transparent px-1 py-2 text-center font-display text-2xl tracking-[0.02em] text-starlight caret-gold outline-none placeholder:text-starlight-dim/40 focus:border-gold-soft md:text-3xl";
-const SKIP_LINK =
-  "text-[11px] tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight";
-const NEXT_LINK =
-  "text-xs tracking-[0.08em] text-gold-soft underline-offset-4 transition-colors hover:text-starlight hover:underline";
+interface RitualFormProps {
+  onComplete: (data: RitualData) => void;
+  /** 지금 몇 번째 단계인지 바깥(히어로)에 알려, 위쪽 문구가 단계에 맞게 바뀌게 한다. */
+  onStepChange?: (step: number) => void;
+}
 
-export function RitualForm({ onComplete }: { onComplete: (data: RitualData) => void }) {
+export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
   const [step, setStep] = useState(0);
   const [dateInput, setDateInput] = useState("");
   const [timeInput, setTimeInput] = useState("");
-  const [city, setCity] = useState("");
+  const [province, setProvince] = useState<string | null>(null);
+  const [district, setDistrict] = useState<string | null>(null);
+  const [overseasCity, setOverseasCity] = useState("");
   const [isoDate, setIsoDate] = useState("");
   const [finalTime, setFinalTime] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -47,12 +61,21 @@ export function RitualForm({ onComplete }: { onComplete: (data: RitualData) => v
   const inputRef = useRef<HTMLInputElement>(null);
   const firstConcernRef = useRef<HTMLButtonElement>(null);
 
+  const isOverseas = province === OVERSEAS;
+  const districts = province && !isOverseas ? districtsOf(province) : [];
+  const needsDistrict = districts.length > 0;
+
   // 단계가 바뀔 때마다 새 입력(또는 마지막 단계의 첫 번째 선택지)으로 포커스를 옮긴다.
   // 키보드 사용자가 단계마다 Tab을 눌러 찾아갈 필요가 없게 하기 위함.
+  // 2단계(태어난 곳)는 RitualCombobox가 autoFocus로 스스로 처리한다.
   useEffect(() => {
     if (step === 3) firstConcernRef.current?.focus();
-    else inputRef.current?.focus();
+    else if (step !== 2) inputRef.current?.focus();
   }, [step]);
+
+  useEffect(() => {
+    onStepChange?.(step);
+  }, [step, onStepChange]);
 
   const goToStep = (next: number) => {
     setError("");
@@ -74,7 +97,7 @@ export function RitualForm({ onComplete }: { onComplete: (data: RitualData) => v
   const submitTime = () => {
     const parsed = parseTime(timeInput);
     if (!parsed.ok) {
-      setError("시:분 형식으로 입력해 주세요 (예: 21:44)");
+      setError("시:분 형식으로 입력해 주세요 (예: 21 : 44)");
       return;
     }
     setFinalTime(parsed.value);
@@ -86,21 +109,32 @@ export function RitualForm({ onComplete }: { onComplete: (data: RitualData) => v
     goToStep(2);
   };
 
-  const submitCity = () => {
-    const trimmed = city.trim();
-    if (trimmed.length === 0) {
-      setError("도시를 선택해 주세요");
+  const submitPlace = () => {
+    if (!province) {
+      setError("태어난 광역시·도를 골라 주세요");
       return;
     }
-    setCity(trimmed);
+    if (isOverseas && overseasCity.trim() === "") {
+      setError("태어난 도시를 적어 주세요");
+      return;
+    }
+    if (needsDistrict && !district) {
+      setError("태어난 시·군·구를 골라 주세요");
+      return;
+    }
     goToStep(3);
+  };
+
+  const finalPlace = () => {
+    if (isOverseas) return overseasCity.trim();
+    return formatPlace(province ?? "", district);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 0) submitDate();
     else if (step === 1) submitTime();
-    else if (step === 2) submitCity();
+    else if (step === 2) submitPlace();
   };
 
   const clearErrorOnChange = () => {
@@ -131,7 +165,7 @@ export function RitualForm({ onComplete }: { onComplete: (data: RitualData) => v
               className={UNDERLINE_INPUT}
               value={dateInput}
               onChange={(e) => {
-                setDateInput(e.target.value);
+                setDateInput(formatDateInput(e.target.value, dateInput));
                 clearErrorOnChange();
               }}
               aria-invalid={!!error}
@@ -163,7 +197,7 @@ export function RitualForm({ onComplete }: { onComplete: (data: RitualData) => v
               className={UNDERLINE_INPUT}
               value={timeInput}
               onChange={(e) => {
-                setTimeInput(e.target.value);
+                setTimeInput(formatTimeInput(e.target.value, timeInput));
                 clearErrorOnChange();
               }}
               aria-invalid={!!error}
@@ -182,33 +216,61 @@ export function RitualForm({ onComplete }: { onComplete: (data: RitualData) => v
 
         {step === 2 && (
           <>
-            <label htmlFor="ritual-city" className="sr-only">
-              태어난 도시
-            </label>
-            <input
-              ref={inputRef}
-              id="ritual-city"
-              name="city"
-              type="text"
-              list="ritual-cities"
-              autoComplete="off"
-              enterKeyHint="next"
-              placeholder="태어난 도시"
-              className={UNDERLINE_INPUT}
-              value={city}
-              onChange={(e) => {
-                setCity(e.target.value);
+            {/* 관공서 양식과 같은 순서: 광역시·도를 먼저 고르고 나서야 그 아래
+                시·군·구 칸이 나타난다. 세종처럼 하위 구역이 없는 곳을 고르면
+                두 번째 칸은 아예 나타나지 않는다. */}
+            <RitualCombobox
+              label="태어난 광역시·도"
+              placeholder="광역시 · 도"
+              value={province}
+              autoFocus
+              search={searchProvinces}
+              onSelect={(next) => {
+                setProvince(next);
+                setDistrict(null);
+                setOverseasCity("");
                 clearErrorOnChange();
               }}
-              aria-invalid={!!error}
-              aria-describedby={error ? "ritual-error" : undefined}
             />
-            <datalist id="ritual-cities">
-              {KO_CITIES.map((c) => (
-                <option key={c.en} value={c.ko} />
-              ))}
-            </datalist>
-            <button type="submit" className={`mt-4 ${NEXT_LINK}`}>
+
+            {isOverseas && (
+              <div className="mt-6">
+                <label htmlFor="ritual-overseas" className="sr-only">
+                  태어난 도시
+                </label>
+                <input
+                  id="ritual-overseas"
+                  name="overseasCity"
+                  type="text"
+                  autoComplete="off"
+                  enterKeyHint="next"
+                  placeholder="도시 이름"
+                  className={UNDERLINE_INPUT}
+                  value={overseasCity}
+                  onChange={(e) => {
+                    setOverseasCity(e.target.value);
+                    clearErrorOnChange();
+                  }}
+                />
+              </div>
+            )}
+
+            {needsDistrict && (
+              <div className="mt-6">
+                <RitualCombobox
+                  label="태어난 시·군·구"
+                  placeholder="시 · 군 · 구"
+                  value={district}
+                  search={(q) => filterDistricts(province!, q)}
+                  onSelect={(next) => {
+                    setDistrict(next);
+                    clearErrorOnChange();
+                  }}
+                />
+              </div>
+            )}
+
+            <button type="submit" className={`mt-6 ${NEXT_LINK}`}>
               다음
             </button>
           </>
@@ -226,7 +288,12 @@ export function RitualForm({ onComplete }: { onComplete: (data: RitualData) => v
                 ref={i === 0 ? firstConcernRef : undefined}
                 type="button"
                 onClick={() =>
-                  onComplete({ date: isoDate, time: finalTime, city, concern: c })
+                  onComplete({
+                    date: isoDate,
+                    time: finalTime,
+                    city: finalPlace(),
+                    concern: c,
+                  })
                 }
                 className="rounded-full border border-gold/50 px-4 py-2 text-xs text-gold-soft transition-colors hover:border-gold hover:text-starlight active:scale-[0.98]"
               >
