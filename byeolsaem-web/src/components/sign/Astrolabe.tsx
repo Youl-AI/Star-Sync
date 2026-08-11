@@ -1,43 +1,200 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { Flip } from "gsap/Flip";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
+import { SignGlyph } from "./SignGlyph";
+import {
+  ARRIVE_MORPH_KEY,
+  ART_HEIGHT,
+  ART_OFFSET_X,
+  ART_OFFSET_Y,
+  ART_WIDTH,
+  BACK_MORPH_KEY,
+  CARD_HEIGHT,
+  CARD_WIDTH,
+  archPath,
+  setMarker,
+  takeMarker,
+} from "./signMorph";
+
+gsap.registerPlugin(Flip);
 
 /**
  * 천구의 진 — 열두 성좌가 이중 금선 링 위에 떠 있고, 진 전체가 아주 느리게 돈다.
  *
  * 성좌를 하나의 큰 SVG로 그리지 않고 **열두 개의 독립 요소**로 배치한다. 스펙이
- * 못 박은 제약이다(§6.4): 나중에 선택한 성좌만 중앙으로 날아가 카드로 응결하는
- * FLIP 모프를 붙이려면, 그 성좌가 자기만의 DOM 노드를 갖고 있어야 한다. 한
- * 덩어리 SVG 안의 <g>는 레이아웃 위치를 따로 가질 수 없어 FLIP이 성립하지 않는다.
+ * 못 박은 제약이다(§6.4): 선택한 성좌만 중앙으로 날아가 카드로 응결하는 FLIP
+ * 모프를 붙이려면 그 성좌가 자기만의 DOM 노드를 갖고 있어야 한다. 한 덩어리
+ * SVG 안의 <g>는 레이아웃 위치를 따로 가질 수 없어 FLIP이 성립하지 않는다.
  *
  * 자전은 CSS 애니메이션에 맡긴다. 분당 1° — 눈에 띄게 움직이는 것이 아니라,
  * 오래 보고 있으면 아까와 다르다는 것을 겨우 알아차리는 속도다. 호버하면 멈춘다.
  * 성좌 자체는 링과 반대로 돌려 늘 똑바로 서 있게 한다.
  */
 
-const RING_DURATION_S = 360 * 60; // 분당 1° → 한 바퀴 6시간
-
 // 성좌 하나가 놓이는 자리. 12시 방향부터 시계 방향으로 한 칸씩.
 function angleFor(index: number) {
   return (index / ZODIAC_SIGNS.length) * 360;
 }
 
+/**
+ * 서버에서는 useLayoutEffect가 경고를 낸다(실행될 수 없으므로). 하지만 역모프는
+ * 첫 페인트 **전에** 링을 어둡게 만들어야 한다 — useEffect로 미루면 밝은 링이
+ * 한 프레임 번쩍인 뒤 꺼진다.
+ */
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+type Morph = {
+  index: number;
+  /** in = 진에서 카드로(클릭), out = 카드에서 진으로(뒤로가기). */
+  dir: "in" | "out";
+};
+
 export function Astrolabe() {
+  const router = useRouter();
   const [hovered, setHovered] = useState<number | null>(null);
   const [reduced, setReduced] = useState(false);
+  const [morph, setMorph] = useState<Morph | null>(null);
 
-  useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const artRefs = useRef<(SVGSVGElement | null)[]>([]);
+  const ringRef = useRef<SVGSVGElement>(null);
+  const captionRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const flyerRef = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<HTMLDivElement>(null);
+  const archRef = useRef<SVGPathElement>(null);
+  const fillRef = useRef<HTMLDivElement>(null);
+
+  useIsoLayoutEffect(() => {
+    const quiet = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setReduced(quiet);
+
+    // 상세 페이지에서 뒤로가기를 눌러 돌아왔는가. 표식이 있으면 그 성좌가
+    // 중앙의 카드에서 제 자리로 되돌아가는 역모프로 화면을 연다.
+    const back = takeMarker(BACK_MORPH_KEY);
+    if (!back || quiet) return;
+    const index = ZODIAC_SIGNS.findIndex((s) => s.key === back);
+    if (index >= 0) setMorph({ index, dir: "out" });
   }, []);
 
+  useIsoLayoutEffect(() => {
+    if (!morph) return;
+    const { index, dir } = morph;
+    const art = artRefs.current[index];
+    const flyer = flyerRef.current;
+    const target = targetRef.current;
+    const overlay = overlayRef.current;
+    const arch = archRef.current;
+    if (!art || !flyer || !target || !overlay || !arch) return;
+
+    const others = slotRefs.current.filter((el, i): el is HTMLDivElement => !!el && i !== index);
+    const length = arch.getTotalLength();
+    const sign = ZODIAC_SIGNS[index];
+
+    const ctx = gsap.context(() => {
+      gsap.set(overlay, { autoAlpha: 1 });
+      // 링 위의 원본은 감춘다. 날아가는 것은 오버레이의 복제이고, 둘이 함께
+      // 보이면 같은 성좌가 두 개가 된다.
+      gsap.set(art, { opacity: 0 });
+      gsap.set(arch, { strokeDasharray: length });
+
+      if (dir === "in") {
+        const from = art.getBoundingClientRect();
+        gsap.set(flyer, {
+          left: from.left,
+          top: from.top,
+          width: from.width,
+          height: from.height,
+          opacity: 1,
+        });
+
+        // 나머지 열한 개는 물러난다. 선택한 것만 남기려는 것이지 지우려는 것이
+        // 아니므로 완전히 0으로 보내지 않는다.
+        gsap.to(others, { opacity: 0.05, scale: 0.93, duration: 0.5, ease: "power2.inOut" });
+        gsap.to([ringRef.current, captionRef.current], {
+          opacity: 0,
+          duration: 0.45,
+          ease: "power2.in",
+        });
+
+        Flip.fit(flyer, target, { duration: 0.72, ease: "power2.inOut", scale: true });
+
+        gsap.to(fillRef.current, { opacity: 1, duration: 0.4, delay: 0.42, ease: "power2.out" });
+
+        // 아치 테두리가 선으로 그려지며 성좌를 감싼다 — 응결의 마지막 획이다.
+        gsap.fromTo(
+          arch,
+          { strokeDashoffset: length, opacity: 0 },
+          {
+            strokeDashoffset: 0,
+            opacity: 1,
+            duration: 0.5,
+            delay: 0.32,
+            ease: "power1.inOut",
+            onComplete: () => {
+              // 상세 페이지가 이 표식을 보고 카드를 화면 한가운데에서 받아
+              // 제자리로 올려보낸다. 없으면 연출 없이 완성된 화면으로 뜬다.
+              setMarker(ARRIVE_MORPH_KEY, sign.key);
+              // 돌아올 길도 지금 적어 둔다. 이유는 signMorph.ts의 BACK_MORPH_KEY 참고.
+              setMarker(BACK_MORPH_KEY, sign.key);
+              router.push(`/sign/${sign.key}`);
+            },
+          },
+        );
+      } else {
+        const to = target.getBoundingClientRect();
+        gsap.set(flyer, {
+          left: to.left,
+          top: to.top,
+          width: to.width,
+          height: to.height,
+          opacity: 1,
+        });
+        gsap.set(others, { opacity: 0.05, scale: 0.93 });
+        gsap.set([ringRef.current, captionRef.current], { opacity: 0 });
+        gsap.set(arch, { strokeDashoffset: 0, opacity: 1 });
+        gsap.set(fillRef.current, { opacity: 1 });
+
+        // 감쌌던 선이 먼저 풀리고, 그 다음 성좌가 제 자리로 돌아간다.
+        gsap.to(fillRef.current, { opacity: 0, duration: 0.28, ease: "power2.in" });
+        gsap.to(arch, { strokeDashoffset: length, opacity: 0, duration: 0.34, ease: "power1.in" });
+        gsap.to(others, { opacity: 1, scale: 1, duration: 0.6, delay: 0.24, ease: "power2.out" });
+        gsap.to([ringRef.current, captionRef.current], {
+          opacity: 1,
+          duration: 0.6,
+          delay: 0.24,
+          ease: "power2.out",
+        });
+        Flip.fit(flyer, art, {
+          duration: 0.68,
+          delay: 0.16,
+          ease: "power2.inOut",
+          scale: true,
+          onComplete: () => setMorph(null),
+        });
+      }
+    });
+
+    return () => ctx.revert();
+  }, [morph, router]);
+
   const active = hovered === null ? null : ZODIAC_SIGNS[hovered];
+  const still = hovered !== null || morph !== null;
 
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[min(88vw,620px)]">
       {/* 이중 금선 링 + 사분 눈금 + 도수 점. 배경 도판이라 하나의 SVG로 충분하다 —
           움직이는 것은 성좌뿐이다. */}
-      <svg viewBox="0 0 400 400" className="absolute inset-0 size-full" aria-hidden>
+      <svg
+        ref={ringRef}
+        viewBox="0 0 400 400"
+        className="absolute inset-0 size-full"
+        aria-hidden
+      >
         <g className={reduced ? undefined : "astrolabe-spin"} style={{ transformOrigin: "200px 200px" }}>
           <circle cx="200" cy="200" r="186" fill="none" stroke="var(--color-gold)" strokeWidth=".7" opacity=".45" />
           <circle cx="200" cy="200" r="176" fill="none" stroke="var(--color-gold)" strokeWidth=".4" opacity=".22" />
@@ -80,7 +237,7 @@ export function Astrolabe() {
       {/* 열두 성좌. 각자 독립된 요소다(위 주석 참고). */}
       <div
         className={`absolute inset-0 ${reduced ? "" : "astrolabe-spin"} ${
-          hovered !== null ? "[animation-play-state:paused]" : ""
+          still ? "[animation-play-state:paused]" : ""
         }`}
         style={{ transformOrigin: "50% 50%" }}
       >
@@ -90,6 +247,9 @@ export function Astrolabe() {
           return (
             <div
               key={sign.key}
+              ref={(el) => {
+                slotRefs.current[i] = el;
+              }}
               // 자리는 삼각함수로 직접 잡는다.
               //
               // 처음에는 `rotate → translateY(-39%) → rotate` 방식으로 밀어냈는데,
@@ -124,35 +284,27 @@ export function Astrolabe() {
                 onMouseLeave={() => setHovered(null)}
                 onFocus={() => setHovered(i)}
                 onBlur={() => setHovered(null)}
+                onClick={(e) => {
+                  // 새 탭·새 창으로 여는 조합키는 건드리지 않는다. 모프는 이
+                  // 탭에서 이동할 때만 의미가 있다.
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                  // reduced-motion에서는 모프 없이 즉시 이동한다(스펙 §7).
+                  if (reduced || morph) return;
+                  e.preventDefault();
+                  setMorph({ index: i, dir: "in" });
+                }}
                 className={`flex size-full items-center justify-center rounded-full outline-offset-4 ${
                   reduced ? "" : "astrolabe-counterspin"
                 }`}
               >
-                <svg
-                  viewBox="0 0 260 200"
+                <SignGlyph
+                  sign={sign}
+                  lit={lit}
                   className="pointer-events-none w-[128%] shrink-0"
-                  aria-hidden
-                >
-                  <path
-                    d={sign.path}
-                    fill="none"
-                    stroke="var(--color-gold)"
-                    strokeWidth={lit ? 1.6 : 1}
-                    className="transition-all duration-500"
-                    opacity={lit ? 0.95 : 0.3}
-                  />
-                  {sign.stars.map(([x, y]) => (
-                    <circle
-                      key={`${x}-${y}`}
-                      cx={x}
-                      cy={y}
-                      r={lit ? 5 : 3.4}
-                      fill="var(--color-starlight)"
-                      className="transition-all duration-500"
-                      opacity={lit ? 1 : 0.55}
-                    />
-                  ))}
-                </svg>
+                  ref={(el) => {
+                    artRefs.current[i] = el;
+                  }}
+                />
               </Link>
             </div>
           );
@@ -161,7 +313,10 @@ export function Astrolabe() {
 
       {/* 중앙 문구. 아무것도 짚지 않았을 때는 방 전체의 이름을, 짚었을 때는 그
           방의 이름을 부른다. */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+      <div
+        ref={captionRef}
+        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center"
+      >
         <p
           key={active ? active.key : "idle"}
           className="motion-safe:animate-prompt-in font-display text-2xl text-starlight md:text-3xl"
@@ -175,6 +330,61 @@ export function Astrolabe() {
           {active ? `${active.element} · ${active.quality} · ${active.ruler}` : "성좌에 손을 올려 보세요"}
         </p>
       </div>
+
+      {/*
+        모프 무대. 진의 상자 안이 아니라 화면 전체에 고정한다 — 성좌는 링을 벗어나
+        화면 한가운데까지 날아가야 하고, 진의 상자는 회전 중이라 그 안에 두면
+        날아가는 궤적까지 함께 돌아 버린다.
+      */}
+      {morph && (
+        <div ref={overlayRef} className="pointer-events-none invisible fixed inset-0 z-50">
+          <div
+            className="absolute left-1/2 top-1/2"
+            style={{
+              width: CARD_WIDTH,
+              height: CARD_HEIGHT,
+              marginLeft: -CARD_WIDTH / 2,
+              marginTop: -CARD_HEIGHT / 2,
+            }}
+          >
+            {/* 카드의 속. 아치 선이 다 그려질 때 함께 차오른다 — 선만 남기고
+                넘기면 상세 페이지에서 배경이 갑자기 생겨 한 번 튄다. */}
+            <div
+              ref={fillRef}
+              className="absolute inset-0 bg-gradient-to-b from-nebula/90 to-ink opacity-0"
+              style={{
+                borderRadius: `${CARD_WIDTH / 2}px ${CARD_WIDTH / 2}px 10px 10px`,
+                boxShadow:
+                  "0 0 44px 6px color-mix(in srgb, var(--color-gold) 12%, transparent)",
+              }}
+            />
+            <svg
+              viewBox={`0 0 ${CARD_WIDTH} ${CARD_HEIGHT}`}
+              className="absolute inset-0 size-full"
+              aria-hidden
+            >
+              <path
+                ref={archRef}
+                d={archPath()}
+                fill="none"
+                stroke="var(--color-gold)"
+                strokeWidth="1.2"
+                opacity="0"
+              />
+            </svg>
+            {/* 카드 안에서 성좌가 앉을 자리. 보이지 않는 기준 상자다. */}
+            <div
+              ref={targetRef}
+              className="absolute"
+              style={{ left: ART_OFFSET_X, top: ART_OFFSET_Y, width: ART_WIDTH, height: ART_HEIGHT }}
+            />
+          </div>
+
+          <div ref={flyerRef} className="fixed left-0 top-0 opacity-0">
+            <SignGlyph sign={ZODIAC_SIGNS[morph.index]} lit className="size-full" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SignArrival } from "@/components/sign/SignArrival";
+import { SignGlyph } from "@/components/sign/SignGlyph";
+import { ART_WIDTH, CARD_WIDTH } from "@/components/sign/signMorph";
 import { ArchCard } from "@/components/ui/ArchCard";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { LineDiamond } from "@/components/ui/LineDiamond";
@@ -45,33 +48,36 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
   const content = getSignContent(slug);
 
   return (
+    <SignArrival sign={sign.key}>
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <header className="text-center">
-        <p className="text-[11px] tracking-[0.28em] text-gold">{sign.range}</p>
-        <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
-          {sign.ko}
-        </h1>
-        <p className="mt-4 text-xs tracking-wide text-starlight-dim">
-          {sign.element} · {sign.quality} · {sign.ruler}
-        </p>
+        <div data-morph-veil>
+          <p className="text-[11px] tracking-[0.28em] text-gold">{sign.range}</p>
+          <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
+            {sign.ko}
+          </h1>
+          <p className="mt-4 text-xs tracking-wide text-starlight-dim">
+            {sign.element} · {sign.quality} · {sign.ruler}
+          </p>
+        </div>
 
         <div className="mt-12 flex justify-center">
-          <ArchCard name={sign.card} latin={sign.latin} tagline={sign.tagline}>
-            {/* 부적 안에 그 별자리의 실제 성좌를 그린다. */}
-            <svg viewBox="0 0 260 200" className="mx-auto mt-3 w-40" aria-hidden>
-              <path d={sign.path} fill="none" stroke="var(--color-gold)" strokeWidth="1" opacity=".75" />
-              {sign.stars.map(([x, y]) => (
-                <circle key={`${x}-${y}`} cx={x} cy={y} r="3" fill="var(--color-starlight)" />
-              ))}
-            </svg>
-          </ArchCard>
+          {/* 진에서 날아온 카드가 앉는 자리. 폭과 그림 크기는 진 쪽 오버레이와
+              같은 상수를 읽는다 — 어긋나면 착지 순간 카드가 튄다. */}
+          <div data-morph-card>
+            <ArchCard name={sign.card} latin={sign.latin} tagline={sign.tagline} width={CARD_WIDTH}>
+              {/* 부적 안에 그 별자리의 실제 성좌를 그린다. 진에서 날아오는
+                  그림과 선 굵기·별 크기가 같아야 해서 lit 기본값을 그대로 쓴다. */}
+              <SignGlyph sign={sign} lit className="mx-auto mt-3" style={{ width: ART_WIDTH }} />
+            </ArchCard>
+          </div>
         </div>
 
         <LineDiamond className="my-14" />
       </header>
 
       {content ? (
-        <article className="mx-auto max-w-[65ch] leading-[1.9] text-starlight">
+        <article data-morph-veil className="mx-auto max-w-[65ch] leading-[1.9] text-starlight">
           <p className="text-[17px]">{content.opening}</p>
 
           <Section title="이 자리의 성질">
@@ -136,7 +142,7 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
         </article>
       ) : (
         // 본문을 아직 쓰지 않은 별자리. 빈 껍데기를 내보내는 대신 상태를 밝힌다.
-        <div className="mx-auto max-w-md text-center">
+        <div data-morph-veil className="mx-auto max-w-md text-center">
           <p className="leading-relaxed text-starlight-dim">
             {sign.ko}의 풀이는 아직 쓰는 중입니다. 기간과 성질은 위에 있습니다.
           </p>
@@ -147,7 +153,7 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
           연결된 뒤에 들어온다(RENEWAL_PLAN §6.1). 자리를 미리 잡아 두지 않고
           비워 둔다 — 빈 상자는 준비된 것처럼 보이기만 하고 아무것도 주지 않는다. */}
 
-      <div className="mt-20 border-t border-gold/15 pt-12 text-center">
+      <div data-morph-veil className="mt-20 border-t border-gold/15 pt-12 text-center">
         <p className="break-keep leading-relaxed text-starlight-dim">
           태양이 {sign.ko}에 있다는 것은 당신 하늘의 한 조각입니다. 달과 상승궁까지
           넣으면 같은 {sign.ko}도 전혀 다르게 읽힙니다.
@@ -162,6 +168,7 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
         </div>
       </div>
     </main>
+    </SignArrival>
   );
 }
 
