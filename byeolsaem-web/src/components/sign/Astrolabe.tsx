@@ -2,9 +2,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { Flip } from "gsap/Flip";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
+import { EASE_IN_OUT, EASE_OUT, clearStyles, setStyles, tween, tweenAll } from "@/lib/tween";
 import { SignGlyph } from "./SignGlyph";
 import {
   ARRIVE_MORPH_KEY,
@@ -20,7 +19,10 @@ import {
   takeMarker,
 } from "./signMorph";
 
-gsap.registerPlugin(Flip);
+/** 모프 각 단계의 길이(ms). 합쳐서 스펙이 말하는 0.8초 안에 들어온다. */
+const FLIGHT_MS = 720;
+const ARCH_DELAY_MS = 320;
+const ARCH_MS = 500;
 
 /**
  * 천구의 진 — 열두 성좌가 이중 금선 링 위에 떠 있고, 진 전체가 아주 느리게 돈다.
@@ -89,97 +91,107 @@ export function Astrolabe() {
     const target = targetRef.current;
     const overlay = overlayRef.current;
     const arch = archRef.current;
-    if (!art || !flyer || !target || !overlay || !arch) return;
+    const fill = fillRef.current;
+    const ring = ringRef.current;
+    const caption = captionRef.current;
+    if (!art || !flyer || !target || !overlay || !arch || !fill || !ring || !caption) return;
 
     const others = slotRefs.current.filter((el, i): el is HTMLDivElement => !!el && i !== index);
-    const length = arch.getTotalLength();
     const sign = ZODIAC_SIGNS[index];
+    const length = arch.getTotalLength();
 
-    const ctx = gsap.context(() => {
-      gsap.set(overlay, { autoAlpha: 1 });
-      // 링 위의 원본은 감춘다. 날아가는 것은 오버레이의 복제이고, 둘이 함께
-      // 보이면 같은 성좌가 두 개가 된다.
-      gsap.set(art, { opacity: 0 });
-      gsap.set(arch, { strokeDasharray: length });
+    // FLIP의 계산 부분. 성좌가 링 위에서 차지한 자리와 카드 안에서 앉을 자리를
+    // 재고, 그 둘을 잇는 이동과 배율을 구한다. 날아가는 복제는 늘 출발 자리에
+    // 놓고, 목적지 상태를 transform으로 표현한다 — 그래야 순방향과 역방향이
+    // 같은 두 값을 서로 반대로 쓰기만 하면 된다.
+    const from = art.getBoundingClientRect();
+    const to = target.getBoundingClientRect();
+    const scale = to.width / from.width;
+    const dx = to.left + to.width / 2 - (from.left + from.width / 2);
+    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+    const landed = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) scale(${scale.toFixed(4)})`;
 
-      if (dir === "in") {
-        const from = art.getBoundingClientRect();
-        gsap.set(flyer, {
-          left: from.left,
-          top: from.top,
-          width: from.width,
-          height: from.height,
-          opacity: 1,
-        });
-
-        // 나머지 열한 개는 물러난다. 선택한 것만 남기려는 것이지 지우려는 것이
-        // 아니므로 완전히 0으로 보내지 않는다.
-        gsap.to(others, { opacity: 0.05, scale: 0.93, duration: 0.5, ease: "power2.inOut" });
-        gsap.to([ringRef.current, captionRef.current], {
-          opacity: 0,
-          duration: 0.45,
-          ease: "power2.in",
-        });
-
-        Flip.fit(flyer, target, { duration: 0.72, ease: "power2.inOut", scale: true });
-
-        gsap.to(fillRef.current, { opacity: 1, duration: 0.4, delay: 0.42, ease: "power2.out" });
-
-        // 아치 테두리가 선으로 그려지며 성좌를 감싼다 — 응결의 마지막 획이다.
-        gsap.fromTo(
-          arch,
-          { strokeDashoffset: length, opacity: 0 },
-          {
-            strokeDashoffset: 0,
-            opacity: 1,
-            duration: 0.5,
-            delay: 0.32,
-            ease: "power1.inOut",
-            onComplete: () => {
-              // 상세 페이지가 이 표식을 보고 카드를 화면 한가운데에서 받아
-              // 제자리로 올려보낸다. 없으면 연출 없이 완성된 화면으로 뜬다.
-              setMarker(ARRIVE_MORPH_KEY, sign.key);
-              // 돌아올 길도 지금 적어 둔다. 이유는 signMorph.ts의 BACK_MORPH_KEY 참고.
-              setMarker(BACK_MORPH_KEY, sign.key);
-              router.push(`/sign/${sign.key}`);
-            },
-          },
-        );
-      } else {
-        const to = target.getBoundingClientRect();
-        gsap.set(flyer, {
-          left: to.left,
-          top: to.top,
-          width: to.width,
-          height: to.height,
-          opacity: 1,
-        });
-        gsap.set(others, { opacity: 0.05, scale: 0.93 });
-        gsap.set([ringRef.current, captionRef.current], { opacity: 0 });
-        gsap.set(arch, { strokeDashoffset: 0, opacity: 1 });
-        gsap.set(fillRef.current, { opacity: 1 });
-
-        // 감쌌던 선이 먼저 풀리고, 그 다음 성좌가 제 자리로 돌아간다.
-        gsap.to(fillRef.current, { opacity: 0, duration: 0.28, ease: "power2.in" });
-        gsap.to(arch, { strokeDashoffset: length, opacity: 0, duration: 0.34, ease: "power1.in" });
-        gsap.to(others, { opacity: 1, scale: 1, duration: 0.6, delay: 0.24, ease: "power2.out" });
-        gsap.to([ringRef.current, captionRef.current], {
-          opacity: 1,
-          duration: 0.6,
-          delay: 0.24,
-          ease: "power2.out",
-        });
-        Flip.fit(flyer, art, {
-          duration: 0.68,
-          delay: 0.16,
-          ease: "power2.inOut",
-          scale: true,
-          onComplete: () => setMorph(null),
-        });
-      }
+    setStyles(overlay, { visibility: "visible" });
+    setStyles(art, { opacity: "0" });
+    setStyles(flyer, {
+      left: `${from.left}px`,
+      top: `${from.top}px`,
+      width: `${from.width}px`,
+      height: `${from.height}px`,
+      opacity: "1",
     });
+    setStyles(arch, { "stroke-dasharray": `${length}` });
 
-    return () => ctx.revert();
+    let timer: ReturnType<typeof setTimeout>;
+
+    if (dir === "in") {
+      // 나머지 열한 개는 물러난다. 선택한 것만 남기려는 것이지 지우려는 것이
+      // 아니므로 완전히 0으로 보내지 않는다.
+      tweenAll(others, { opacity: "1", transform: "none" }, { opacity: "0.05", transform: "scale(0.93)" }, {
+        duration: 500,
+        ease: EASE_IN_OUT,
+      });
+      tweenAll([ring, caption], { opacity: "1" }, { opacity: "0" }, { duration: 450, ease: EASE_IN_OUT });
+
+      tween(flyer, { transform: "none" }, { transform: landed }, {
+        duration: FLIGHT_MS,
+        ease: EASE_IN_OUT,
+      });
+
+      // 아치 테두리가 선으로 그려지며 성좌를 감싼다 — 응결의 마지막 획이다.
+      tween(
+        arch,
+        { "stroke-dashoffset": `${length}`, opacity: "0" },
+        { "stroke-dashoffset": "0", opacity: "1" },
+        { duration: ARCH_MS, delay: ARCH_DELAY_MS, ease: EASE_IN_OUT },
+      );
+      tween(fill, { opacity: "0" }, { opacity: "1" }, { duration: 400, delay: 420, ease: EASE_OUT });
+
+      timer = setTimeout(() => {
+        // 상세 페이지가 이 표식을 보고 카드를 화면 한가운데에서 받아 제자리로
+        // 올려보낸다. 없으면 연출 없이 완성된 화면으로 뜬다.
+        setMarker(ARRIVE_MORPH_KEY, sign.key);
+        // 돌아올 길도 지금 적어 둔다. 이유는 signMorph.ts의 BACK_MORPH_KEY 참고.
+        setMarker(BACK_MORPH_KEY, sign.key);
+        router.push(`/sign/${sign.key}`);
+      }, ARCH_DELAY_MS + ARCH_MS);
+    } else {
+      // 감쌌던 선이 먼저 풀리고, 그 다음 성좌가 제 자리로 돌아간다.
+      tweenAll(others, { opacity: "0.05", transform: "scale(0.93)" }, { opacity: "1", transform: "none" }, {
+        duration: 600,
+        delay: 240,
+        ease: EASE_OUT,
+      });
+      tweenAll([ring, caption], { opacity: "0" }, { opacity: "1" }, {
+        duration: 600,
+        delay: 240,
+        ease: EASE_OUT,
+      });
+      tween(fill, { opacity: "1" }, { opacity: "0" }, { duration: 280, ease: EASE_IN_OUT });
+      tween(
+        arch,
+        { "stroke-dashoffset": "0", opacity: "1" },
+        { "stroke-dashoffset": `${length}`, opacity: "0" },
+        { duration: 340, ease: EASE_IN_OUT },
+      );
+      tween(flyer, { transform: landed }, { transform: "none" }, {
+        duration: 680,
+        delay: 160,
+        ease: EASE_IN_OUT,
+      });
+
+      timer = setTimeout(() => setMorph(null), 160 + 680);
+    }
+
+    return () => {
+      clearTimeout(timer);
+      // 인라인으로 박아 둔 것을 전부 걷어낸다. 이 요소들은 React가 그린 것이라
+      // 남겨 두면 다음 렌더의 클래스가 먹지 않는다.
+      clearStyles(art, ["opacity"]);
+      for (const element of others) clearStyles(element, ["opacity", "transform"]);
+      clearStyles(ring, ["opacity"]);
+      clearStyles(caption, ["opacity"]);
+    };
   }, [morph, router]);
 
   const active = hovered === null ? null : ZODIAC_SIGNS[hovered];

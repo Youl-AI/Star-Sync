@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import gsap from "gsap";
+import { EASE_IN_OUT, EASE_OUT, clearStyles, tween, tweenAll } from "@/lib/tween";
 import { ARRIVE_MORPH_KEY, BACK_MORPH_KEY, clearMarker, takeMarker } from "./signMorph";
 
 /**
@@ -38,20 +38,20 @@ export function SignArrival({ sign, children }: { sign: string; children: React.
     const dx = window.innerWidth / 2 - (rect.left + rect.width / 2);
     const dy = window.innerHeight / 2 - (rect.top + rect.height / 2);
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        card,
-        { x: dx, y: dy },
-        { x: 0, y: 0, duration: 0.52, ease: "power2.inOut", clearProps: "transform" },
-      );
-      gsap.fromTo(
-        veils,
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.5, delay: 0.18, ease: "power2.out", clearProps: "all" },
-      );
-    }, root);
+    tween(card, { transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }, {
+      duration: 520,
+      ease: EASE_IN_OUT,
+    });
+    tweenAll(veils, { opacity: "0", transform: "translateY(12px)" }, { opacity: "1", transform: "none" }, {
+      duration: 500,
+      delay: 180,
+      ease: EASE_OUT,
+    });
 
-    return () => ctx.revert();
+    return () => {
+      clearStyles(card, ["transform"]);
+      for (const veil of veils) clearStyles(veil, ["opacity", "transform"]);
+    };
   }, [sign]);
 
   useEffect(() => {
