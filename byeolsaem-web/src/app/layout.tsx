@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { SkyBackdrop } from "@/components/sky/SkyBackdrop";
-import { Veil } from "@/components/nav/Veil";
-import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
 const pretendard = localFont({
@@ -26,28 +23,26 @@ export const metadata: Metadata = {
     "태어난 순간의 실제 하늘로 읽는 나의 이야기. 천궁도, 오늘의 하늘, 별자리 궁합.",
 };
 
+/**
+ * 최상위 레이아웃은 문서 뼈대와 폰트만 맡는다.
+ *
+ * 사이트는 두 세계로 나뉜다(스펙 §1). 밤은 도구 페이지, 새벽은 읽는 페이지다.
+ * 배경·네비·스크롤 연출은 세계마다 다르므로 각 라우트 그룹의 레이아웃이 갖는다:
+ *
+ *   (night) — 먹빛 하늘 + WebGL 별하늘 + 얇은 베일 네비
+ *   (dawn)  — 미색 종이 + 읽기 진행선. Three.js를 아예 싣지 않는다.
+ *
+ * 이전에는 여기서 SkyBackdrop을 전역으로 마운트했는데, 그러면 밝은 문서
+ * 페이지에도 밤하늘이 깔리고 `/sign`·`/blog`에 Three.js 번들이 따라붙는다
+ * (성능 가드레일 위반, RENEWAL_PLAN §7). 그래서 그룹별 레이아웃으로 내렸다.
+ *
+ * 배경색도 그룹이 정한다. body에 색을 박아두면 두 세계 중 한쪽에서 반드시
+ * 어긋나므로, 기본값만 globals.css에 두고 새벽 그룹이 덮어쓴다.
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={`${pretendard.variable} ${maruburi.variable}`}>
-      <body className="min-h-[100dvh] bg-ink text-starlight antialiased">
-        {/* 스크롤 등장 대상은 CSS에서 opacity 0으로 시작해 IntersectionObserver가
-            켜주기를 기다린다. 자바스크립트가 아예 실행되지 않는 환경에서는 그
-            신호가 영영 오지 않아 본문이 통째로 보이지 않게 되므로, 그때는 처음부터
-            보이게 되돌린다. */}
-        <noscript>
-          <style>{`[data-reveal]{opacity:1;transform:none}`}</style>
-        </noscript>
-        {/* SkyBackdrop을 layout에서 한 번만 마운트해 모든 페이지가 배경을 공유한다.
-            SkyBackdrop 자신은 fixed + z-0(컴포지팅 버그 회피, SkyBackdrop.tsx 주석 참고)이므로
-            일반 흐름 콘텐츠보다 스택 레벨상 위에 그려질 수 있다. 이를 막기 위해 {children}을
-            relative z-10 래퍼로 감싸 명시적 스택 컨텍스트를 부여한다 — 페이지마다 이 래퍼를
-            반복해서 챙길 필요가 없도록 layout 레벨에서 한 번에 처리한다. Veil 네비(z-40)는
-            그보다 항상 위에 있다. */}
-        <SmoothScroll />
-        <SkyBackdrop />
-        <Veil />
-        <div className="relative z-10">{children}</div>
-      </body>
+      <body className="min-h-[100dvh] antialiased">{children}</body>
     </html>
   );
 }

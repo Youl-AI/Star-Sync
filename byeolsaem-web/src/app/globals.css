@@ -21,6 +21,20 @@
   --animate-prompt-in: prompt-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-list-open: list-open 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-list-item-in: list-item-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-lonely-star: lonely-star 3.4s ease-in-out infinite;
+}
+
+/* 404의 별 하나. 완전히 꺼지지 않고 희미해졌다 돌아온다. */
+@keyframes lonely-star {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(0.72);
+  }
 }
 
 /* 의식의 질문 문구가 갈릴 때. 아래에서 살짝 올라오며 나타난다. */
@@ -97,6 +111,14 @@
   transition-delay: calc(var(--reveal-i, 0) * 60ms);
 }
 
+/*
+ * 기본값은 밤이다. 사이트의 대부분이 도구 페이지이고, 스크롤을 끝까지 당겼을 때
+ * 튕겨 나오는 여백(overscroll)에도 이 색이 보인다.
+ *
+ * 새벽 그룹은 자기 레이아웃에서 이 두 줄을 덮어쓴다. body에 색을 박아두면 두
+ * 세계 중 한쪽은 반드시 어긋나는데, 최상위 레이아웃은 어느 라우트가 열렸는지
+ * 알 수 없기 때문이다.
+ */
 html {
   background: var(--color-ink);
 }
@@ -157,6 +179,77 @@ body {
 .thin-scroll::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--color-gold) 40%, transparent);
   border-radius: 3px;
+}
+
+/*
+ * 새벽 문서의 본문 타이포그래피. 글 안의 태그는 MDX나 손으로 쓴 마크업에서
+ * 오므로 클래스를 일일이 달 수 없다 — 부모 한 곳에서 자손 선택자로 정한다.
+ */
+.dawn-prose p {
+  margin-top: 1.15em;
+}
+
+.dawn-prose p:first-child {
+  margin-top: 0;
+}
+
+.dawn-prose ul,
+.dawn-prose ol {
+  margin-top: 1.15em;
+  padding-left: 1.35em;
+}
+
+.dawn-prose ul {
+  list-style: none;
+}
+
+/* 기본 불릿 대신 작은 금색 마름모. 밤의 LineDiamond와 같은 표식이다. */
+.dawn-prose ul > li {
+  position: relative;
+}
+
+.dawn-prose ul > li::before {
+  content: "";
+  position: absolute;
+  left: -1.05em;
+  top: 0.72em;
+  width: 3px;
+  height: 3px;
+  transform: rotate(45deg);
+  background: color-mix(in srgb, var(--color-gold-dark) 70%, transparent);
+}
+
+.dawn-prose ol {
+  list-style: decimal;
+}
+
+.dawn-prose li {
+  margin-top: 0.5em;
+}
+
+.dawn-prose a {
+  color: var(--color-gold-dark);
+  text-underline-offset: 4px;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-gold-dark) 40%, transparent);
+}
+
+.dawn-prose a:hover {
+  text-decoration-color: var(--color-gold-dark);
+}
+
+.dawn-prose strong {
+  font-weight: 600;
+}
+
+/* 첫 글자 드롭캡. 정책 문서는 이 클래스 없이 렌더된다(스펙 §6.8). */
+.dawn-dropcap > *:first-child::first-letter {
+  float: left;
+  margin: 0.06em 0.12em 0 0;
+  font-family: var(--font-display);
+  font-size: 3.1em;
+  line-height: 0.86;
+  color: var(--color-gold-dark);
 }
 
 /* 성운: 보라는 여기에만 (스펙 §1.1) */
