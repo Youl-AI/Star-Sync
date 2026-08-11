@@ -283,12 +283,10 @@ export function HeroSequence() {
               >
                 {profileReady && profile ? "내 밤하늘 다시 보기" : "나의 밤하늘 보기"}
               </GoldButton>
-              <a
-                href="/today"
-                className="border-b border-starlight-dim/40 pb-0.5 text-sm text-starlight-dim transition-colors hover:text-starlight"
-              >
+              {/* 보조 동선도 "별 사이" 링크로 통일한다(GoldButton outline). */}
+              <GoldButton variant="outline" href="/today">
                 오늘의 하늘
-              </a>
+              </GoldButton>
             </div>
           </div>
         )}

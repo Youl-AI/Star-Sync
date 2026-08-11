@@ -2,12 +2,11 @@ import type { CSSProperties } from "react";
 import { Door } from "./Door";
 import { YearlyTagline } from "./YearlyTagline";
 
-// 세 개의 문에 쓰이는 미니 비주얼. Task 4~10의 미니 성좌 스타일(가는 금색 선 +
-// 별점 원)을 재사용하되 문마다 다른 형상을 그린다 — 벤토 셀이 빈 카드로 보이지
-// 않도록 하는 장치. 서버에서 그려져 Door(클라이언트)에 슬롯으로 넘어간다.
+// 세 개의 문에 쓰이는 미니 비주얼. 가는 금색 선 + 별점 원으로 문마다 다른
+// 형상을 그린다. 서버에서 그려져 Door(클라이언트)에 슬롯으로 넘어간다.
 function NatalGlyph() {
   return (
-    <svg viewBox="0 0 140 90" className="h-24 w-full max-w-[220px]" aria-hidden>
+    <svg viewBox="0 0 140 90" className="h-20 w-full max-w-[200px]" aria-hidden>
       <path
         d="M18 68 L50 26 L84 44 L118 16 M50 26 L70 64 L118 16"
         fill="none"
@@ -24,7 +23,7 @@ function NatalGlyph() {
 
 function SynastryGlyph() {
   return (
-    <svg viewBox="0 0 140 64" className="h-16 w-full max-w-[220px]" aria-hidden>
+    <svg viewBox="0 0 140 64" className="h-20 w-full max-w-[200px]" aria-hidden>
       <path
         d="M8 32 C 36 4, 56 60, 84 32 S 132 4, 132 32"
         fill="none"
@@ -45,7 +44,7 @@ function SynastryGlyph() {
 
 function YearlyGlyph() {
   return (
-    <svg viewBox="0 0 140 52" className="h-14 w-full max-w-[220px]" aria-hidden>
+    <svg viewBox="0 0 140 52" className="h-20 w-full max-w-[200px]" aria-hidden>
       <path
         d="M4 36 Q 22 10 40 30 T 76 26 T 112 16 T 136 30"
         fill="none"
@@ -60,9 +59,9 @@ function YearlyGlyph() {
   );
 }
 
-// 레이아웃 패밀리: 비대칭 벤토 (5열 그리드, 큰 문 col-span-3/row-span-2 + 작은
-// 문 두 개 col-span-2 세로 스택). 모바일에서는 grid-cols-1로 접혀 세 문이
-// 순서대로 쌓인다.
+// "무경계 성좌"(디자인 실험실 C안): 카드 상자 없이 세 영역이 나란히 놓이고,
+// 각 영역은 위쪽 금선 하나로만 구분된다. 상자가 사라졌으므로 벤토(크기 차등)
+// 대신 동일한 세 칸이 하나의 지평선을 이룬다.
 export function ThreeDoors() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-28 md:py-40">
@@ -74,18 +73,16 @@ export function ThreeDoors() {
         당신의 하늘로 통하는 세 개의 문
       </h2>
 
-      {/* 세 문은 하나의 벤토를 이루므로 함께 들어온다. 문마다 따로 표시하면
-          큰 문이 작은 문들보다 위쪽에서 시작해 먼저 화면에 걸리고, 벤토가 한
-          덩어리가 아니라 세 조각이 차례로 놓이는 것처럼 보인다. */}
+      {/* 세 문은 한 지평선 위에 있으므로 함께 들어온다. 문마다 따로 표시하면
+          하나의 구성이 세 조각으로 쪼개져 보인다. */}
       <div
         data-reveal
         style={{ "--reveal-i": 1 } as CSSProperties}
-        className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-5 md:grid-rows-2"
+        className="mt-16 grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3"
       >
         <Door
           href="/natal"
-          size="lg"
-          className="md:col-span-3 md:row-span-2"
+          numeral="I"
           glyph={<NatalGlyph />}
           title="천궁도"
           description="태어난 순간 하늘에 새겨진 나의 원형. 태양과 달, 열 개의 행성이 그리는 이야기."
@@ -93,8 +90,7 @@ export function ThreeDoors() {
 
         <Door
           href="/synastry"
-          size="sm"
-          className="md:col-span-2"
+          numeral="II"
           glyph={<SynastryGlyph />}
           title="궁합"
           description="두 하늘이 겹치는 자리"
@@ -108,8 +104,7 @@ export function ThreeDoors() {
             마운트 시점에 채운다(TodayDate.tsx와 동일 패턴). */}
         <Door
           href="/yearly"
-          size="sm"
-          className="md:col-span-2"
+          numeral="III"
           glyph={<YearlyGlyph />}
           title="연간 운세"
           description={<YearlyTagline />}

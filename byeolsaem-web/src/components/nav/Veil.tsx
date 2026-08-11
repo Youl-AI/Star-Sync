@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Wordmark } from "../brand/Wordmark";
-import { GOLD_OUTLINE_CLASSES } from "../ui/goldStyles";
+import { SEAL_CLIP_SM } from "../ui/goldStyles";
 
 // 모바일 오버레이가 md:hidden으로 사라지는 기준(Tailwind md)과 반드시 일치해야 한다.
 const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
@@ -88,7 +88,7 @@ export function Veil() {
                 사용자를 실제 CTA("나의 밤하늘 보기")가 보이는 위치로 되돌려보낸다. */}
             <a
               href="#hero"
-              className={`rounded-full px-4 py-2 text-xs tracking-wider transition-colors ${GOLD_OUTLINE_CLASSES}`}
+              className={`bg-gold-soft px-4 py-2 text-xs font-semibold tracking-wider text-ink transition-colors hover:bg-[#f0d789] ${SEAL_CLIP_SM}`}
             >
               내 밤하늘
             </a>
