@@ -83,6 +83,7 @@ export function ThreeDoors() {
         <Door
           href="/natal"
           numeral="I"
+          hint="natal"
           glyph={<NatalGlyph />}
           title="천궁도"
           description="태어난 순간 하늘에 새겨진 나의 원형. 태양과 달, 열 개의 행성이 그리는 이야기."
@@ -91,6 +92,7 @@ export function ThreeDoors() {
         <Door
           href="/synastry"
           numeral="II"
+          hint="synastry"
           glyph={<SynastryGlyph />}
           title="궁합"
           description="두 하늘이 겹치는 자리"
@@ -105,6 +107,7 @@ export function ThreeDoors() {
         <Door
           href="/yearly"
           numeral="III"
+          hint="yearly"
           glyph={<YearlyGlyph />}
           title="연간 운세"
           description={<YearlyTagline />}

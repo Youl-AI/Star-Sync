@@ -23,7 +23,24 @@ interface DoorProps {
   title: string;
   description: ReactNode;
   glyph: ReactNode;
+  /**
+   * 입력을 마친 사람에게 보여줄 안내의 종류. 문자열이 아니라 종류인 이유:
+   * 문구에 저장된 생일이 들어가는데 그 값은 클라이언트(Door)만 알고, 부모
+   * ThreeDoors는 서버 컴포넌트라 함수를 넘길 수도 없다.
+   *
+   * - natal: 그 사람의 출생 하늘 그 자체로 가는 문 → 생일을 그대로 쓴다.
+   * - synastry: 두 하늘을 겹치는 문 → 내 날짜 하나만 가리키면 틀린 말이 된다.
+   *   "한쪽 하늘은 준비됐다"로, 나머지 한쪽이 남아 있음을 알린다.
+   * - yearly: 다가올 해를 보는 문 → 태어난 날짜로 "가는" 것이 아니다.
+   */
+  hint: "natal" | "synastry" | "yearly";
 }
+
+const READY_HINTS = {
+  natal: (birth: string) => `${birth}의 하늘로 →`,
+  synastry: () => "한쪽 하늘은 준비됐어요 →",
+  yearly: () => "나의 한 해 미리 보기 →",
+} as const;
 
 /**
  * 세 개의 문 중 하나. 출생 정보를 이미 입력한 사람과 아직 입력하지 않은 사람에게
@@ -37,7 +54,7 @@ interface DoorProps {
  *
  * 등장 모션은 세 문을 감싼 격자가 통째로 담당한다(ThreeDoors 참고).
  */
-export function Door({ href, numeral, title, description, glyph }: DoorProps) {
+export function Door({ href, numeral, title, description, glyph, hint }: DoorProps) {
   const { profile, ready } = useBirthProfile();
   const needsBirthData = ready && profile === null;
 
@@ -68,7 +85,7 @@ export function Door({ href, numeral, title, description, glyph }: DoorProps) {
           ready ? "opacity-100" : "opacity-0"
         }`}
       >
-        {profile ? `${formatBirthDate(profile.date)}의 하늘로 →` : "밤하늘을 먼저 열어주세요"}
+        {profile ? READY_HINTS[hint](formatBirthDate(profile.date)) : "밤하늘을 먼저 열어주세요"}
       </span>
     </Link>
   );
