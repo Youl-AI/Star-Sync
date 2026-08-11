@@ -74,13 +74,17 @@ export function ThreeDoors() {
         당신의 하늘로 통하는 세 개의 문
       </h2>
 
-      {/* 큰 문이 먼저 서고 작은 문 둘이 차례로 따라 선다(globals.css의
-          [data-reveal] 규칙 참고). */}
-      <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-5 md:grid-rows-2">
+      {/* 세 문은 하나의 벤토를 이루므로 함께 들어온다. 문마다 따로 표시하면
+          큰 문이 작은 문들보다 위쪽에서 시작해 먼저 화면에 걸리고, 벤토가 한
+          덩어리가 아니라 세 조각이 차례로 놓이는 것처럼 보인다. */}
+      <div
+        data-reveal
+        style={{ "--reveal-i": 1 } as CSSProperties}
+        className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-5 md:grid-rows-2"
+      >
         <Door
           href="/natal"
           size="lg"
-          revealIndex={1}
           className="md:col-span-3 md:row-span-2"
           glyph={<NatalGlyph />}
           title="천궁도"
@@ -90,7 +94,6 @@ export function ThreeDoors() {
         <Door
           href="/synastry"
           size="sm"
-          revealIndex={2}
           className="md:col-span-2"
           glyph={<SynastryGlyph />}
           title="궁합"
@@ -106,7 +109,6 @@ export function ThreeDoors() {
         <Door
           href="/yearly"
           size="sm"
-          revealIndex={3}
           className="md:col-span-2"
           glyph={<YearlyGlyph />}
           title="연간 운세"

@@ -27,18 +27,19 @@ export function ResultPreview() {
         <LineDiamond className="my-10" />
       </div>
 
-      <div className="flex flex-col items-center gap-8">
-        <div data-reveal style={order(3)}>
-          <ArchCard name="봄의 불꽃" latin="ARIES SUN" tagline="시작을 두려워하지 않는 사람">
-            <div
-              className="mx-auto mt-4 size-16 rounded-full border border-gold/50"
-              style={{
-                boxShadow: `0 0 30px 4px color-mix(in srgb, var(--color-gold) 18%, transparent)`,
-              }}
-            />
-          </ArchCard>
-        </div>
-        <div data-reveal style={order(4)} className="flex flex-wrap justify-center gap-2.5">
+      {/* 카드와 그 아래 부적 칩은 한 장의 결과물이다. 따로 표시하면 각자
+          화면에 들어오는 시점이 달라 카드가 먼저 서고 칩이 뒤늦게 붙는 것처럼
+          보이므로, 하나의 덩어리로 묶어 함께 들여보낸다. */}
+      <div data-reveal style={order(3)} className="flex flex-col items-center gap-8">
+        <ArchCard name="봄의 불꽃" latin="ARIES SUN" tagline="시작을 두려워하지 않는 사람">
+          <div
+            className="mx-auto mt-4 size-16 rounded-full border border-gold/50"
+            style={{
+              boxShadow: `0 0 30px 4px color-mix(in srgb, var(--color-gold) 18%, transparent)`,
+            }}
+          />
+        </ArchCard>
+        <div className="flex flex-wrap justify-center gap-2.5">
           <TalismanChip symbol="☉" label="태양 양자리" />
           <TalismanChip symbol="♂" label="화성 사자자리" />
         </div>
