@@ -7,7 +7,8 @@ import { GoldButton } from "@/components/ui/GoldButton";
 import { ArchCard } from "@/components/ui/ArchCard";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { Moon } from "./Moon";
-import { RitualForm } from "./RitualForm";
+import { RitualForm, type RitualData } from "./RitualForm";
+import { getSunSign } from "@/lib/zodiac";
 import { MockChart } from "./MockChart";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { clearBirthProfile, saveBirthProfile } from "@/lib/birth-profile";
@@ -58,6 +59,9 @@ export function HeroSequence() {
   // scene이 "complete"가 아니라서, 이 표시가 없으면 결과를 보러 가는 길에도
   // "어느 밤에 태어나셨나요?"가 잠깐 떴다가 바뀐다.
   const [resuming, setResuming] = useState(false);
+  // 방금 폼에서 받은 값. 결과 화면은 저장된 프로필을 우선 읽지만, 저장이
+  // 실패하는 환경(시크릿 모드, 용량 초과)에서는 이 값이 유일한 원본이다.
+  const [entered, setEntered] = useState<RitualData | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const ritualRef = useRef<HTMLDivElement>(null);
@@ -321,6 +325,7 @@ export function HeroSequence() {
               <RitualForm
                 onStepChange={setRitualStep}
                 onComplete={(data) => {
+                  setEntered(data);
                   saveBirthProfile(data);
                   setScene("complete");
                 }}
@@ -328,7 +333,13 @@ export function HeroSequence() {
             </div>
           )}
 
-          {scene === "complete" && (
+          {scene === "complete" && (() => {
+            // 결과의 원본: 저장된 프로필이 있으면 그것, 방금 입력했지만 저장이
+            // 실패한 환경에서는 entered. 재방문("다시 보기") 경로는 profile이
+            // 항상 있으므로 이 순서면 두 경로 모두 안전하다.
+            const birth = profile ?? entered;
+            const sign = getSunSign(birth?.date ?? "");
+            return (
             <div
               ref={completeRef}
               tabIndex={-1}
@@ -337,21 +348,22 @@ export function HeroSequence() {
               <p role="status" className="sr-only">
                 천궁도 해석이 준비되었습니다
               </p>
-              <MockChart onDrawn={() => setChartDrawn(true)} />
+              {/* 태양궁 성좌 — 생년월일마다 다른 실제 별자리 형태(lib/zodiac.ts). */}
+              <MockChart sign={sign} onDrawn={() => setChartDrawn(true)} />
               <div
                 className={`flex flex-col items-center gap-6 transition-opacity duration-700 ${
                   chartDrawn ? "opacity-100" : "opacity-0"
                 }`}
                 inert={!chartDrawn}
               >
-                <ArchCard
-                  name="봄의 불꽃"
-                  latin="MOCK RESULT"
-                  tagline="곧 진짜 하늘이 연결됩니다"
-                />
+                {/* 부적 이름·문구도 태양궁을 따른다. 태양궁은 날짜만으로 정해지므로
+                    프런트에서 즉석 계산이 가능하다. 달 별자리는 천문력 연산이
+                    필요해 백엔드가 붙기 전에는 알 수 없고, 틀린 값을 보여주느니
+                    비워 둔다 — 두 번째 칩은 확실히 아는 관심사로 채운다. */}
+                <ArchCard name={sign.card} latin={sign.latin} tagline={sign.tagline} />
                 <div className="flex flex-wrap justify-center gap-2.5">
-                  <TalismanChip symbol="☉" label="태양 양자리" />
-                  <TalismanChip symbol="☽" label="달 게자리" />
+                  <TalismanChip symbol="☉" label={`태양 ${sign.ko}`} />
+                  {birth?.concern && <TalismanChip symbol="✦" label={birth.concern} />}
                 </div>
                 {/* 저장된 정보를 버리고 처음부터 다시 입력하는 유일한 출구.
                     잘못 입력했거나 다른 사람의 하늘을 보려는 경우를 위한 것이다. */}
@@ -359,6 +371,7 @@ export function HeroSequence() {
                   type="button"
                   onClick={() => {
                     clearBirthProfile();
+                    setEntered(null);
                     setChartDrawn(false);
                     setRitualStep(0);
                     setResuming(false);
@@ -371,7 +384,8 @@ export function HeroSequence() {
                 </button>
               </div>
             </div>
-          )}
+            );
+          })()}
         </div>
       )}
     </section>
