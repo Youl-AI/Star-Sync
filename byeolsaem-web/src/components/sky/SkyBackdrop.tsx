@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { detectSkyTier, type SkyTier } from "@/lib/sky-tier";
 import { generateStars } from "@/lib/stars";
+import { NightJourney } from "./NightJourney";
 
 const SkyCanvas = dynamic(() => import("./SkyCanvas"), { ssr: false });
 
@@ -65,7 +66,10 @@ export function SkyBackdrop() {
     // (실제로 발생했던 버그). 그래서 이 컴포넌트만으로는 안전하지 않고, 반드시
     // layout.tsx에서 {children}을 relative z-10 래퍼로 감싸 명시적 스택 레벨을 부여해야
     // 한다(layout.tsx 주석 참고). Veil 네비는 명시적 z-40이라 항상 이 값보다 위다.
+    // .nebula-bg는 이제 첫 페인트용 바탕으로만 남는다. 실제로 보이는 색은 그
+    // 위에 겹친 NightJourney가 구간마다 갈아끼운다(초저녁 → 자정 → 여명).
     <div className="nebula-bg pointer-events-none fixed inset-0 z-0" aria-hidden>
+      <NightJourney />
       {tier === "static" && <StaticStars />}
       {tier && tier !== "static" && (
         <div
