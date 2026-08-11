@@ -29,9 +29,11 @@ describe("별자리 본문", () => {
     expect(getSignBySlug("없는자리")).toBeUndefined();
   });
 
-  it("본문이 있는 별자리만 내용을 돌려준다", () => {
-    expect(getSignContent("aries")).toBeDefined();
-    expect(getSignContent("leo")).toBeUndefined();
+  it("열두 자리가 모두 본문을 갖는다", () => {
+    for (const sign of ZODIAC_SIGNS) {
+      expect(getSignContent(sign.key), sign.ko).toBeDefined();
+    }
+    expect(getSignContent("없는자리")).toBeUndefined();
   });
 
   it("본문 키는 모두 실재하는 별자리다", () => {
