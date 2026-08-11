@@ -23,8 +23,8 @@ export function DawnDocument({
   title: string;
   /** 제목 아래 한 줄 요약. */
   lead?: string;
-  /** "2026. 8. 12. 개정" 같은 갱신 표기. */
-  updated?: string;
+  /** 제목 아래의 작은 메타 한 줄. "2026. 8. 12. 개정", 칼럼이면 발행일과 분량. */
+  updated?: ReactNode;
   ornament?: boolean;
   children: ReactNode;
 }) {

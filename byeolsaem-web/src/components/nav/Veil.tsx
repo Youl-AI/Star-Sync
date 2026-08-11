@@ -7,11 +7,19 @@ import { SEAL_CLIP_SM } from "../ui/goldStyles";
 // 모바일 오버레이가 md:hidden으로 사라지는 기준(Tailwind md)과 반드시 일치해야 한다.
 const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
 
+/**
+ * 실제로 존재하는 페이지만 건다.
+ *
+ * 여기 있던 /today · /natal · /synastry는 아직 만들어지지 않은 페이지였고,
+ * 이 머리글은 사이트 전체에 붙으므로 모든 페이지가 404로 가는 링크를 세 개씩
+ * 달고 다니던 셈이다. 천궁도와 궁합으로 가는 길은 메인의 "세 개의 문"이 이미
+ * 맡고 있으니 잃는 것도 없다. 그 페이지들이 생기면 그때 다시 올린다.
+ */
 const LINKS = [
-  { href: "/today", label: "오늘의 하늘" },
-  { href: "/natal", label: "천궁도" },
-  { href: "/synastry", label: "궁합" },
+  { href: "/sign", label: "별자리" },
+  { href: "/retrograde", label: "수성 역행" },
   { href: "/blog", label: "칼럼" },
+  { href: "/about", label: "소개" },
 ];
 
 export function Veil() {
