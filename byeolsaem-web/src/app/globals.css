@@ -24,6 +24,31 @@
   --animate-lonely-star: lonely-star 3.4s ease-in-out infinite;
 }
 
+/*
+ * 천구의 진의 자전. 분당 1°이므로 한 바퀴에 6시간이다 — 움직이는 것이 보이는
+ * 것이 아니라, 한참 뒤에 아까와 다르다는 것을 겨우 알아차리는 속도다.
+ * 성좌는 같은 속도로 반대로 돌려 늘 똑바로 서 있게 한다.
+ */
+@keyframes astrolabe-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes astrolabe-counterspin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.astrolabe-spin {
+  animation: astrolabe-spin 21600s linear infinite;
+}
+
+.astrolabe-counterspin {
+  animation: astrolabe-counterspin 21600s linear infinite;
+}
+
 /* 404의 별 하나. 완전히 꺼지지 않고 희미해졌다 돌아온다. */
 @keyframes lonely-star {
   0%,

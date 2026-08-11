@@ -1,0 +1,75 @@
+import { describe, expect, it } from "vitest";
+import { ZODIAC_SIGNS } from "../lib/zodiac";
+import { SIGN_CONTENT, getSignBySlug, getSignContent } from "../lib/sign-content";
+
+describe("별자리 메타데이터", () => {
+  it("열두 자리 모두 기간·원소·특질·지배행성을 갖는다", () => {
+    for (const s of ZODIAC_SIGNS) {
+      expect(s.range, s.key).toMatch(/^\d{1,2}\. \d{1,2} - \d{1,2}\. \d{1,2}$/);
+      expect(["불", "흙", "공기", "물"]).toContain(s.element);
+      expect(["활동", "고정", "변통"]).toContain(s.quality);
+      expect(s.ruler.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("원소는 셋씩, 특질은 넷씩 고르게 나뉜다", () => {
+    const count = (pick: (s: (typeof ZODIAC_SIGNS)[number]) => string) =>
+      ZODIAC_SIGNS.reduce<Record<string, number>>((acc, s) => {
+        acc[pick(s)] = (acc[pick(s)] ?? 0) + 1;
+        return acc;
+      }, {});
+    expect(count((s) => s.element)).toEqual({ 불: 3, 흙: 3, 공기: 3, 물: 3 });
+    expect(count((s) => s.quality)).toEqual({ 활동: 4, 고정: 4, 변통: 4 });
+  });
+});
+
+describe("별자리 본문", () => {
+  it("슬러그로 별자리를 찾는다", () => {
+    expect(getSignBySlug("libra")?.ko).toBe("천칭자리");
+    expect(getSignBySlug("없는자리")).toBeUndefined();
+  });
+
+  it("본문이 있는 별자리만 내용을 돌려준다", () => {
+    expect(getSignContent("aries")).toBeDefined();
+    expect(getSignContent("leo")).toBeUndefined();
+  });
+
+  it("본문 키는 모두 실재하는 별자리다", () => {
+    const keys = new Set(ZODIAC_SIGNS.map((s) => s.key));
+    for (const k of Object.keys(SIGN_CONTENT)) {
+      expect(keys.has(k), `${k}는 없는 별자리`).toBe(true);
+    }
+  });
+
+  it("작성된 본문은 모든 절을 채운다", () => {
+    for (const [key, c] of Object.entries(SIGN_CONTENT)) {
+      if (!c) continue;
+      expect(c.opening.length, key).toBeGreaterThan(50);
+      expect(c.nature.length, key).toBeGreaterThanOrEqual(2);
+      expect(c.strengths.length, key).toBeGreaterThanOrEqual(3);
+      expect(c.shadows.length, key).toBeGreaterThanOrEqual(3);
+      expect(c.inRelationships.length, key).toBeGreaterThanOrEqual(2);
+      expect(c.inWork.length, key).toBeGreaterThanOrEqual(2);
+      expect(c.misread.length, key).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("작성된 본문은 색인 가치가 있는 분량이다", () => {
+    for (const [key, c] of Object.entries(SIGN_CONTENT)) {
+      if (!c) continue;
+      const chars = [
+        c.opening,
+        ...c.nature,
+        ...c.strengths.flatMap((s) => [s.title, s.body]),
+        ...c.shadows.flatMap((s) => [s.title, s.body]),
+        ...c.inRelationships,
+        ...c.inWork,
+        ...c.misread.flatMap((m) => [m.question, m.answer]),
+      ]
+        .join("")
+        .replace(/\s/g, "").length;
+      // 스펙 §6.4가 요구하는 2,000자는 공백 포함 기준이라 여기서는 조금 낮춰 잡는다.
+      expect(chars, `${key}: ${chars}자`).toBeGreaterThanOrEqual(1500);
+    }
+  });
+});
