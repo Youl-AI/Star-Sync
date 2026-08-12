@@ -68,7 +68,7 @@ export function Door({ href, numeral, title, description, glyph, hint }: DoorPro
         requestRitual();
       }}
     >
-      <span className="block text-[11px] tracking-[0.22em] text-gold" aria-hidden>
+      <span className="block font-latin text-eyebrow tracking-[0.22em] text-gold" aria-hidden>
         {numeral}
       </span>
       <div className="mt-5 opacity-80 transition-opacity duration-500 group-hover:opacity-100">
@@ -81,7 +81,7 @@ export function Door({ href, numeral, title, description, glyph, hint }: DoorPro
       {/* 안내 문구 자리는 `ready` 이전에도 높이를 차지해야 한다. 나중에 글자가
           채워지면서 아래 내용이 밀리는 레이아웃 이동을 막기 위함이다. */}
       <span
-        className={`mt-5 block min-h-4 text-xs tracking-wide text-gold-soft transition-colors group-hover:text-gold ${
+        className={`mt-5 block min-h-5 text-meta tracking-wide text-gold-soft transition-colors group-hover:text-gold ${
           ready ? "opacity-100" : "opacity-0"
         }`}
       >

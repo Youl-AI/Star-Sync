@@ -43,7 +43,7 @@ export default function NotFound() {
           </GoldButton>
         </div>
 
-        <p className="mt-12 text-[11px] tracking-wide text-starlight-dim/70">
+        <p className="mt-12 text-meta tracking-wide text-starlight-dim">
           주소가 잘못되었다면{" "}
           <Link
             href="/about"

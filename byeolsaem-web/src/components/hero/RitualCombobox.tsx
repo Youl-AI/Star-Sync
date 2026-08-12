@@ -196,7 +196,7 @@ export function RitualCombobox({
           className="thin-scroll absolute inset-x-0 top-full z-20 max-h-56 overflow-y-auto border-t border-gold/45 bg-ink/95 py-1 text-center shadow-[0_22px_44px_-26px_rgba(0,0,0,0.95)] backdrop-blur-md motion-safe:animate-list-open"
         >
           {results.length === 0 && (
-            <li className="px-4 py-3 text-center text-xs text-starlight-dim">{emptyText}</li>
+            <li className="px-4 py-3 text-center text-meta text-starlight-dim">{emptyText}</li>
           )}
           {results.map((option, i) => (
             <li

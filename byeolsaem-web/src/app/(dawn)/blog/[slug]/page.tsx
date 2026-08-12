@@ -101,7 +101,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
       <nav className="mt-16 flex flex-wrap justify-between gap-6 border-t border-gold-dark/15 pt-8 text-sm">
         {previous ? (
           <Link href={`/blog/${previous.slug}`} className="max-w-[45%] no-underline">
-            <span className="block text-[11px] tracking-[0.2em] text-ink-dim">이전 글</span>
+            <span className="block text-meta tracking-[0.2em] text-ink-dim">이전 글</span>
             <span className="mt-1 block break-keep text-ink-text">{previous.title}</span>
           </Link>
         ) : (
@@ -109,7 +109,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         )}
         {next ? (
           <Link href={`/blog/${next.slug}`} className="max-w-[45%] text-right no-underline">
-            <span className="block text-[11px] tracking-[0.2em] text-ink-dim">다음 글</span>
+            <span className="block text-meta tracking-[0.2em] text-ink-dim">다음 글</span>
             <span className="mt-1 block break-keep text-ink-text">{next.title}</span>
           </Link>
         ) : (

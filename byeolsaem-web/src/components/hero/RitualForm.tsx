@@ -171,7 +171,7 @@ export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
               aria-invalid={!!error}
               aria-describedby={error ? "ritual-error" : undefined}
             />
-            <p className="mt-3 text-[11px] tracking-wide text-starlight-dim">
+            <p className="mt-3 text-meta tracking-wide text-starlight-dim">
               생년월일을 입력하면 그날의 하늘이 펼쳐집니다
             </p>
             <button type="submit" className={`mt-4 ${NEXT_LINK}`}>
@@ -310,7 +310,7 @@ export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
         )}
 
         {error && (
-          <p id="ritual-error" role="alert" className="mt-3 text-xs text-gold-soft/90">
+          <p id="ritual-error" role="alert" className="mt-3 text-meta text-gold-soft/90">
             {error}
           </p>
         )}

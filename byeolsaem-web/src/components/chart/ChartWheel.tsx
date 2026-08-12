@@ -207,7 +207,7 @@ export function ChartWheel({ chart }: { chart: Chart }) {
 /** 원반 아래에 붙이는 범례. 기호만으로는 무엇인지 알 수 없다. */
 export function ChartWheelLegend() {
   return (
-    <div className="mt-6 space-y-2 text-center text-[11px] leading-relaxed text-starlight-dim">
+    <div className="mt-6 space-y-2 text-center text-guide text-starlight">
       <p>
         {ASPECT_TYPES.filter((t) => t.key !== "conjunction").map((type, i) => (
           <span key={type.key}>

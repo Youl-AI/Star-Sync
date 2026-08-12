@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 마루부리 원본. scripts/subset-maruburi.py가 잘라 쓸 재료이고, 결과물만 src/fonts에
+# 커밋한다. 없으면 스크립트가 받는 곳을 알려준다.
+scripts/vendor/

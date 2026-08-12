@@ -19,6 +19,6 @@ export function TodayDate() {
   }, []);
 
   return (
-    <p className="min-h-[1em] text-xs uppercase tracking-[0.3em] text-gold-soft">{label}</p>
+    <p className="min-h-[1em] text-eyebrow uppercase tracking-[0.3em] text-gold-soft">{label}</p>
   );
 }

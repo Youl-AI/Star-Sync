@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SignArrival } from "@/components/sign/SignArrival";
-import { SignGlyph } from "@/components/sign/SignGlyph";
-import { ART_WIDTH, CARD_WIDTH } from "@/components/sign/signMorph";
-import { ArchCard } from "@/components/ui/ArchCard";
+import { CARD_WIDTH } from "@/components/sign/signMorph";
+import { SignArchCard } from "@/components/ui/ArchCard";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { LineDiamond } from "@/components/ui/LineDiamond";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
@@ -52,11 +51,11 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <header className="text-center">
         <div data-morph-veil>
-          <p className="text-[11px] tracking-[0.28em] text-gold">{sign.range}</p>
+          <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">{sign.range}</p>
           <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
             {sign.ko}
           </h1>
-          <p className="mt-4 text-xs tracking-wide text-starlight-dim">
+          <p className="mt-4 text-meta tracking-wide text-starlight-dim">
             {sign.element} · {sign.quality} · {sign.ruler}
           </p>
         </div>
@@ -65,11 +64,9 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
           {/* 진에서 날아온 카드가 앉는 자리. 폭과 그림 크기는 진 쪽 오버레이와
               같은 상수를 읽는다 — 어긋나면 착지 순간 카드가 튄다. */}
           <div data-morph-card>
-            <ArchCard name={sign.card} latin={sign.latin} tagline={sign.tagline} width={CARD_WIDTH}>
-              {/* 부적 안에 그 별자리의 실제 성좌를 그린다. 진에서 날아오는
-                  그림과 선 굵기·별 크기가 같아야 해서 lit 기본값을 그대로 쓴다. */}
-              <SignGlyph sign={sign} lit className="mx-auto mt-3" style={{ width: ART_WIDTH }} />
-            </ArchCard>
+            {/* 성좌는 SignArchCard가 넣는다. 진에서 날아오는 그림과 선 굵기·별
+                크기가 같아야 하므로 lit 기본값을 그대로 쓴다. */}
+            <SignArchCard sign={sign} width={CARD_WIDTH} />
           </div>
         </div>
 

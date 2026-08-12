@@ -1,3 +1,4 @@
+@import "./pretendard.css";
 @import "tailwindcss";
 
 @theme {
@@ -16,7 +17,44 @@
   --color-gold-dark: #9c7c1a;
 
   --font-display: var(--font-maruburi), serif;
-  --font-body: var(--font-pretendard), sans-serif;
+  --font-body: "Pretendard Variable", system-ui, sans-serif;
+  /* 라틴 표기 전용. 한글이 섞인 줄에서는 한글이 이 폰트에 없어 자동으로
+     --font-body로 떨어지므로, 라틴 조각에만 `font-latin`을 건다. */
+  --font-latin: var(--font-cinzel), serif;
+
+  /*
+   * 타이포 등급 (RENEWAL_PLAN §11.1)
+   *
+   * 작은 글씨를 몇 px로 할지는 취향 문제가 아니라 그 글이 무슨 일을 하느냐로
+   * 정해진다. 기준은 하나다 — **없으면 화면을 이해할 수 없는 글인가.**
+   *
+   *   등급        크기(모바일→데스크톱)  색                 쓰는 곳
+   *   ─────────────────────────────────────────────────────────────────────────
+   *   display     text-xl 이상           starlight          제목. font-display
+   *   본문        text-base (16px)       starlight          읽히려고 있는 글
+   *   text-guide  15 → 16px              starlight          그림·화면을 **읽는 방법**.
+   *                                                         원반 범례, 도해 설명,
+   *                                                         하우스 방식 안내.
+   *                                                         본문 바로 아래 등급이며
+   *                                                         절대 dim으로 쓰지 않는다.
+   *   text-meta   13 → 14px              starlight-dim      한 번 읽고 마는 것.
+   *                                                         날짜, 하우스 번호, 오차,
+   *                                                         출처, 시간대 각주.
+   *   text-eyebrow 12px                  gold               자간 넓은 머리표. 라틴은
+   *                                                         font-latin을 함께 건다.
+   *
+   * 없어진 등급: 9px, 11px. 둘 다 "읽는 방법"이 들어가 있던 자리였다.
+   * 새 페이지도 이 표에서 고른다. 표에 없는 크기를 쓰고 싶으면 표를 먼저 고친다.
+   *
+   * 두 값 사이는 clamp로 잇는다. 375px에서 하한, 1024px에서 상한에 닿는다.
+   * md: 변형을 두 번 쓰지 않아도 되고, 그 사이 폭에서 갑자기 튀지 않는다.
+   */
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1.5;
+  --text-meta: clamp(0.8125rem, 0.7764rem + 0.1541vw, 0.875rem);
+  --text-meta--line-height: 1.65;
+  --text-guide: clamp(0.9375rem, 0.9014rem + 0.1541vw, 1rem);
+  --text-guide--line-height: 1.8;
 
   --animate-prompt-in: prompt-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-list-open: list-open 260ms cubic-bezier(0.16, 1, 0.3, 1) both;

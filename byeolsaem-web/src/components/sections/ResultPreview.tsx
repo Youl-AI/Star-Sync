@@ -1,7 +1,12 @@
 import type { CSSProperties } from "react";
-import { ArchCard } from "@/components/ui/ArchCard";
+import { SignArchCard } from "@/components/ui/ArchCard";
 import { LineDiamond } from "@/components/ui/LineDiamond";
 import { TalismanChip } from "@/components/ui/TalismanChip";
+import { ZODIAC_SIGNS } from "@/lib/zodiac";
+
+// 미리보기에 세우는 카드. 값을 손으로 적어 두면 zodiac.ts가 바뀌었을 때 이 한 곳만
+// 옛 값으로 남는다 — 실제로 성좌가 빠진 채 나가고 있었다. 데이터에서 가져온다.
+const ARIES = ZODIAC_SIGNS.find((sign) => sign.key === "aries")!;
 
 // 등장 순서. 중앙 스택이라 위에서 아래로 그대로 따라 내려온다(globals.css 참고).
 const order = (i: number) => ({ "--reveal-i": i }) as CSSProperties;
@@ -31,14 +36,7 @@ export function ResultPreview() {
           화면에 들어오는 시점이 달라 카드가 먼저 서고 칩이 뒤늦게 붙는 것처럼
           보이므로, 하나의 덩어리로 묶어 함께 들여보낸다. */}
       <div data-reveal style={order(3)} className="flex flex-col items-center gap-8">
-        <ArchCard name="봄의 불꽃" latin="ARIES SUN" tagline="시작을 두려워하지 않는 사람">
-          <div
-            className="mx-auto mt-4 size-16 rounded-full border border-gold/50"
-            style={{
-              boxShadow: `0 0 30px 4px color-mix(in srgb, var(--color-gold) 18%, transparent)`,
-            }}
-          />
-        </ArchCard>
+        <SignArchCard sign={ARIES} />
         <div className="flex flex-wrap justify-center gap-2.5">
           <TalismanChip symbol="☉" label="태양 양자리" />
           <TalismanChip symbol="♂" label="화성 사자자리" />

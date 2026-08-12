@@ -12,7 +12,7 @@ export default function BlogIndexPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-10">
       <header className="text-center">
-        <p className="text-[11px] tracking-[0.28em] text-gold-dark">COLUMN</p>
+        <p className="font-latin text-eyebrow tracking-[0.28em] text-gold-dark">COLUMN</p>
         <h1 className="mt-4 break-keep font-display text-3xl leading-snug text-ink-text md:text-4xl">
           칼럼
         </h1>
@@ -37,12 +37,12 @@ export default function BlogIndexPage() {
         {POSTS.map((post) => (
           <li key={post.slug} className="border-t border-gold-dark/15 first:border-t-0">
             <Link href={`/blog/${post.slug}`} className="group block py-8">
-              <p className="text-[11px] tracking-[0.22em] text-gold-dark">{post.category}</p>
+              <p className="text-eyebrow tracking-[0.22em] text-gold-dark">{post.category}</p>
               <h2 className="mt-3 break-keep font-display text-xl leading-snug text-ink-text transition-colors group-hover:text-gold-dark md:text-2xl">
                 {post.title}
               </h2>
               <p className="mt-3 break-keep leading-relaxed text-ink-dim">{post.summary}</p>
-              <p className="mt-4 text-xs text-ink-dim">
+              <p className="mt-4 text-meta text-ink-dim">
                 <time dateTime={post.published}>{formatPublished(post.published)}</time> · 읽는 데{" "}
                 {post.readingMinutes}분
               </p>

@@ -30,7 +30,7 @@ export default function DawnLayout({ children }: { children: React.ReactNode }) 
         </Link>
         <Link
           href="/"
-          className="border-b border-gold-dark/40 pb-0.5 text-xs tracking-wide text-ink-dim transition-colors hover:text-ink-text"
+          className="border-b border-gold-dark/40 pb-0.5 text-meta tracking-wide text-ink-dim transition-colors hover:text-ink-text"
         >
           밤하늘로 돌아가기
         </Link>

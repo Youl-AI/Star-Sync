@@ -4,7 +4,7 @@ import { flushSync } from "react-dom";
 import { gsap } from "gsap";
 import { Flip } from "gsap/Flip";
 import { GoldButton } from "@/components/ui/GoldButton";
-import { ArchCard } from "@/components/ui/ArchCard";
+import { SignArchCard } from "@/components/ui/ArchCard";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { Moon } from "./Moon";
 import { RitualForm, type RitualData } from "./RitualForm";
@@ -360,7 +360,7 @@ export function HeroSequence() {
                     프런트에서 즉석 계산이 가능하다. 달 별자리는 천문력 연산이
                     필요해 백엔드가 붙기 전에는 알 수 없고, 틀린 값을 보여주느니
                     비워 둔다 — 두 번째 칩은 확실히 아는 관심사로 채운다. */}
-                <ArchCard name={sign.card} latin={sign.latin} tagline={sign.tagline} />
+                <SignArchCard sign={sign} />
                 <div className="flex flex-wrap justify-center gap-2.5">
                   <TalismanChip symbol="☉" label={`태양 ${sign.ko}`} />
                   {birth?.concern && <TalismanChip symbol="✦" label={birth.concern} />}
@@ -378,7 +378,7 @@ export function HeroSequence() {
                     pendingTargetRef.current = "ritual";
                     setScene("ritual");
                   }}
-                  className="text-[11px] tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight"
+                  className="text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight"
                 >
                   다른 정보로 보기
                 </button>

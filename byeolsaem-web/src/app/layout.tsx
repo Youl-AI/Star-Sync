@@ -2,12 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const pretendard = localFont({
-  src: "../fonts/PretendardVariable.woff2",
-  variable: "--font-pretendard",
-  display: "swap",
-});
-
 const maruburi = localFont({
   src: [
     { path: "../fonts/MaruBuri-Regular.woff2", weight: "400" },
@@ -15,6 +9,25 @@ const maruburi = localFont({
   ],
   variable: "--font-maruburi",
   display: "swap",
+});
+
+/**
+ * 라틴 제목용. `LIBRA SUN`·`MERCURY RETROGRADE`처럼 자간을 넓게 벌린 대문자가
+ * 이 사이트 라틴 표기의 전부라, 로마 비문 계열인 Cinzel이 그대로 맞는다.
+ *
+ * 고르는 과정에서 실제로 갈린 지점은 숫자였다. 후보 중 Marcellus 계열은 숫자가
+ * 올드스타일이라 `2026. 10. 24`가 `2О26. IО. 24`처럼 들쭉날쭉해진다. 이 사이트는
+ * 날짜와 도수를 도처에 쓰므로 라이닝 숫자가 아니면 쓸 수 없다(RENEWAL_PLAN §11.6).
+ *
+ * 라틴 서브셋만 받는다(25.9KB). 한글은 마루부리와 Pretendard가 맡으므로
+ * latin-ext는 필요 없다.
+ */
+const cinzel = localFont({
+  src: "../fonts/Cinzel.woff2",
+  variable: "--font-cinzel",
+  display: "swap",
+  // 폴백이 마루부리 라틴이면 자간 벌린 자리에서 폭이 크게 달라 글이 튄다.
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -41,7 +54,7 @@ export const metadata: Metadata = {
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className={`${pretendard.variable} ${maruburi.variable}`}>
+    <html lang="ko" className={`${maruburi.variable} ${cinzel.variable}`}>
       <body className="min-h-[100dvh] antialiased">{children}</body>
     </html>
   );

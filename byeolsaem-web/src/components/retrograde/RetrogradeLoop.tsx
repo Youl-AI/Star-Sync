@@ -140,7 +140,7 @@ export function RetrogradeLoop({
         })}
       </svg>
 
-      <figcaption className="mt-5 text-center text-xs leading-relaxed text-starlight-dim">
+      <figcaption className="mx-auto mt-6 max-w-2xl break-keep text-center text-guide text-starlight">
         점 하나가 하루입니다. 점이 촘촘해지는 두 곳이 수성이 멈춰 서는 순간이고,
         그 사이의 밝은 길이 되짚어 가는 구간입니다. 되짚는 동안 황위가 방향을
         바꾸면 길이 스스로 교차해 고리가 되고, 한쪽으로만 움직이면 지그재그가

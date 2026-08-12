@@ -335,10 +335,10 @@ export function Astrolabe() {
         >
           {active ? active.ko : "열두 개의 방"}
         </p>
-        <p className="mt-3 min-h-5 text-xs tracking-wide text-gold-soft">
+        <p className="mt-3 min-h-5 font-latin text-guide tracking-wide text-gold-soft">
           {active ? active.range : ""}
         </p>
-        <p className="mt-1 min-h-5 text-[11px] text-starlight-dim">
+        <p className="mt-1 min-h-5 text-guide text-starlight-dim">
           {active ? `${active.element} · ${active.quality} · ${active.ruler}` : "성좌에 손을 올려 보세요"}
         </p>
       </div>

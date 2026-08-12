@@ -14,7 +14,7 @@ export default function SignIndexPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
       <header className="text-center">
-        <p className="text-[11px] tracking-[0.28em] text-gold">황도 12궁</p>
+        <p className="text-eyebrow tracking-[0.28em] text-gold">황도 12궁</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
           열두 개의 방
         </h1>
@@ -44,7 +44,7 @@ export default function SignIndexPage() {
                   className="group flex items-baseline justify-between gap-2 border-b border-transparent py-2.5 transition-colors hover:border-gold/30"
                 >
                   <span className="font-display text-base text-starlight">{s.ko}</span>
-                  <span className="text-[11px] tracking-wide text-starlight-dim transition-colors group-hover:text-gold-soft">
+                  <span className="font-latin text-meta tracking-wide text-starlight-dim transition-colors group-hover:text-gold-soft">
                     {ready ? s.range : "준비 중"}
                   </span>
                 </Link>

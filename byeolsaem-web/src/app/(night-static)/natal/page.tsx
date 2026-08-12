@@ -15,7 +15,7 @@ export default function NatalPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <header className="text-center">
-        <p className="text-[11px] tracking-[0.28em] text-gold">NATAL CHART</p>
+        <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">NATAL CHART</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
           나의 천궁도
         </h1>

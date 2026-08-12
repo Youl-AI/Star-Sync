@@ -55,7 +55,7 @@ export function RetrogradeStatusBand({
         {retro ? "지금은 역행 중입니다" : "지금은 순행 중입니다"}
       </p>
 
-      <p className="mt-6 text-xs tracking-[0.22em] text-starlight-dim">
+      <p className="mt-6 text-eyebrow tracking-[0.22em] text-starlight-dim">
         {retro ? "역행이 끝나기까지" : "다음 역행까지"}
       </p>
       <p className="mt-2 font-display text-5xl text-gold md:text-6xl">

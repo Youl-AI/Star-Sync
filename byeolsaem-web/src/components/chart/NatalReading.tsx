@@ -30,7 +30,7 @@ export function NatalReading() {
 
   return (
     <div>
-      <p className="text-center text-xs tracking-wide text-starlight-dim">
+      <p className="text-center text-meta tracking-wide text-starlight-dim">
         {formatBirthDate(profile.date)}
         {profile.time ? ` ${profile.time}` : ""} · {profile.city}
       </p>
@@ -67,7 +67,7 @@ export function NatalReading() {
       <div className="mt-14">
         <ChartWheel chart={chart} />
         <ChartWheelLegend />
-        <p className="mx-auto mt-4 max-w-md break-keep text-center text-[11px] leading-relaxed text-starlight-dim">
+        <p className="mx-auto mt-4 max-w-md break-keep text-center text-guide text-starlight">
           하우스는 홀사인(whole sign) 방식으로 나눴습니다. 상승궁이 든 별자리의 0도가
           1하우스의 시작이고, 다음 별자리가 차례로 2, 3하우스가 됩니다.
         </p>
@@ -95,7 +95,7 @@ export function NatalReading() {
         <>
           <LineDiamond className="my-14" />
           <section className="mx-auto max-w-xl text-center">
-            <p className="text-[11px] tracking-[0.28em] text-gold">{reading.lens.label}</p>
+            <p className="text-eyebrow tracking-[0.28em] text-gold">{reading.lens.label}</p>
             <p className="mt-4 break-keep leading-relaxed text-starlight-dim">
               {reading.lens.summary} 아래 목록에서 이 관심사에 걸리는 자리를 앞에
               두었습니다.
@@ -124,7 +124,7 @@ export function NatalReading() {
             <h2 className="text-center break-keep font-display text-xl text-starlight">
               별과 별 사이
             </h2>
-            <p className="mx-auto mt-4 max-w-md break-keep text-center text-sm leading-relaxed text-starlight-dim">
+            <p className="mx-auto mt-4 max-w-md break-keep text-center text-guide text-starlight">
               두 별이 특정한 각도로 만나면 서로의 작용이 섞입니다. 정확한 각도에
               가까운 것부터 {reading.aspects.length}개를 골랐습니다.
             </p>
@@ -137,7 +137,7 @@ export function NatalReading() {
                       <span className="mx-2 text-gold-soft astro-symbol">{item.aspect.type.symbol}</span>
                       <span className="astro-symbol">{item.b.symbol}</span> {item.b.ko}
                     </span>
-                    <span className="text-xs text-starlight-dim">
+                    <span className="text-meta text-starlight-dim">
                       {item.aspect.type.ko} · 오차 {item.aspect.orb.toFixed(1)}도
                     </span>
                   </p>
@@ -201,7 +201,7 @@ function CoreLine({
           {symbol}
           {"︎"}
         </span>
-        <span className="text-xs tracking-[0.2em] text-starlight-dim">{label}</span>
+        <span className="text-meta tracking-[0.2em] text-starlight-dim">{label}</span>
         <span className="font-display text-lg text-starlight">{value}</span>
       </p>
       <p className="mt-2 break-keep leading-relaxed text-starlight-dim">{text}</p>
@@ -223,12 +223,12 @@ function PlacementRow({ item }: { item: ReadingPlacement }) {
           {item.planet.ko} · {formatPlacement(item.placement)}
         </span>
         {item.house && (
-          <span className="text-xs text-starlight-dim">
+          <span className="text-meta text-starlight-dim">
             {item.house.number}하우스 · {item.house.domain}
           </span>
         )}
         {item.placement.retrograde && (
-          <span className="text-xs text-gold-soft">역행</span>
+          <span className="text-meta text-gold-soft">역행</span>
         )}
       </p>
       <p className="mt-3 break-keep leading-relaxed text-starlight">{item.inSign}</p>
@@ -236,7 +236,7 @@ function PlacementRow({ item }: { item: ReadingPlacement }) {
         <p className="mt-2 break-keep leading-relaxed text-starlight-dim">{item.inHouse}</p>
       )}
       {!item.planet.personal && (
-        <p className="mt-2 text-xs leading-relaxed text-starlight-dim">
+        <p className="mt-2 text-meta text-starlight-dim">
           {item.planet.ko}은(는) 한 별자리에 {item.planet.dwell} 머뭅니다. 같은 무렵에
           태어난 사람이 모두 같은 자리를 가지므로, 이 별은 개인보다 세대를 말합니다.
         </p>

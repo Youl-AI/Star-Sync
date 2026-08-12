@@ -32,7 +32,7 @@ export function DawnDocument({
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-10">
       <header className="text-center">
         {ornament && chapter && (
-          <p className="text-[11px] tracking-[0.28em] text-gold-dark">{chapter}</p>
+          <p className="text-eyebrow tracking-[0.28em] text-gold-dark">{chapter}</p>
         )}
         <h1 className="mt-4 break-keep font-display text-3xl leading-snug text-ink-text md:text-4xl">
           {title}
@@ -41,7 +41,7 @@ export function DawnDocument({
           <p className="mx-auto mt-5 max-w-lg break-keep leading-relaxed text-ink-dim">{lead}</p>
         )}
         {updated && (
-          <p className="mt-6 text-[11px] tracking-wide text-ink-dim">{updated}</p>
+          <p className="mt-6 text-meta tracking-wide text-ink-dim">{updated}</p>
         )}
 
         {/* 선-다이아-선. 밤의 LineDiamond와 같은 형태를 새벽 배색으로 옮긴 것. */}

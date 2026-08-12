@@ -54,7 +54,7 @@ export default function RetrogradePage() {
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <header className="text-center">
-        <p className="text-[11px] tracking-[0.28em] text-gold">☿︎ MERCURY RETROGRADE</p>
+        <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">☿︎ MERCURY RETROGRADE</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
           수성 역행
         </h1>
@@ -89,7 +89,7 @@ export default function RetrogradePage() {
           <Fact label="그림자 기간 시작" value={formatKstDate(shadow.start)} />
           <Fact label="그림자 기간 종료" value={formatKstDate(shadow.end)} />
         </dl>
-        <p className="mx-auto mt-6 max-w-lg break-keep text-center text-xs leading-relaxed text-starlight-dim">
+        <p className="mx-auto mt-6 max-w-lg break-keep text-center text-guide text-starlight">
           시각은 한국 시간(UTC+9) 기준입니다. 그림자 기간은 수성이 같은 도수를
           순행으로 먼저 지나고, 되돌아온 뒤 한 번 더 지나는 앞뒤 구간입니다.
         </p>
@@ -102,7 +102,7 @@ export default function RetrogradePage() {
         <div className="mx-auto mt-8 max-w-lg">
           {Object.entries(byYear).map(([year, periods]) => (
             <div key={year} className="mt-9 first:mt-0">
-              <p className="text-[11px] tracking-[0.28em] text-gold">{year}</p>
+              <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">{year}</p>
               <ul className="mt-3 divide-y divide-gold/10">
                 {periods.map((period) => {
                   // 이미 지나간 구간은 지우지 않고 흐리게 둔다. "방금 끝난 역행"을
@@ -118,7 +118,7 @@ export default function RetrogradePage() {
                       <span className="text-starlight">
                         {formatKstMonthDay(period.start)} — {formatKstMonthDay(period.end)}
                       </span>
-                      <span className="text-xs text-starlight-dim">
+                      <span className="text-meta text-starlight-dim">
                         {formatZodiacDegree(period.startLongitude)} →{" "}
                         {formatZodiacDegree(period.endLongitude)}
                       </span>
@@ -235,7 +235,7 @@ export default function RetrogradePage() {
             열두 개의 방으로
           </GoldButton>
         </div>
-        <p className="mt-10 text-xs text-starlight-dim">
+        <p className="mt-10 text-meta text-starlight-dim">
           수성이 맡은 영역을 더 읽고 싶다면{" "}
           <Link
             href="/blog/수성역행-생존-가이드"
@@ -253,7 +253,7 @@ export default function RetrogradePage() {
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-gold/10 pb-2">
-      <dt className="shrink-0 text-xs text-starlight-dim">{label}</dt>
+      <dt className="shrink-0 text-meta text-starlight-dim">{label}</dt>
       <dd className="text-right text-starlight">{value}</dd>
     </div>
   );

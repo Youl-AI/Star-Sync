@@ -22,7 +22,7 @@ export function Footer() {
         </a>
       </nav>
 
-      <p className="mx-auto mt-8 max-w-lg break-keep text-xs leading-relaxed text-starlight-dim">
+      <p className="mx-auto mt-8 max-w-lg break-keep text-meta text-starlight-dim">
         이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받을 수 있습니다.
       </p>
     </footer>
