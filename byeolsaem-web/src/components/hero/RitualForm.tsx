@@ -101,13 +101,7 @@ export function RitualForm({ onComplete, onStepChange, askConcern = true }: Ritu
   const submitDate = () => {
     const parsed = parseBirthDate(dateInput);
     if (!parsed.ok) {
-      // 두 읽기가 모두 실재하는 날짜면 추측하지 않고 묻는다. 잘못 추측한
-      // 생일은 조용히 넘어가서 차트를 평생 틀리게 만든다.
-      setError(
-        parsed.ambiguous
-          ? `${parsed.ambiguous.a.mo}월 ${parsed.ambiguous.a.d}일인지 ${parsed.ambiguous.b.mo}월 ${parsed.ambiguous.b.d}일인지 알 수 없어요 — 0을 붙여 8자리로 적어 주세요`
-          : "실재하는 날짜를 입력해 주세요",
-      );
+      setError("실재하는 날짜를 입력해 주세요");
       return;
     }
     setIsoDate(

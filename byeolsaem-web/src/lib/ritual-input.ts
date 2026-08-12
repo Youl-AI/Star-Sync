@@ -27,8 +27,6 @@ interface DateSegments {
   day: string;
   /** 월이 몇 자리인지 확정됐는가. 아니면 월 뒤에 구분자를 찍지 않는다. */
   monthSettled: boolean;
-  /** 두 읽기가 모두 실재하는 날짜인가. 그 경우 추측하지 않고 물어야 한다. */
-  ambiguous: boolean;
 }
 
 /**
@@ -39,9 +37,10 @@ interface DateSegments {
  * 0이면 반드시 두 자리(01~09월)다. 1로 시작할 때만 갈림길이 생긴다:
  *
  *   1999 1 3…   다음 숫자가 3~9면 13~19월이 없으므로 월은 1로 확정.
- *   1999 11 2   전체가 일곱 자리면 두 읽기(1월 12일 / 11월 2일)를 달력에 대 본다.
- *               하나만 실재하면 그것으로 확정하고, 둘 다 실재하면 추측하지 않는다 —
- *               잘못 추측한 생일은 차트를 평생 틀리게 만든다.
+ *   1999 11 2   전체가 일곱 자리면 앞에서부터 두 자리 월로 읽는다(11월 2일).
+ *               다만 그 읽기가 실재하지 않는 날짜면(1999110 — 11월 0일은 없다)
+ *               한 자리 월 읽기(1월 10일)로 넘어간다. 치는 대로 가름이 화면에
+ *               보이므로, 1월 12일을 뜻했다면 0을 붙여 여덟 자리로 적으면 된다.
  *
  * 여덟 자리는 언제나 연 4·월 2·일 2다. 0을 붙여 적는 사람(주민번호 습관)은
  * 이 갈림길을 아예 지나지 않는다.
@@ -49,59 +48,37 @@ interface DateSegments {
 function segmentDate(digits: string): DateSegments {
   const year = digits.slice(0, 4);
   const rest = digits.slice(4);
-  const none: DateSegments = { year, month: "", day: "", monthSettled: false, ambiguous: false };
+  const none: DateSegments = { year, month: "", day: "", monthSettled: false };
   if (rest.length === 0) return none;
 
   const first = rest[0];
 
   // 2~9월: 한 자리로 확정.
   if (first >= "2") {
-    return { year, month: first, day: rest.slice(1, 3), monthSettled: true, ambiguous: false };
+    return { year, month: first, day: rest.slice(1, 3), monthSettled: true };
   }
   // 0으로 시작: 두 자리 월.
   if (first === "0") {
-    return {
-      year,
-      month: rest.slice(0, 2),
-      day: rest.slice(2, 4),
-      monthSettled: rest.length >= 2,
-      ambiguous: false,
-    };
+    return { year, month: rest.slice(0, 2), day: rest.slice(2, 4), monthSettled: rest.length >= 2 };
   }
 
   // 1로 시작. 다음 숫자를 봐야 한다.
-  if (rest.length === 1) return { year, month: "1", day: "", monthSettled: false, ambiguous: false };
+  if (rest.length === 1) return { year, month: "1", day: "", monthSettled: false };
   if (rest[1] >= "3") {
     // 13~19월은 없다. 월은 1이다.
-    return { year, month: "1", day: rest.slice(1, 3), monthSettled: true, ambiguous: false };
+    return { year, month: "1", day: rest.slice(1, 3), monthSettled: true };
   }
 
-  // 10·11·12월일 수도, 1월 + 두 자리 일일 수도 있다.
-  if (rest.length === 3) {
-    // 일곱 자리 — 두 읽기를 실재하는 달력에 대 본다.
-    const y = Number(year);
-    const oneDigit = validateBirthDate(y, Number(rest[0]), Number(rest.slice(1, 3)));
-    const twoDigit = validateBirthDate(y, Number(rest.slice(0, 2)), Number(rest[2]));
-    if (oneDigit && !twoDigit) {
-      return { year, month: "1", day: rest.slice(1, 3), monthSettled: true, ambiguous: false };
-    }
-    return {
-      year,
-      month: rest.slice(0, 2),
-      day: rest.slice(2, 3),
-      monthSettled: true,
-      ambiguous: oneDigit && twoDigit,
-    };
+  // 10·11·12월일 수도, 1월 + 두 자리 일일 수도 있다. 앞에서부터 두 자리 월로
+  // 읽되, 일곱 자리에서 그 읽기가 실재하지 않는 날짜면 한 자리 월로 넘어간다.
+  if (
+    rest.length === 3 &&
+    !validateBirthDate(Number(year), Number(rest.slice(0, 2)), Number(rest[2])) &&
+    validateBirthDate(Number(year), Number(rest[0]), Number(rest.slice(1, 3)))
+  ) {
+    return { year, month: "1", day: rest.slice(1, 3), monthSettled: true };
   }
-
-  // 여덟 자리(또는 아직 여섯 자리)는 두 자리 월로 읽는다.
-  return {
-    year,
-    month: rest.slice(0, 2),
-    day: rest.slice(2, 4),
-    monthSettled: true,
-    ambiguous: false,
-  };
+  return { year, month: rest.slice(0, 2), day: rest.slice(2, 4), monthSettled: true };
 }
 
 /** 숫자만 받아 "1999 . 03 . 21" 모양으로 만든다. 자리가 확정되는 즉시 구분자가 붙는다. */
@@ -116,33 +93,20 @@ export function formatDateInput(raw: string, previous = ""): string {
   return out;
 }
 
-export type BirthDateParse =
-  | { ok: true; y: number; mo: number; d: number }
-  /** 두 읽기가 모두 실재한다. 화면이 두 날짜를 모두 말하고 8자리를 청해야 한다. */
-  | { ok: false; ambiguous: { a: { mo: number; d: number }; b: { mo: number; d: number } } }
-  | { ok: false; ambiguous?: undefined };
+export type BirthDateParse = { ok: true; y: number; mo: number; d: number } | { ok: false };
 
 /**
  * 입력 칸의 표기를 생년월일로 읽는다. 실재하지 않는 날짜는 여기서 걸린다.
  *
  * 화면에 보이는 가름과 여기의 가름이 같은 함수에서 나온다 — 보이는 것과
- * 저장되는 것이 다르면 그보다 나쁜 폼이 없다.
+ * 저장되는 것이 다르면 그보다 나쁜 폼이 없다. 1999112처럼 두 읽기가 가능한
+ * 입력도 화면이 보여준 대로(11월 2일) 저장된다. 1월 12일을 뜻했다면 치는 동안
+ * 이미 다르게 갈라지는 것이 보이므로, 0을 붙여 고치는 것은 사용자 몫이다.
  */
 export function parseBirthDate(raw: string): BirthDateParse {
   const digits = raw.replace(/\D/g, "").slice(0, 8);
-  const { year, month, day, ambiguous } = segmentDate(digits);
+  const { year, month, day } = segmentDate(digits);
   if (year.length < 4 || month === "" || day === "") return { ok: false };
-
-  if (ambiguous) {
-    const rest = digits.slice(4);
-    return {
-      ok: false,
-      ambiguous: {
-        a: { mo: Number(rest[0]), d: Number(rest.slice(1, 3)) },
-        b: { mo: Number(rest.slice(0, 2)), d: Number(rest[2]) },
-      },
-    };
-  }
 
   const y = Number(year);
   const mo = Number(month);

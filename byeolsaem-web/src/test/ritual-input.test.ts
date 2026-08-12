@@ -82,17 +82,11 @@ describe("parseBirthDate", () => {
     expect(parseBirthDate("1999 . 03 . 21")).toEqual({ ok: true, y: 1999, mo: 3, d: 21 });
   });
 
-  it("두 읽기가 모두 실재하면 추측하지 않고 둘을 돌려준다", () => {
-    // 1999112 — 1월 12일도 11월 2일도 실재한다. 잘못 추측한 생일은 차트를
-    // 평생 틀리게 만들므로, 여기서는 확정하지 않는 것이 맞다.
-    const parsed = parseBirthDate("1999112");
-    expect(parsed.ok).toBe(false);
-    if (!parsed.ok && parsed.ambiguous) {
-      expect(parsed.ambiguous.a).toEqual({ mo: 1, d: 12 });
-      expect(parsed.ambiguous.b).toEqual({ mo: 11, d: 2 });
-    } else {
-      throw new Error("ambiguous여야 한다");
-    }
+  it("두 읽기가 모두 실재하면 앞에서부터 두 자리 월로 읽는다", () => {
+    // 1999112 — 1월 12일도 11월 2일도 실재한다. 화면이 치는 동안 "11 . 2"로
+    // 갈라지는 것을 보여주므로, 저장도 화면이 보여준 그대로다. 1월 12일을
+    // 뜻했다면 0을 붙여 여덟 자리(19990112)로 적으면 된다.
+    expect(parseBirthDate("1999112")).toEqual({ ok: true, y: 1999, mo: 11, d: 2 });
   });
 
   it("한 읽기만 실재하는 일곱 자리는 그쪽으로 확정된다", () => {
@@ -100,10 +94,8 @@ describe("parseBirthDate", () => {
     expect(parseBirthDate("1999120")).toEqual({ ok: true, y: 1999, mo: 1, d: 20 });
   });
 
-  it("1999123도 애매하다 — 1월 23일과 12월 3일", () => {
-    const parsed = parseBirthDate("1999123");
-    expect(parsed.ok).toBe(false);
-    expect(!parsed.ok && parsed.ambiguous ? parsed.ambiguous.b : null).toEqual({ mo: 12, d: 3 });
+  it("1999123은 12월 3일로 읽는다 — 1월 23일을 뜻했다면 0을 붙인다", () => {
+    expect(parseBirthDate("1999123")).toEqual({ ok: true, y: 1999, mo: 12, d: 3 });
   });
 
   it("실재하지 않는 날짜는 거른다", () => {
