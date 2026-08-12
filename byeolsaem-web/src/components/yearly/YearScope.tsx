@@ -1,0 +1,368 @@
+"use client";
+import { useEffect, useMemo, useState } from "react";
+import { RETROGRADE_YEAR_LINE } from "@/content/atoms/yearly";
+import { useBirthProfile } from "@/hooks/useBirthProfile";
+import { formatBirthDate } from "@/lib/birth-profile";
+import { computeChart } from "@/lib/chart";
+import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import { getFortuneYear } from "@/lib/date";
+import { requestRitual } from "@/lib/ritual";
+import {
+  formatYearDate,
+  yearReading,
+  type BackdropSpan,
+  type YearBackdrop,
+  type YearReadingEvent,
+} from "@/lib/yearly-reading";
+import { UnknownPlace } from "@/components/chart/NoProfile";
+import { GoldButton } from "@/components/ui/GoldButton";
+import { TalismanChip } from "@/components/ui/TalismanChip";
+import { YearRiver } from "./YearRiver";
+
+/**
+ * 한 해의 하늘 전체.
+ *
+ * 앞부분은 출생 정보가 없어도 만들어진다 — 목성과 토성이 올해 어느 자리에
+ * 있는지, 수성이 언제 역행하는지는 모두에게 같기 때문이다. 그 값은 빌드할 때
+ * 계산해 넘어오므로 검색엔진이 보는 HTML에 이미 들어 있다.
+ *
+ * 두 해를 모두 그려 두고 고른 해만 보인다. 신년 무렵에 사람들이 찾는 것은 다음
+ * 해이고, 두 해가 다 HTML에 있어야 두 해 모두 검색에 걸린다.
+ */
+export function YearScope({ backdrops }: { backdrops: YearBackdrop[] }) {
+  const [year, setYear] = useState(backdrops[0].year);
+
+  // 서버가 만든 HTML은 빌드 시점의 해를 고른 상태다. 보는 사람의 달력이 이미
+  // 다음 해로 넘어갔으면 마운트한 뒤 그쪽으로 옮긴다. 11월부터 다음 해를 보여
+  // 주는 규칙은 사이트 전체가 같다(getFortuneYear).
+  useEffect(() => {
+    const wanted = getFortuneYear(new Date());
+    if (backdrops.some((b) => b.year === wanted)) setYear(wanted);
+  }, [backdrops]);
+
+  const current = backdrops.find((b) => b.year === year) ?? backdrops[0];
+
+  return (
+    <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
+      <YearRail backdrops={backdrops} year={current.year} onPick={setYear} />
+
+      <div className="min-w-0">
+        {backdrops.map((backdrop) => (
+          <BackdropSection
+            key={backdrop.year}
+            backdrop={backdrop}
+            hidden={backdrop.year !== current.year}
+          />
+        ))}
+        <PersonalYear year={current.year} />
+      </div>
+    </div>
+  );
+}
+
+function YearRail({
+  backdrops,
+  year,
+  onPick,
+}: {
+  backdrops: YearBackdrop[];
+  year: number;
+  onPick: (year: number) => void;
+}) {
+  const { profile } = useBirthProfile();
+  return (
+    <aside
+      className="border-b border-gold/18 pb-5 md:sticky md:top-24 md:border-b-0 md:border-r md:pb-0 md:pr-5 md:text-right"
+      aria-label="보고 있는 해"
+    >
+      <p className="font-latin text-eyebrow tracking-[0.2em] text-gold">THE YEAR</p>
+      <div className="mt-2 flex gap-4 md:flex-col md:gap-1.5">
+        {backdrops.map((b) => (
+          <button
+            key={b.year}
+            type="button"
+            onClick={() => onPick(b.year)}
+            aria-current={b.year === year ? "true" : undefined}
+            className={`font-latin text-lg tracking-[0.08em] transition-colors ${
+              b.year === year
+                ? "text-starlight underline decoration-gold decoration-1 underline-offset-[6px]"
+                : "text-starlight-dim hover:text-starlight"
+            }`}
+          >
+            {b.year}
+          </button>
+        ))}
+      </div>
+      {profile ? (
+        <>
+          <p className="mt-5 text-meta text-gold-soft">{formatBirthDate(profile.date)}</p>
+          <button
+            type="button"
+            onClick={() => requestRitual()}
+            className="mt-2 border-b border-gold/40 pb-0.5 text-meta text-gold-soft transition-colors hover:text-starlight"
+          >
+            고치기
+          </button>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={() => requestRitual()}
+          className="mt-5 border-b border-gold/40 pb-0.5 text-meta text-gold-soft transition-colors hover:text-starlight"
+        >
+          내 하늘 열기
+        </button>
+      )}
+    </aside>
+  );
+}
+
+function BackdropSection({ backdrop, hidden }: { backdrop: YearBackdrop; hidden: boolean }) {
+  return (
+    <section hidden={hidden} aria-labelledby={`year-${backdrop.year}`}>
+      <h2
+        id={`year-${backdrop.year}`}
+        className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight"
+      >
+        {backdrop.year}년, 모두에게 같은 부분
+        <span aria-hidden className="h-px flex-1 bg-gold/25" />
+      </h2>
+      <p className="max-w-[52ch] break-keep text-guide text-starlight-dim">
+        목성은 한 자리에 약 1년, 토성은 약 2년 반 머뭅니다. 이 두 별이 어디에 있는지가
+        &lsquo;{backdrop.year}년이 어떤 해인가&rsquo;를 정하고, 그 부분은 태어난 순간과
+        무관하게 모두에게 같습니다.
+      </p>
+
+      <SlowPlanet symbol="♃" name="목성" governs="어디가 넓어지는가" spans={backdrop.jupiter} />
+      <SlowPlanet symbol="♄" name="토성" governs="어디에 무게가 실리는가" spans={backdrop.saturn} />
+
+      <div className="mt-12 border-t border-gold/15 pt-8">
+        <p className="flex flex-wrap items-baseline gap-x-3">
+          <span className="font-display text-lg text-starlight">
+            <span className="astro-symbol">☿</span> 수성 역행
+          </span>
+          <span className="text-meta text-starlight-dim">{backdrop.retrogrades.length}회</span>
+        </p>
+        <p className="mt-3 max-w-[52ch] break-keep text-guide text-starlight-dim">
+          {RETROGRADE_YEAR_LINE}
+        </p>
+        <ul className="mt-5 space-y-2">
+          {backdrop.retrogrades.map((r) => (
+            <li key={r.startIso} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="font-display text-starlight">{r.range}</span>
+              <span className="text-meta text-starlight-dim">
+                {r.days}일 · {r.arc}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-6">
+          <GoldButton variant="outline" href="/retrograde">
+            역행 고리 보기
+          </GoldButton>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SlowPlanet({
+  symbol,
+  name,
+  governs,
+  spans,
+}: {
+  symbol: string;
+  name: string;
+  governs: string;
+  spans: BackdropSpan[];
+}) {
+  return (
+    <div className="mt-12 border-t border-gold/15 pt-8">
+      <p className="flex flex-wrap items-baseline gap-x-3">
+        <span className="font-display text-lg text-starlight">
+          <span className="astro-symbol">{symbol}</span> {name}
+        </span>
+        <span className="text-meta text-starlight-dim">{governs}</span>
+      </p>
+      <ul className="mt-5 space-y-5">
+        {spans.map((span, index) => (
+          <li key={`${span.signKo}-${index}`} className="grid grid-cols-[minmax(0,1fr)] gap-1">
+            <p className="font-display text-starlight">
+              {span.signKo}{" "}
+              {span.from ? (
+                <span className="ml-3 text-meta font-normal text-gold-soft">
+                  {formatYearDate(span.from)}부터
+                </span>
+              ) : (
+                <span className="ml-3 text-meta font-normal text-starlight-dim">
+                  해가 시작될 때부터
+                </span>
+              )}
+            </p>
+            <p className="max-w-[52ch] break-keep leading-relaxed text-starlight-dim">{span.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * 내 차트에 걸리는 부분. 여기부터는 출생 정보가 있어야 한다.
+ *
+ * 계산은 브라우저에서 한다. 느린 별 다섯 개의 1년치 위치를 하루 간격으로 구하고
+ * 그 위에서 각도가 맞는 순간을 이분법으로 좁히는 일이라, 해가 바뀌거나 차트가
+ * 바뀔 때만 다시 하도록 묶어 둔다.
+ */
+function PersonalYear({ year }: { year: number }) {
+  const { profile, ready } = useBirthProfile();
+
+  const reading = useMemo(() => {
+    if (!profile) return null;
+    const coordinates = coordinatesFor(profile.city);
+    if (!coordinates) return null;
+    const natal = computeChart({
+      date: profile.date,
+      time: profile.time,
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
+      timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
+    });
+    return yearReading(natal, year);
+  }, [profile, year]);
+
+  if (!ready) {
+    return (
+      <section className="mt-20 border-t border-gold/15 pt-12">
+        <p className="text-guide text-starlight-dim" aria-live="polite">
+          하늘을 여는 중입니다.
+        </p>
+      </section>
+    );
+  }
+
+  if (profile && !reading) {
+    return (
+      <section className="mt-20 border-t border-gold/15 pt-12">
+        <UnknownPlace city={profile.city} />
+      </section>
+    );
+  }
+
+  if (!profile || !reading) {
+    return (
+      <section className="mt-20 border-t border-gold/15 pt-12">
+        <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
+          여기서부터는 당신의 해
+          <span aria-hidden className="h-px flex-1 bg-gold/25" />
+        </h2>
+        <p className="max-w-[52ch] break-keep leading-relaxed text-starlight">
+          위까지는 {year}년을 사는 모든 사람이 같습니다. 태어난 순간을 남기면 이 별들이
+          당신의 자리와 <b className="font-normal text-gold-soft">정확히 각도를 맺는 날짜</b>가
+          나옵니다.
+        </p>
+        <p className="mt-3 max-w-[52ch] break-keep text-guide text-starlight-dim">
+          운세를 뽑는 것이 아니라 계산입니다. 같은 날짜가 언제 다시 열어도 같게 나옵니다.
+        </p>
+        <div className="mt-8">
+          <GoldButton variant="solid" onClick={() => requestRitual()}>
+            내 하늘 열기
+          </GoldButton>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mt-20 border-t border-gold/15 pt-12">
+      <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
+        {year}년, 당신의 날짜
+        <span aria-hidden className="h-px flex-1 bg-gold/25" />
+      </h2>
+
+      {reading.quiet ? (
+        <p className="max-w-[52ch] break-keep leading-relaxed text-starlight">{reading.quiet}</p>
+      ) : (
+        <>
+          <p className="max-w-[52ch] break-keep text-guide text-starlight-dim">
+            느린 별 다섯 개가 당신의 자리와 정확히 각도를 맺는 날 {reading.events.length}개입니다.
+            강 위의 점을 누르면 그날의 설명으로 갑니다.
+          </p>
+
+          <div className="mt-8">
+            <YearRiver year={year} events={reading.events} onSelect={scrollToEvent} />
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-2.5">
+            {reading.chips.map((chip) => (
+              <TalismanChip key={chip.label} symbol={chip.symbol} label={chip.label} />
+            ))}
+          </div>
+
+          {reading.halves.map((half) => (
+            <div key={half.label} className="mt-14">
+              <h3 className="font-display text-lg text-gold-soft">{half.label}</h3>
+              {half.empty ? (
+                <p className="mt-4 max-w-[52ch] break-keep text-guide text-starlight-dim">
+                  {half.empty}
+                </p>
+              ) : (
+                <ul className="mt-6 space-y-8">
+                  {half.events.map((event) => (
+                    <EventRow key={event.id} event={event} />
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+
+          <p className="mt-14 max-w-[52ch] break-keep text-meta text-starlight-dim">
+            날짜는 한국 시간 기준이고, 각도가 정확해지는 순간을 30분 안쪽까지 좁혀
+            그날의 날짜로 적었습니다. 그날 하루에 무슨 일이 벌어진다는 뜻이 아니라 그
+            무렵이 그 각도의 한가운데라는 뜻입니다.
+          </p>
+        </>
+      )}
+    </section>
+  );
+}
+
+function EventRow({ event }: { event: YearReadingEvent }) {
+  return (
+    <li
+      id={event.id}
+      className={`scroll-mt-28 border-t pt-6 ${
+        event.harmony > 0 ? "border-gold/40" : "border-gold/12"
+      }`}
+    >
+      <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span className="font-display text-lg text-starlight">
+          <span className="astro-symbol">{event.moving.symbol}</span> {event.moving.ko}
+          <span className="mx-2 astro-symbol text-gold-soft">{event.aspectSymbol}</span>내{" "}
+          <span className="astro-symbol">{event.fixed.symbol}</span> {event.fixed.ko}
+        </span>
+        <span className="text-meta text-gold-soft">{event.dateLine}</span>
+      </p>
+      <p className="mt-2 text-meta text-starlight-dim">
+        {event.aspectKo} · {event.countLine} 힘이 도는 기간은 {event.span}입니다.
+      </p>
+      <p className="mt-3 max-w-[52ch] text-guide text-gold-soft">{event.headline}</p>
+      <p className="mt-2 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">{event.body}</p>
+    </li>
+  );
+}
+
+/** 강의 점을 누르면 그 날짜의 설명이 있는 자리로 데려간다. `/natal`의 원반과 같다. */
+function scrollToEvent(event: YearReadingEvent): void {
+  const target = document.getElementById(event.id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.animate(
+    [
+      { backgroundColor: "color-mix(in srgb, var(--color-gold) 14%, transparent)" },
+      { backgroundColor: "transparent" },
+    ],
+    { duration: 1600, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+  );
+}

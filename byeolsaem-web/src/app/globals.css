@@ -61,6 +61,8 @@
   --animate-list-item-in: list-item-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-lonely-star: lonely-star 3.4s ease-in-out infinite;
   --animate-panel-in: panel-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-river-draw: river-draw 1800ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  --animate-node-rise: node-rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /*
@@ -156,6 +158,32 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/*
+ * 한 해의 강이 그어지고 그 위로 날짜가 떠오른다.
+ *
+ * pathLength를 1로 잡아 두었으므로 dasharray의 1이 곧 경로 전체 길이다. 실제
+ * 픽셀 길이를 재지 않아도 되고, 화면 폭이 달라져도 같은 속도로 그어진다.
+ */
+@keyframes river-draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes node-rise {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
