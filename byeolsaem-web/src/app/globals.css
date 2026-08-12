@@ -63,6 +63,7 @@
   --animate-panel-in: panel-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-river-draw: river-draw 1800ms cubic-bezier(0.33, 1, 0.68, 1) both;
   --animate-node-rise: node-rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-thread-draw: river-draw 900ms cubic-bezier(0.33, 1, 0.68, 1) both;
 }
 
 /*

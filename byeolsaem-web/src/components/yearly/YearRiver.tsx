@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
+import { useInView } from "@/hooks/useInView";
 import type { YearReadingEvent } from "@/lib/yearly-reading";
 
 /**
@@ -53,35 +54,10 @@ export function YearRiver({
   onSelect: (event: YearReadingEvent) => void;
 }) {
   const [active, setActive] = useState<string | null>(null);
-  const [drawn, setDrawn] = useState(false);
-  const frame = useRef<HTMLDivElement>(null);
   const gradientId = useId();
-
-  /*
-   * 강은 **화면에 들어올 때** 그어진다.
-   *
-   * 마운트할 때 그으면 아무도 보지 못한다. 이 그림은 페이지의 절반 아래에 있고,
-   * 사람이 스크롤로 여기까지 내려오는 데는 1.8초보다 오래 걸린다 — 도착했을 때는
-   * 이미 다 그려진 선이 놓여 있을 뿐이다.
-   */
-  useEffect(() => {
-    const node = frame.current;
-    if (!node) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setDrawn(true);
-      return;
-    }
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        setDrawn(true);
-        io.disconnect();
-      },
-      { threshold: 0.25 },
-    );
-    io.observe(node);
-    return () => io.disconnect();
-  }, []);
+  // 강은 마운트가 아니라 **화면에 들어올 때** 그어진다. 이 그림은 페이지 절반
+  // 아래에 있어서, 마운트에 맞춰 그으면 사람이 도착하기 전에 끝나 있다.
+  const [frame, drawn] = useInView<HTMLDivElement>();
 
   return (
     <div ref={frame} className="-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
