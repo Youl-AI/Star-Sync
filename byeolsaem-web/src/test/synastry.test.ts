@@ -7,9 +7,10 @@ import {
   resonanceBand,
 } from "@/content/atoms/synastry";
 import { pairKey } from "@/content/atoms/aspects";
+import { CONCERN_LENSES } from "@/content/atoms/concerns";
 import { ASPECT_TYPES, angleBetween, computeChart } from "@/lib/chart";
 import { PLANETS } from "@/lib/planets";
-import { crossAspects, synastry } from "@/lib/synastry";
+import { crossAspects, houseOverlay, synastry } from "@/lib/synastry";
 import { synastryReading } from "@/lib/synastry-reading";
 
 const SEOUL = { latitude: 37.5665, longitude: 126.978, timezoneOffsetHours: 9 };
@@ -18,6 +19,8 @@ const A = computeChart({ date: "1994-10-03", time: "14:20", ...SEOUL });
 const B = computeChart({ date: "1991-05-18", time: "07:05", ...SEOUL });
 /** 같은 순간에 태어난 두 사람. 두 차트가 완전히 겹친다. */
 const TWIN = computeChart({ date: "1994-10-03", time: "14:20", ...SEOUL });
+/** 태어난 시각을 모르는 사람. 하우스가 없다. */
+const TIMELESS = computeChart({ date: "1991-05-18", time: null, ...SEOUL });
 
 describe("두 하늘이 맺는 각도", () => {
   it("찾아낸 각도가 실제로 그 각도다", () => {
@@ -178,5 +181,101 @@ describe("궁합 조립", () => {
       expect(reading.lines.length).toBeGreaterThanOrEqual(Math.min(10, reading.total));
       expect(reading.chips.length).toBeLessThanOrEqual(3);
     }
+  });
+});
+
+describe("하우스 오버레이", () => {
+  it("상대의 열 개 별이 모두 내 어느 방엔가 든다", () => {
+    const overlay = houseOverlay(A, B);
+    expect(overlay).toHaveLength(PLANETS.length);
+    for (const entry of overlay) {
+      expect(entry.house).toBeGreaterThanOrEqual(1);
+      expect(entry.house).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it("방을 정하는 것은 내 차트다 — 상대의 시각은 없어도 된다", () => {
+    expect(houseOverlay(A, TIMELESS)).toHaveLength(PLANETS.length);
+  });
+
+  it("내 시각을 모르면 방이 아예 없다", () => {
+    // 그럴듯한 방 번호를 채워 넣는 것보다 없다고 말하는 편이 낫다.
+    expect(houseOverlay(TIMELESS, A)).toEqual([]);
+  });
+
+  it("같은 순간에 태어났으면 상대의 별이 내 별과 같은 방에 든다", () => {
+    const overlay = houseOverlay(A, TWIN);
+    for (const entry of overlay) {
+      const own = A.placements.find((p) => p.planet === entry.planet)!;
+      expect(entry.house).toBe(own.house);
+    }
+  });
+});
+
+describe("관심사 렌즈", () => {
+  it("재물운은 2하우스와 8하우스를 본다", () => {
+    const lens = synastryReading(A, B, "재물운").lens!;
+    expect(lens.label).toBe("재물운");
+    expect(lens.rooms.map((r) => r.number)).toEqual([2, 8]);
+    expect(lens.noHouses).toBeNull();
+  });
+
+  it("관심사를 고르지 않으면 렌즈도 강조도 없다", () => {
+    const reading = synastryReading(A, B);
+    expect(reading.lens).toBeNull();
+    expect(reading.lines.every((line) => !line.highlighted)).toBe(true);
+  });
+
+  it("목록에 없는 이름은 무시한다", () => {
+    expect(synastryReading(A, B, "그런운").lens).toBeNull();
+  });
+
+  it("걸리는 것이 목록 앞으로 온다", () => {
+    const lines = synastryReading(A, B, "연애운").lines;
+    const lastHighlighted = lines.map((l) => l.highlighted).lastIndexOf(true);
+    const firstPlain = lines.map((l) => l.highlighted).indexOf(false);
+    if (lastHighlighted >= 0 && firstPlain >= 0) {
+      expect(firstPlain).toBeGreaterThan(lastHighlighted);
+    }
+  });
+
+  it("관심사를 바꿔도 이름 붙은 조합은 하나도 밀려나지 않는다", () => {
+    // 앞에 세운 숫자가 그것을 센 값이다. 차례가 바뀌어도 개수는 그대로여야 한다.
+    for (const concern of CONCERN_LENSES.map((l) => l.label)) {
+      const reading = synastryReading(A, B, concern);
+      const inList = reading.lines.filter((line) => line.highlight !== null).length;
+      expect(inList).toBe(reading.named);
+    }
+  });
+
+  it("내 시각을 모르면 방 대신 왜 없는지를 말한다", () => {
+    const lens = synastryReading(TIMELESS, A, "재물운").lens!;
+    expect(lens.rooms).toEqual([]);
+    expect(lens.noHouses).not.toBeNull();
+  });
+
+  it("상대가 시각을 모르면 그 사실을 적는다", () => {
+    // 방을 정하는 것은 내 차트지만, 상대의 달은 하루에 13도를 가므로 방 하나를
+    // 통째로 건널 수 있다.
+    const lens = synastryReading(A, TIMELESS, "재물운").lens!;
+    expect(lens.partnerTimeUnknown).not.toBeNull();
+    expect(synastryReading(A, B, "재물운").lens!.partnerTimeUnknown).toBeNull();
+  });
+
+  it("일곱 관심사 모두에 방과 별이 정의돼 있다", () => {
+    for (const lens of CONCERN_LENSES) {
+      const view = synastryReading(A, B, lens.label).lens!;
+      expect(view.rooms.length).toBe(lens.houses.length);
+      for (const room of view.rooms) {
+        expect(room.ko.length).toBeGreaterThan(1);
+        expect(room.domain.length).toBeGreaterThan(3);
+      }
+    }
+  });
+
+  it("같은 두 사람에 같은 관심사면 같은 글이 나온다", () => {
+    expect(JSON.stringify(synastryReading(A, B, "직업운"))).toBe(
+      JSON.stringify(synastryReading(A, B, "직업운")),
+    );
   });
 });

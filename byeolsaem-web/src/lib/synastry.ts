@@ -1,6 +1,13 @@
 import { pairKey } from "@/content/atoms/aspects";
 import { SYNASTRY_HIGHLIGHTS } from "@/content/atoms/synastry";
-import { angleBetween, ASPECT_TYPES, type AspectKey, type AspectType, type Chart } from "./chart";
+import {
+  angleBetween,
+  ASPECT_TYPES,
+  houseOf,
+  type AspectKey,
+  type AspectType,
+  type Chart,
+} from "./chart";
 import type { PlanetKey } from "./planets";
 
 /**
@@ -128,6 +135,38 @@ export function crossAspects(mine: Chart, theirs: Chart): CrossAspect[] {
   return found.sort(
     (x, y) => Number(y.named) - Number(x.named) || y.weight * y.strength - x.weight * x.strength,
   );
+}
+
+export interface HouseOverlay {
+  /** 상대의 별. */
+  planet: PlanetKey;
+  /** 그 별이 드는 **내** 방. */
+  house: number;
+}
+
+/**
+ * 상대의 열 개 별이 내 어느 방에 드는가.
+ *
+ * 각도가 "어떤 힘이 만나는가"를 말한다면 이것은 "**어느 영역에서**"를 말한다.
+ * 관심사 렌즈가 실제로 작동하는 자리가 여기다 — 재물운은 2·8하우스인데, 각도만
+ * 봐서는 어느 항목이 돈 이야기인지 알 방법이 없다. 8하우스가 특히 그렇다:
+ * 전통적으로 "내 것이 아닌 돈"이고, 그래서 궁합에서 돈 이야기의 본진이다.
+ *
+ * **내** 태어난 시각을 알아야 나온다. 지구가 한 시간에 15도를 자전하므로 시각이
+ * 없으면 열두 방의 자리 자체가 정해지지 않는다. 그 경우 빈 배열을 돌려주고,
+ * 화면은 없는 방을 지어내는 대신 왜 없는지를 적는다.
+ *
+ * 상대의 시각은 없어도 된다 — 방을 정하는 것은 내 차트이고 상대에게서 필요한
+ * 것은 별의 황경뿐이다. 다만 달만은 하루에 13도를 가므로, 상대가 시각을 모르면
+ * 상대의 달이 어느 방에 드는지는 어긋날 수 있다.
+ */
+export function houseOverlay(mine: Chart, theirs: Chart): HouseOverlay[] {
+  const cusps = mine.houseCusps;
+  if (!cusps) return [];
+  return theirs.placements.map((placement) => ({
+    planet: placement.planet,
+    house: houseOf(placement.longitude, cusps),
+  }));
 }
 
 export function synastry(mine: Chart, theirs: Chart): Synastry {

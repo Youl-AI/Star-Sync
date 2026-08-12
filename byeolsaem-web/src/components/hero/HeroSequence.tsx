@@ -326,7 +326,9 @@ export function HeroSequence() {
                 onStepChange={setRitualStep}
                 onComplete={(data) => {
                   setEntered(data);
-                  saveBirthProfile(data);
+                  // 히어로는 관심사까지 받으므로 null이 올 수 없다. 타입은 그것을
+                  // 모르니 여기서 한 번 확인한다.
+                  if (data.concern !== null) saveBirthProfile({ ...data, concern: data.concern });
                   setScene("complete");
                 }}
               />

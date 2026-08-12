@@ -23,12 +23,17 @@ export interface RitualData {
   date: string;
   time: string | null;
   city: string;
-  concern: string;
+  /**
+   * 마지막 단계에서 고른 관심사. `askConcern`을 끄면 묻지 않으므로 null이다.
+   *
+   * null은 "안 골랐다"가 아니라 **"묻지 않았다"**는 확정 상태다. 저장된
+   * 프로필의 관심사는 언제나 문자열이므로, null인 자료는 저장 대상이 아니다.
+   */
+  concern: string | null;
 }
 
 const CONCERNS = ["재물운", "연애운", "직업운", "학업운", "건강운", "대인운", "이동운"];
-const STEP_LABELS = ["생년월일", "태어난 시간", "태어난 곳", "관심사"] as const;
-const TOTAL_STEPS = STEP_LABELS.length;
+const ALL_STEPS = ["생년월일", "태어난 시간", "태어난 곳", "관심사"] as const;
 
 function districtsOf(province: string): string[] {
   return PROVINCES.find((p) => p.name === province)?.districts ?? [];
@@ -45,9 +50,18 @@ interface RitualFormProps {
   onComplete: (data: RitualData) => void;
   /** 지금 몇 번째 단계인지 바깥(히어로)에 알려, 위쪽 문구가 단계에 맞게 바뀌게 한다. */
   onStepChange?: (step: number) => void;
+  /**
+   * 관심사까지 물을지. 기본은 묻는다.
+   *
+   * 궁합의 **상대방** 정보에서는 끈다. 그 사람의 운세를 보는 것이 아니라 두
+   * 하늘이 만나는 자리를 보는 것이라, 상대의 관심사로는 할 일이 없다. 쓰지 않을
+   * 것을 묻는 것은 그 자체로 결함이다 — 화면 하나가 길어질 뿐 아니라, 넣은
+   * 사람은 그 값이 어딘가에 쓰인다고 믿게 된다.
+   */
+  askConcern?: boolean;
 }
 
-export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
+export function RitualForm({ onComplete, onStepChange, askConcern = true }: RitualFormProps) {
   const [step, setStep] = useState(0);
   const [dateInput, setDateInput] = useState("");
   const [timeInput, setTimeInput] = useState("");
@@ -60,6 +74,9 @@ export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const firstConcernRef = useRef<HTMLButtonElement>(null);
+
+  const stepLabels = askConcern ? ALL_STEPS : ALL_STEPS.slice(0, 3);
+  const totalSteps = stepLabels.length;
 
   const isOverseas = province === OVERSEAS;
   const districts = province && !isOverseas ? districtsOf(province) : [];
@@ -122,6 +139,11 @@ export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
       setError("태어난 시·군·구를 골라 주세요");
       return;
     }
+    // 관심사를 묻지 않는 폼은 여기가 마지막이다.
+    if (!askConcern) {
+      onComplete({ date: isoDate, time: finalTime, city: finalPlace(), concern: null });
+      return;
+    }
     goToStep(3);
   };
 
@@ -144,7 +166,7 @@ export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
   return (
     <div className="mx-auto w-full max-w-xs">
       <p className="sr-only" aria-live="polite">
-        {`${TOTAL_STEPS}단계 중 ${step + 1}단계: ${STEP_LABELS[step]}`}
+        {`${totalSteps}단계 중 ${step + 1}단계: ${stepLabels[step]}`}
       </p>
 
       <form onSubmit={handleSubmit} className="text-center" noValidate>
@@ -277,7 +299,7 @@ export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
             )}
 
             <button type="submit" className={`mt-6 ${NEXT_LINK}`}>
-              다음
+              {askConcern ? "다음" : "하늘 열기"}
             </button>
           </>
         )}
@@ -317,7 +339,7 @@ export function RitualForm({ onComplete, onStepChange }: RitualFormProps) {
       </form>
 
       <div className="mt-6 flex justify-center gap-2" aria-hidden>
-        {STEP_LABELS.map((_, i) => (
+        {stepLabels.map((_, i) => (
           <span
             key={i}
             className={`size-1.5 rounded-full transition-colors duration-300 ${

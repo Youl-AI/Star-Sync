@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { RESONANCE_NOTE } from "@/content/atoms/synastry";
+import { CONCERN_LENSES } from "@/content/atoms/concerns";
+import { LENS_INTRO, RESONANCE_NOTE } from "@/content/atoms/synastry";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { useInView } from "@/hooks/useInView";
 import type { RitualData } from "@/components/hero/RitualForm";
@@ -10,6 +11,7 @@ import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
 import { openBirthPanel, requestRitual } from "@/lib/ritual";
 import {
   synastryReading,
+  type LensView,
   type SynastryLine,
   type SynastryReading as SynastryReadingData,
 } from "@/lib/synastry-reading";
@@ -34,13 +36,24 @@ export function SynastryReading() {
   const [partner, setPartner] = useState<RitualData | null>(null);
   /** 아래 목록에서 짚고 있는 만남. 그림의 실 한 가닥이 이것을 따라 밝아진다. */
   const [activeId, setActiveId] = useState<string | null>(null);
+  /**
+   * 이 관계의 무엇을 볼 것인가.
+   *
+   * 저장된 관심사를 첫 값으로 쓰되 **저장하지는 않는다.** 저장된 값은 "나에 대해
+   * 무엇이 궁금한가"이고 여기서 고르는 것은 "이 사람과의 무엇이 궁금한가"다.
+   * 다른 질문이라, 궁합을 보려고 잠깐 재물운으로 바꾼 것이 `/natal`의 천궁도까지
+   * 바꿔 놓으면 안 된다. 게다가 상대 정보조차 저장하지 않으면서 그 사람과의
+   * 렌즈만 저장하는 것은 앞뒤가 맞지 않는다.
+   */
+  const [concern, setConcern] = useState<string | null>(null);
+  const chosen = concern ?? profile?.concern ?? null;
 
   const myChart = useChartOf(profile);
   const theirChart = useChartOf(partner);
 
   const reading = useMemo(
-    () => (myChart && theirChart ? synastryReading(myChart, theirChart) : null),
-    [myChart, theirChart],
+    () => (myChart && theirChart ? synastryReading(myChart, theirChart, chosen) : null),
+    [myChart, theirChart, chosen],
   );
 
   const askPartner = () =>
@@ -50,6 +63,10 @@ export function SynastryReading() {
       description:
         "상대의 정보는 저장하지 않습니다. 이 화면을 떠나거나 새로고침하면 사라집니다.",
       onComplete: setPartner,
+      // 관심사는 묻지 않는다. 그 사람의 운세를 보는 것이 아니라 두 하늘이 만나는
+      // 자리를 보는 것이라 상대의 관심사로는 할 일이 없다. 이 관계의 무엇을 볼지는
+      // 결과 화면에서 내가 고른다.
+      askConcern: false,
     });
 
   if (!ready) return <ChartLoading />;
@@ -128,15 +145,17 @@ export function SynastryReading() {
                   ))}
                 </div>
 
+                <LensSection lens={reading.lens} chosen={chosen} onPick={setConcern} />
+
                 <section className="mt-16">
                   <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
                     두 하늘이 닿는 자리
                     <span aria-hidden className="h-px flex-1 bg-gold/25" />
                   </h2>
                   <p className="max-w-[52ch] break-keep text-guide text-starlight-dim">
-                    이름이 붙어 있는 조합을 앞에 두고, 그다음은 무게가 실린 것부터{" "}
-                    {reading.lines.length}개입니다. 한 줄에 커서를 올리면 위 그림에서 그
-                    실이 밝아집니다.
+                    {chosen ? `${chosen}에 걸리는 것을 앞에 두고, ` : ""}이름이 붙어 있는
+                    조합과 무게가 실린 것부터 {reading.lines.length}개입니다. 한 줄에 커서를
+                    올리면 위 그림에서 그 실이 밝아집니다.
                   </p>
                   <ul className="mt-8 space-y-8">
                     {reading.lines.map((line) => (
@@ -238,6 +257,124 @@ function Resonance({ reading }: { reading: SynastryReadingData }) {
   );
 }
 
+/**
+ * 이 관계의 무엇을 볼 것인가, 그리고 그 영역에서 두 사람이 어떻게 만나는가.
+ *
+ * 각도는 어떤 힘이 만나는지만 말한다. 어느 영역인지를 말하는 것은 방(하우스)이고,
+ * "그 사람과 금전운"이라는 물음에 실제로 답하는 것도 방이다 — 재물운은 2하우스
+ * (내가 버는 것)와 8하우스(남과 얽힌 돈)를 본다.
+ *
+ * 관심사를 바꾸면 이 자리와 아래 목록의 차례가 즉시 바뀐다. 계산은 이미 브라우저
+ * 안에 다 있어서 다시 물을 것이 없다.
+ */
+function LensSection({
+  lens,
+  chosen,
+  onPick,
+}: {
+  lens: LensView | null;
+  chosen: string | null;
+  onPick: (concern: string) => void;
+}) {
+  return (
+    <section className="mt-16">
+      <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
+        {lens ? `${lens.label}으로 본다면` : "무엇을 볼까요"}
+        <span aria-hidden className="h-px flex-1 bg-gold/25" />
+      </h2>
+
+      <div role="group" aria-label="이 관계에서 볼 영역" className="flex flex-wrap gap-2.5">
+        {CONCERN_LENSES.map((option) => {
+          const active = option.label === chosen;
+          return (
+            <button
+              key={option.key}
+              type="button"
+              onClick={() => onPick(option.label)}
+              aria-pressed={active}
+              className={`rounded-full border px-4 py-2 text-xs tracking-wide transition-colors ${
+                active
+                  ? "border-gold bg-gold/12 text-starlight"
+                  : "border-gold/30 text-starlight-dim hover:border-gold/60 hover:text-starlight"
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {!lens ? (
+        <p className="mt-6 max-w-[52ch] break-keep text-guide text-starlight-dim">
+          하나를 고르면 그 영역에서 두 사람이 어디서 만나는지를 봅니다. 여기서 고른
+          것은 이 화면 안에서만 쓰이고 저장되지 않습니다.
+        </p>
+      ) : (
+        <>
+          <p className="mt-6 max-w-[52ch] break-keep text-guide text-starlight">{lens.summary}</p>
+          <p className="mt-2 max-w-[52ch] break-keep text-meta text-starlight-dim">{LENS_INTRO}</p>
+
+          {lens.noHouses ? (
+            <p className="mt-6 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">
+              {lens.noHouses}
+            </p>
+          ) : (
+            <>
+              <ul className="mt-8 space-y-8">
+                {lens.rooms.map((room) => (
+                  <li key={room.number} className="border-t border-gold/15 pt-6">
+                    <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span className="font-display text-lg text-starlight">
+                        내 {room.ko}
+                      </span>
+                      <span className="text-meta text-starlight-dim">
+                        {room.number}번째 방 · {room.domain}
+                      </span>
+                    </p>
+                    {room.visitors.length === 0 ? (
+                      <p className="mt-3 max-w-[52ch] break-keep text-guide text-starlight-dim">
+                        이 방에 드는 상대의 별은 없습니다.
+                      </p>
+                    ) : (
+                      <ul className="mt-4 space-y-3">
+                        {room.visitors.map((visitor) => (
+                          <li
+                            key={visitor.planet.key}
+                            className="grid grid-cols-[30px_minmax(0,1fr)] gap-x-3"
+                          >
+                            <span className="astro-symbol text-lg leading-snug text-gold-soft" aria-hidden>
+                              {visitor.planet.symbol}
+                              {"︎"}
+                            </span>
+                            <p className="max-w-[52ch] break-keep leading-relaxed text-starlight">
+                              그쪽의 {visitor.planet.ko} — {visitor.line}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+
+              {lens.noVisitors && (
+                <p className="mt-8 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">
+                  {lens.noVisitors}
+                </p>
+              )}
+              {lens.partnerTimeUnknown && (
+                <p className="mt-6 max-w-[52ch] break-keep text-meta text-starlight-dim">
+                  {lens.partnerTimeUnknown}
+                </p>
+              )}
+            </>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
 /** 0에서 그 값까지 올라간다. 화면에 들어온 뒤에 시작해야 눈에 보인다. */
 function useCountUp(target: number, run: boolean): number {
   const [value, setValue] = useState(0);
@@ -286,6 +423,11 @@ function LineRow({
       onMouseLeave={onLeave}
     >
       <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        {line.highlighted && (
+          <span className="text-meta tracking-[0.16em] text-gold" aria-hidden>
+            ✦
+          </span>
+        )}
         <span className="font-display text-lg text-starlight">
           내 <span className="astro-symbol">{line.mine.symbol}</span> {line.mine.ko}
           <span className="mx-2 astro-symbol text-gold-soft">{line.aspectSymbol}</span>그쪽{" "}
@@ -294,6 +436,7 @@ function LineRow({
         <span className="text-meta text-starlight-dim">
           {line.aspectKo} · 오차 {line.orb.toFixed(1)}도
         </span>
+        {line.highlighted && <span className="sr-only">고른 관심사에 걸리는 항목입니다.</span>}
       </p>
       <p className="mt-3 max-w-[52ch] break-keep text-guide text-gold-soft">
         {line.meeting} — {line.headline}

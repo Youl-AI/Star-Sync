@@ -4,6 +4,7 @@ import { generateStars } from "../lib/stars";
 import { detectSkyTier } from "../lib/sky-tier";
 import { validateBirthDate } from "../lib/birth";
 import { getFortuneYear } from "../lib/date";
+import { eul, eun, gwa, iga } from "../lib/josa";
 
 describe("mulberry32", () => {
   it("같은 시드는 같은 수열", () => {
@@ -65,5 +66,28 @@ describe("getFortuneYear", () => {
   it("연말/연초 경계", () => {
     expect(getFortuneYear(new Date(2025, 11, 31, 23, 59))).toBe(2026);
     expect(getFortuneYear(new Date(2026, 0, 1, 0, 0))).toBe(2026);
+  });
+});
+
+describe("조사", () => {
+  it("받침이 있으면 과·이·을·은", () => {
+    expect(gwa("방식")).toBe("과");
+    expect(iga("방식")).toBe("이");
+    expect(eul("방식")).toBe("을");
+    expect(eun("방식")).toBe("은");
+  });
+
+  it("받침이 없으면 와·가·를·는", () => {
+    expect(gwa("자리")).toBe("와");
+    expect(iga("자리")).toBe("가");
+    expect(eul("자리")).toBe("를");
+    expect(eun("자리")).toBe("는");
+  });
+
+  it("한글이 아니면 받침이 있는 쪽으로 적는다", () => {
+    // 숫자와 라틴 표기는 읽는 방식이 제각각이라 한쪽으로 정해 둔다.
+    expect(gwa("MOON")).toBe("과");
+    expect(iga("2027")).toBe("이");
+    expect(gwa("")).toBe("과");
   });
 });

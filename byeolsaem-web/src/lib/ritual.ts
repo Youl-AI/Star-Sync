@@ -23,6 +23,13 @@ export interface BirthPanelRequest {
    * `/synastry`의 상대방 정보처럼 다른 곳에 담아야 할 때 쓴다.
    */
   onComplete?: (data: RitualData) => void;
+  /**
+   * 관심사까지 물을지. 기본은 묻는다.
+   *
+   * 끄려면 `onComplete`도 함께 넘겨야 한다. 관심사가 없는 자료는 내 프로필로
+   * 저장할 수 없기 때문이다(저장된 프로필의 관심사는 언제나 문자열이다).
+   */
+  askConcern?: boolean;
 }
 
 /**

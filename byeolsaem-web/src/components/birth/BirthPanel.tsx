@@ -106,7 +106,10 @@ export function BirthPanel() {
 
   const complete = (data: RitualData) => {
     if (request.onComplete) request.onComplete(data);
-    else saveBirthProfile(data);
+    // 관심사를 묻지 않은 폼은 내 프로필이 될 수 없다. 그런 요청은 언제나
+    // onComplete와 함께 오므로 이 갈래로 오지 않지만, 조용히 깨진 프로필을
+    // 저장하는 것보다 아무것도 하지 않는 편이 낫다.
+    else if (data.concern !== null) saveBirthProfile({ ...data, concern: data.concern });
     close();
   };
 
@@ -146,7 +149,7 @@ export function BirthPanel() {
         )}
 
         <div className="mt-9">
-          <RitualForm onComplete={complete} />
+          <RitualForm onComplete={complete} askConcern={request.askConcern ?? true} />
         </div>
       </div>
     </div>
