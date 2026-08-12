@@ -6,6 +6,7 @@ import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart } from "@/lib/chart";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
 import { getFortuneYear } from "@/lib/date";
+import { pinCapable } from "@/lib/pin";
 import { requestRitual } from "@/lib/ritual";
 import {
   formatYearDate,
@@ -17,6 +18,8 @@ import {
 import { UnknownPlace } from "@/components/chart/NoProfile";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { TalismanChip } from "@/components/ui/TalismanChip";
+import { YearEventRows } from "./YearEventRows";
+import { YearFlow } from "./YearFlow";
 import { YearRiver } from "./YearRiver";
 
 /**
@@ -217,6 +220,13 @@ function SlowPlanet({
  */
 function PersonalYear({ year }: { year: number }) {
   const { profile, ready } = useBirthProfile();
+  // 넓은 화면 + 감소 모드 아님 → 붙박인 가로 강. 아니면 접힌 목록(§11.5의
+  // 폴백). 이 값은 마운트 시점에 한 번 정한다 — 이 아래 내용 전체가 어차피
+  // 마운트 뒤에야 그려지므로(출생 정보는 브라우저만 안다) 서버와 어긋날 일이
+  // 없고, 스크롤 중에 창 크기가 바뀌어 무대가 뒤집히는 것보다 낫다.
+  const [flow] = useState(() => pinCapable());
+  /** 접힌 목록에서 지금 열려 있는 사건. 강의 점을 눌러도 열린다. */
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const reading = useMemo(() => {
     if (!profile) return null;
@@ -283,15 +293,43 @@ function PersonalYear({ year }: { year: number }) {
 
       {reading.quiet ? (
         <p className="max-w-[52ch] break-keep leading-relaxed text-starlight">{reading.quiet}</p>
+      ) : flow ? (
+        <>
+          <p className="max-w-[52ch] break-keep text-guide text-starlight-dim">
+            느린 별 다섯 개가 당신의 자리와 정확히 각도를 맺는 날{" "}
+            {reading.events.length}개입니다. 스크롤을 내리면 강이 한 해를 지나며 그
+            날짜들을 차례로 짚습니다.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-2.5">
+            {reading.chips.map((chip) => (
+              <TalismanChip key={chip.label} symbol={chip.symbol} label={chip.label} />
+            ))}
+          </div>
+
+          <div className="mt-6">
+            <YearFlow year={year} events={reading.events} />
+          </div>
+
+          <ClosingNote />
+        </>
       ) : (
         <>
           <p className="max-w-[52ch] break-keep text-guide text-starlight-dim">
-            느린 별 다섯 개가 당신의 자리와 정확히 각도를 맺는 날 {reading.events.length}개입니다.
-            강 위의 점을 누르면 그날의 설명으로 갑니다.
+            느린 별 다섯 개가 당신의 자리와 정확히 각도를 맺는 날{" "}
+            {reading.events.length}개입니다. 강 위의 점이나 아래 줄을 누르면 그날의
+            풀이가 열립니다.
           </p>
 
           <div className="mt-8">
-            <YearRiver year={year} events={reading.events} onSelect={scrollToEvent} />
+            <YearRiver
+              year={year}
+              events={reading.events}
+              onSelect={(event) => {
+                setOpenId(event.id);
+                scrollToEvent(event);
+              }}
+            />
           </div>
 
           <div className="mt-8 flex flex-wrap gap-2.5">
@@ -300,69 +338,39 @@ function PersonalYear({ year }: { year: number }) {
             ))}
           </div>
 
-          {reading.halves.map((half) => (
-            <div key={half.label} className="mt-14">
-              <h3 className="font-display text-lg text-gold-soft">{half.label}</h3>
-              {half.empty ? (
-                <p className="mt-4 max-w-[52ch] break-keep text-guide text-starlight-dim">
-                  {half.empty}
-                </p>
-              ) : (
-                <ul className="mt-6 space-y-8">
-                  {half.events.map((event) => (
-                    <EventRow key={event.id} event={event} />
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+          <YearEventRows events={reading.events} openId={openId} onToggle={setOpenId} />
 
-          <p className="mt-14 max-w-[52ch] break-keep text-meta text-starlight-dim">
-            날짜는 한국 시간 기준이고, 각도가 정확해지는 순간을 30분 안쪽까지 좁혀
-            그날의 날짜로 적었습니다. 그날 하루에 무슨 일이 벌어진다는 뜻이 아니라 그
-            무렵이 그 각도의 한가운데라는 뜻입니다.
-          </p>
+          <ClosingNote />
         </>
       )}
     </section>
   );
 }
 
-function EventRow({ event }: { event: YearReadingEvent }) {
+/** 날짜를 어떻게 읽어야 하는지 — 강의 모양과 무관하게 늘 마지막에 남는 말. */
+function ClosingNote() {
   return (
-    <li
-      id={event.id}
-      className={`scroll-mt-28 border-t pt-6 ${
-        event.harmony > 0 ? "border-gold/40" : "border-gold/12"
-      }`}
-    >
-      <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="font-display text-lg text-starlight">
-          <span className="astro-symbol">{event.moving.symbol}</span> {event.moving.ko}
-          <span className="mx-2 astro-symbol text-gold-soft">{event.aspectSymbol}</span>내{" "}
-          <span className="astro-symbol">{event.fixed.symbol}</span> {event.fixed.ko}
-        </span>
-        <span className="text-meta text-gold-soft">{event.dateLine}</span>
-      </p>
-      <p className="mt-2 text-meta text-starlight-dim">
-        {event.aspectKo} · {event.countLine} 힘이 도는 기간은 {event.span}입니다.
-      </p>
-      <p className="mt-3 max-w-[52ch] text-guide text-gold-soft">{event.headline}</p>
-      <p className="mt-2 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">{event.body}</p>
-    </li>
+    <p className="mt-14 max-w-[52ch] break-keep text-meta text-starlight-dim">
+      날짜는 한국 시간 기준이고, 각도가 정확해지는 순간을 30분 안쪽까지 좁혀
+      그날의 날짜로 적었습니다. 그날 하루에 무슨 일이 벌어진다는 뜻이 아니라 그
+      무렵이 그 각도의 한가운데라는 뜻입니다.
+    </p>
   );
 }
 
-/** 강의 점을 누르면 그 날짜의 설명이 있는 자리로 데려간다. `/natal`의 원반과 같다. */
+/** 강의 점을 누르면 그 날짜의 풀이가 있는 자리로 데려간다. `/natal`의 원반과 같다. */
 function scrollToEvent(event: YearReadingEvent): void {
-  const target = document.getElementById(event.id);
-  if (!target) return;
-  target.scrollIntoView({ behavior: "smooth", block: "center" });
-  target.animate(
-    [
-      { backgroundColor: "color-mix(in srgb, var(--color-gold) 14%, transparent)" },
-      { backgroundColor: "transparent" },
-    ],
-    { duration: 1600, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-  );
+  // 접힌 줄이 열리며 높이가 바뀐 뒤에 재야 가운데가 맞는다.
+  requestAnimationFrame(() => {
+    const target = document.getElementById(event.id);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    target.animate(
+      [
+        { backgroundColor: "color-mix(in srgb, var(--color-gold) 14%, transparent)" },
+        { backgroundColor: "transparent" },
+      ],
+      { duration: 1600, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+    );
+  });
 }

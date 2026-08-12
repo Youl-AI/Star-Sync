@@ -1,6 +1,7 @@
 "use client";
 import { useId, useState } from "react";
 import { useInView } from "@/hooks/useInView";
+import { monthTicks } from "@/lib/year-track";
 import type { YearReadingEvent } from "@/lib/yearly-reading";
 
 /**
@@ -33,16 +34,6 @@ const RIVER_PATH = Array.from({ length: 241 }, (_, i) => {
   const t = i / 240;
   return `${i === 0 ? "M" : "L"}${riverX(t).toFixed(1)} ${riverY(t).toFixed(1)}`;
 }).join(" ");
-
-/** 그 해 각 달 1일이 한 해의 어디쯤인가. 달마다 길이가 다르므로 계산해서 찍는다. */
-function monthTicks(year: number): { month: number; at: number }[] {
-  const start = Date.UTC(year - 1, 11, 31, 15);
-  const span = Date.UTC(year, 11, 31, 15) - start;
-  return Array.from({ length: 12 }, (_, i) => ({
-    month: i + 1,
-    at: (Date.UTC(year, i, 1) - 9 * 3600_000 - start) / span,
-  }));
-}
 
 export function YearRiver({
   year,
