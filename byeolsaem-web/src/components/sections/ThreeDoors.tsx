@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { Door } from "./Door";
+import { DoorsPin } from "./DoorsPin";
 import { YearlyTagline } from "./YearlyTagline";
 
 // 세 개의 문에 쓰이는 미니 비주얼. 가는 금색 선 + 별점 원으로 문마다 다른
@@ -64,7 +65,7 @@ function YearlyGlyph() {
 // 대신 동일한 세 칸이 하나의 지평선을 이룬다.
 export function ThreeDoors() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-28 md:py-40">
+    <DoorsPin>
       <h2
         data-reveal
         style={{ "--reveal-i": 0 } as CSSProperties}
@@ -113,6 +114,6 @@ export function ThreeDoors() {
           description={<YearlyTagline />}
         />
       </div>
-    </section>
+    </DoorsPin>
   );
 }

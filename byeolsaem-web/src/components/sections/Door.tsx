@@ -61,6 +61,7 @@ export function Door({ href, numeral, title, description, glyph, hint }: DoorPro
   return (
     <Link
       href={href}
+      data-door
       className={DOOR_FIELD}
       onClick={(e) => {
         if (!needsBirthData) return;

@@ -1,0 +1,73 @@
+"use client";
+import { useLayoutEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { PIN_MEDIA, refreshOnBodyGrowth } from "@/lib/pin";
+
+gsap.registerPlugin(ScrollTrigger);
+
+/**
+ * 세 개의 문을 붙박아 두고 스크롤이 문을 하나씩 세운다(스펙 §4.4의 "핀 섹션
+ * 메인 1곳", 자리는 §11.4에서 확정). 핀은 구경거리가 아니라 속도 조절이다 —
+ * 세 문이 화면을 스치듯 지나가는 대신, 스크롤을 쥔 사람의 손이 문 하나하나를
+ * 세우는 속도가 된다. 별하늘(전역 fixed)은 그동안 그대로 있으므로 "별하늘을
+ * 붙박고 문이 다가온다"는 §11.4의 그림 그대로다.
+ *
+ * 서버가 그린 내용물(제목 + 문 셋)을 children으로 받기만 한다. 문은 [data-door]
+ * 표식으로 찾는다 — 이 컴포넌트가 문 내용을 알 필요는 없다.
+ *
+ * 좁은 화면과 감소 모드에서는 핀 없이 지금까지의 등장(data-reveal)만 남는다.
+ * gsap.matchMedia가 조건이 풀릴 때 스타일을 스스로 되돌린다.
+ */
+export function DoorsPin({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const section = ref.current;
+    if (!section) return;
+
+    const mm = gsap.matchMedia();
+    mm.add(PIN_MEDIA, () => {
+      const doors = section.querySelectorAll<HTMLElement>("[data-door]");
+      if (doors.length === 0) return;
+
+      // autoAlpha(visibility까지 끔)라 숨은 문도 자리는 차지한다 — 핀이 시작되기
+      // 전에 격자 높이가 변하면 시작점 계산이 어긋난다.
+      gsap.set(doors, { autoAlpha: 0, y: 72, scale: 0.96 });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          // 섹션 높이가 화면보다 낮으므로 위쪽 1/5 지점에 앉힌다. top에 붙이면
+          // 아래가 텅 빈다.
+          start: "top 20%",
+          end: "+=130%",
+          pin: true,
+          scrub: 0.5,
+        },
+      });
+
+      doors.forEach((door, i) => {
+        tl.to(
+          door,
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: "power2.out" },
+          i * 0.75,
+        );
+      });
+      // 셋째 문이 선 뒤 잠깐의 여백. 서자마자 풀리면 마지막 문만 보지 못한다.
+      tl.to({}, { duration: 0.35 });
+
+      // 히어로가 장면을 접거나 늦게 그려지는 내용이 끼어들면 시작점을 다시 잰다.
+      const stopWatching = refreshOnBodyGrowth(() => ScrollTrigger.refresh());
+      return stopWatching;
+    });
+
+    return () => mm.revert();
+  }, []);
+
+  return (
+    <section ref={ref} className="mx-auto max-w-6xl px-6 py-28 md:py-40">
+      {children}
+    </section>
+  );
+}

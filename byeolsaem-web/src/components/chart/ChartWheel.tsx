@@ -47,20 +47,48 @@ export interface WheelSelection {
   detail: string;
 }
 
+/** 원반 밖(스크롤 투어)에서 밝힐 수 있는 대상. 행성 열 개 또는 상승궁. */
+export type WheelSpotlight = PlanetKey | "ascendant";
+
+/** 짚은 별의 한 줄 설명. 원반 안팎(호버, 스크롤 투어)이 같은 문장을 쓴다. */
+export function describeSelection(chart: Chart, planet: PlanetKey): WheelSelection {
+  const placement = chart.placements.find((p) => p.planet === planet)!;
+  const body = PLANET_BY_KEY[planet];
+  const house = chart.houseCusps
+    ? HOUSES[houseOf(placement.longitude, chart.houseCusps) - 1]
+    : null;
+  return {
+    planet,
+    headline: `${body.ko} · ${formatPlacement(placement)}${
+      house ? ` · ${house.number}하우스` : ""
+    }`,
+    detail: house ? `${body.governs} — ${house.ko}(${house.domain})에서.` : `${body.governs}.`,
+  };
+}
+
 export function ChartWheel({
   chart,
   onSelect,
   onActiveChange,
+  spotlight = null,
 }: {
   chart: Chart;
   /** 기호를 눌렀을 때. 아래 본문의 그 별 자리로 데려가는 데 쓴다. */
   onSelect?: (planet: PlanetKey) => void;
   /** 커서를 올리거나 초점이 갔을 때. 옆에 설명을 띄우는 데 쓴다. */
   onActiveChange?: (selection: WheelSelection | null) => void;
+  /**
+   * 스크롤 투어가 밝히는 대상. 손이 짚은 별(active)이 있으면 그쪽이 이긴다 —
+   * 기계가 정한 차례보다 사람이 지금 보고 있는 것이 먼저다.
+   */
+  spotlight?: WheelSpotlight | null;
 }) {
   const rotation = chart.ascendant ?? 0;
   const cusps = chart.houseCusps;
   const [active, setActive] = useState<PlanetKey | null>(null);
+  /** 기호·어스펙트를 밝히는 기준. 호버가 우선이고 없으면 투어의 차례를 따른다. */
+  const focus = active ?? (spotlight !== "ascendant" ? spotlight : null);
+  const ascLit = active === null && spotlight === "ascendant";
 
   // 같은 자리에 두 별이 겹치면 기호가 포개져 읽을 수 없다. 황경이 가까운 것부터
   // 묶어 반지름을 조금씩 벌린다.
@@ -74,20 +102,7 @@ export function ChartWheel({
     radii.set(sorted[i].planet, PLANET_RING - (cluster % 3) * 21);
   }
 
-  const describe = (planet: PlanetKey): WheelSelection => {
-    const placement = chart.placements.find((p) => p.planet === planet)!;
-    const body = PLANET_BY_KEY[planet];
-    const house = cusps ? HOUSES[houseOf(placement.longitude, cusps) - 1] : null;
-    return {
-      planet,
-      headline: `${body.ko} · ${formatPlacement(placement)}${
-        house ? ` · ${house.number}하우스` : ""
-      }`,
-      detail: house
-        ? `${body.governs} — ${house.ko}(${house.domain})에서.`
-        : `${body.governs}.`,
-    };
-  };
+  const describe = (planet: PlanetKey) => describeSelection(chart, planet);
 
   const enter = (planet: PlanetKey) => {
     setActive(planet);
@@ -141,6 +156,8 @@ export function ChartWheel({
             const inner = pointAt(cusp, rotation, ASPECT_RING);
             // 1하우스(상승궁)와 10하우스(중천)는 굵게. 이 둘이 차트의 축이다.
             const axis = i === 0 || i === 9;
+            // 투어가 상승궁 차례일 때 지평선(1하우스 경계)이 앞으로 나온다.
+            const horizonLit = ascLit && i === 0;
             const number = pointAt(cusp + 15, rotation, HOUSE_RING - 11);
             return (
               <g key={cusp}>
@@ -149,9 +166,10 @@ export function ChartWheel({
                   y1={outer.y}
                   x2={inner.x}
                   y2={inner.y}
-                  stroke={axis ? "var(--color-gold)" : "var(--color-starlight)"}
-                  strokeWidth={axis ? 1.3 : 0.5}
-                  opacity={axis ? 0.75 : 0.18}
+                  stroke={horizonLit ? "var(--color-gold-soft)" : axis ? "var(--color-gold)" : "var(--color-starlight)"}
+                  strokeWidth={horizonLit ? 2 : axis ? 1.3 : 0.5}
+                  opacity={horizonLit ? 1 : axis ? 0.75 : 0.18}
+                  className="transition-all duration-300"
                 />
                 <text
                   x={number.x}
@@ -178,7 +196,7 @@ export function ChartWheel({
         const from = pointAt(a.longitude, rotation, ASPECT_RING);
         const to = pointAt(b.longitude, rotation, ASPECT_RING);
         const harmonious = aspect.type.harmony > 0;
-        const touched = active === aspect.a || active === aspect.b;
+        const touched = focus === aspect.a || focus === aspect.b;
         const base = 0.15 + aspect.strength * 0.45;
         return (
           <line
@@ -189,7 +207,7 @@ export function ChartWheel({
             y2={to.y}
             stroke={harmonious ? "var(--color-gold-soft)" : "var(--color-starlight-dim)"}
             strokeWidth={aspect.type.key === "conjunction" ? 0 : touched ? 1.6 : 0.9}
-            opacity={active ? (touched ? 0.95 : base * 0.25) : base}
+            opacity={focus ? (touched ? 0.95 : base * 0.25) : base}
             className="transition-all duration-300"
           />
         );
@@ -202,7 +220,7 @@ export function ChartWheel({
         const at = pointAt(placement.longitude, rotation, radius);
         const tick = pointAt(placement.longitude, rotation, OUTER - SIGN_BAND - 3);
         const planet = PLANET_BY_KEY[placement.planet];
-        const lit = active === placement.planet;
+        const lit = focus === placement.planet;
         const house = cusps ? HOUSES[houseOf(placement.longitude, cusps) - 1] : null;
         return (
           <g
@@ -277,16 +295,30 @@ export function ChartWheel({
 
       {/* 지평선의 두 끝. 왼쪽이 상승궁이다. */}
       {chart.ascendant !== null && (
-        <text
-          x={CENTER - OUTER - 2}
-          y={CENTER - 8}
-          textAnchor="start"
-          fontSize="10"
-          fill="var(--color-gold)"
-          letterSpacing="1"
-        >
-          ASC
-        </text>
+        <>
+          {ascLit && (
+            <circle
+              cx={CENTER - OUTER + SIGN_BAND}
+              cy={CENTER}
+              r="15"
+              fill="none"
+              stroke="var(--color-gold-soft)"
+              strokeWidth="1"
+              opacity=".8"
+            />
+          )}
+          <text
+            x={CENTER - OUTER - 2}
+            y={CENTER - 8}
+            textAnchor="start"
+            fontSize={ascLit ? 12 : 10}
+            fill={ascLit ? "var(--color-gold-soft)" : "var(--color-gold)"}
+            letterSpacing="1"
+            className="transition-all duration-300"
+          >
+            ASC
+          </text>
+        </>
       )}
     </svg>
   );

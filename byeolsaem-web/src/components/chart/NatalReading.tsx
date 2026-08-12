@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { formatPlacement } from "@/lib/chart";
@@ -7,10 +6,10 @@ import type { PlanetKey } from "@/lib/planets";
 import { describeElements, type ReadingPlacement } from "@/lib/reading";
 import { requestRitual } from "@/lib/ritual";
 import { GoldButton } from "@/components/ui/GoldButton";
-import { ChartWheel, ChartWheelLegend, type WheelSelection } from "./ChartWheel";
 import { ChartLoading, NoProfile, UnknownPlace } from "./NoProfile";
 import { Term } from "./Term";
 import { useChart } from "./useChart";
+import { WheelFigure } from "./WheelFigure";
 
 /**
  * 천궁도 전체 — 태어난 순간의 하늘을 계산하고 아톰으로 조립해 읽어 준다.
@@ -29,8 +28,6 @@ import { useChart } from "./useChart";
 export function NatalReading() {
   const { profile, ready } = useBirthProfile();
   const state = useChart(profile);
-  /** 원반에서 지금 짚고 있는 별. 커서·초점이 떠나면 null로 돌아간다. */
-  const [hovered, setHovered] = useState<WheelSelection | null>(null);
 
   if (!ready) return <ChartLoading />;
   if (!profile) return <NoProfile what="천궁도" />;
@@ -103,38 +100,13 @@ export function NatalReading() {
         </section>
 
         {/* 원반과 그 원반을 읽는 법을 나란히 둔다. 예전에는 그림이 가운데 있고
-            설명이 아래에 있어서, 설명을 읽는 동안 그림이 눈에서 벗어났다. */}
-        <figure className="mt-14 flex flex-wrap items-start gap-x-10 gap-y-6">
-          <div className="w-full max-w-[340px] flex-none">
-            <ChartWheel
-              chart={chart}
-              onActiveChange={setHovered}
-              onSelect={(planet) => scrollToPlacement(planet)}
-            />
-          </div>
-          <figcaption className="min-w-0 flex-1 basis-64">
-            {/* 짚은 별의 설명이 범례 자리를 대신 차지한다. 따로 칸을 만들면 아무것도
-                짚지 않았을 때 빈 상자가 남고, 짚었을 때는 범례와 설명이 동시에 떠서
-                어느 쪽을 봐야 할지 알 수 없다. 높이는 미리 잡아 둬 갈릴 때 아래
-                내용이 밀리지 않게 한다. */}
-            <div className="min-h-[220px]">
-              {hovered ? (
-                <div className="border-l-2 border-gold-soft pl-5">
-                  <p className="font-display text-lg text-starlight">{hovered.headline}</p>
-                  <p className="mt-2 break-keep text-guide text-starlight">{hovered.detail}</p>
-                  <p className="mt-4 text-meta text-starlight-dim">
-                    누르면 아래 설명으로 갑니다.
-                  </p>
-                </div>
-              ) : (
-                <ChartWheelLegend />
-              )}
-            </div>
-            <p className="mt-5 break-keep text-meta text-starlight-dim">
-              <Term name="하우스" />는 <Term name="홀사인" /> 방식으로 나눴습니다.
-            </p>
-          </figcaption>
-        </figure>
+            설명이 아래에 있어서, 설명을 읽는 동안 그림이 눈에서 벗어났다.
+            넓은 화면에서는 잠시 붙박여 태양 → 달 → 상승궁을 차례로 밝힌다. */}
+        <WheelFigure
+          chart={chart}
+          ascendantSignKo={core.ascendant?.sign.ko}
+          onSelectPlanet={scrollToPlacement}
+        />
 
         <Section title="하늘 전체의 무게">
           <p className="break-keep leading-relaxed text-starlight">
