@@ -10,6 +10,7 @@ import { moonArt } from "@/lib/share-card";
 import { todayBack, todayFront } from "@/lib/today-reading";
 import { ArchCard } from "@/components/ui/ArchCard";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { MoonDisc } from "./MoonDisc";
@@ -106,18 +107,24 @@ export function TodayCard() {
             >
               <MoonDisc illumination={sky.moon.illumination} phase={sky.moon.phase.key} />
             </ArchCard>
-            {/* "오늘의 내 카드" 이미지 저장(스펙 §6.3). 날짜가 든 파일 이름이라
-                내일 또 저장해도 어제 것을 덮어쓰지 않는다. */}
-            <SaveCardButton
-              filename={`byeolsaem-moon-${sky.date.year}${String(sky.date.month).padStart(2, "0")}${String(sky.date.day).padStart(2, "0")}.png`}
-              spec={() => ({
-                name: front.phaseTitle,
-                latin: `MOON IN ${front.moonSignLatin}`,
-                range: `${front.dateLine} · ${front.illumination}%`,
-                tagline: front.phaseName,
-                art: moonArt(sky.moon.illumination, sky.moon.phase.key),
-              })}
-            />
+            {/* "오늘의 내 카드"를 들고 나가는 두 갈래 길(스펙 §6.2·§6.3).
+                파일 이름에 날짜가 들어 내일 또 저장해도 어제 것을 덮어쓰지 않는다. */}
+            <div className="flex flex-col items-center gap-2">
+              <SaveCardButton
+                filename={`byeolsaem-moon-${sky.date.year}${String(sky.date.month).padStart(2, "0")}${String(sky.date.day).padStart(2, "0")}.png`}
+                spec={() => ({
+                  name: front.phaseTitle,
+                  latin: `MOON IN ${front.moonSignLatin}`,
+                  range: `${front.dateLine} · ${front.illumination}%`,
+                  tagline: front.phaseName,
+                  art: moonArt(sky.moon.illumination, sky.moon.phase.key),
+                })}
+              />
+              <KakaoShareButton
+                text={`${front.dateLine}의 달 — ${front.phaseTitle}. ${front.phaseName}, 밝은 면 ${front.illumination}%`}
+                path="/today"
+              />
+            </div>
           </div>
 
           <div className="min-w-0 flex-1 basis-72">

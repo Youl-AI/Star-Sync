@@ -4,6 +4,7 @@ import { flushSync } from "react-dom";
 import { gsap } from "gsap";
 import { Flip } from "gsap/Flip";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { SignArchCard } from "@/components/ui/ArchCard";
 import { TalismanChip } from "@/components/ui/TalismanChip";
@@ -369,17 +370,24 @@ export function HeroSequence() {
                   <TalismanChip symbol="☉" label={`태양 ${sign.ko}`} />
                   {birth?.concern && <TalismanChip symbol="✦" label={birth.concern} />}
                 </div>
-                {/* 방금 받은 카드를 그대로 들고 나가는 길(스펙 §6.2). */}
-                <SaveCardButton
-                  filename={`byeolsaem-${sign.key}.png`}
-                  spec={() => ({
-                    name: sign.card,
-                    latin: sign.latin,
-                    range: sign.range,
-                    tagline: sign.tagline,
-                    art: signArt(sign),
-                  })}
-                />
+                {/* 방금 받은 카드를 그대로 들고 나가는 두 갈래 길(스펙 §6.2) —
+                    이미지로 간직하거나, 말풍선에 실어 보내거나. */}
+                <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+                  <SaveCardButton
+                    filename={`byeolsaem-${sign.key}.png`}
+                    spec={() => ({
+                      name: sign.card,
+                      latin: sign.latin,
+                      range: sign.range,
+                      tagline: sign.tagline,
+                      art: signArt(sign),
+                    })}
+                  />
+                  <KakaoShareButton
+                    text={`나의 태양은 ${sign.ko} — ${sign.tagline}`}
+                    path={`/sign/${sign.key}`}
+                  />
+                </div>
                 {/* 저장된 정보를 버리고 처음부터 다시 입력하는 유일한 출구.
                     잘못 입력했거나 다른 사람의 하늘을 보려는 경우를 위한 것이다.
                     한 번 눌렀다고 바로 지우지 않는다 — 이 버튼이 지우는 것은
