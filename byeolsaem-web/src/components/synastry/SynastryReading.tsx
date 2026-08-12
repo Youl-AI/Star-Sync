@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { m } from "motion/react";
 import { CONCERN_LENSES } from "@/content/atoms/concerns";
 import { LENS_INTRO, RESONANCE_NOTE } from "@/content/atoms/synastry";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
@@ -17,6 +18,7 @@ import {
 } from "@/lib/synastry-reading";
 import { ChartLoading, NoProfile, UnknownPlace } from "@/components/chart/NoProfile";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { MotionScope } from "@/components/ui/MotionScope";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { GoldThreads } from "./GoldThreads";
 
@@ -283,15 +285,18 @@ function LensSection({
         <span aria-hidden className="h-px flex-1 bg-gold/25" />
       </h2>
 
+      <MotionScope>
       <div role="group" aria-label="이 관계에서 볼 영역" className="flex flex-wrap gap-2.5">
         {CONCERN_LENSES.map((option) => {
           const active = option.label === chosen;
           return (
-            <button
+            <m.button
               key={option.key}
               type="button"
               onClick={() => onPick(option.label)}
               aria-pressed={active}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
               className={`rounded-full border px-4 py-2 text-xs tracking-wide transition-colors ${
                 active
                   ? "border-gold bg-gold/12 text-starlight"
@@ -299,10 +304,11 @@ function LensSection({
               }`}
             >
               {option.label}
-            </button>
+            </m.button>
           );
         })}
       </div>
+      </MotionScope>
 
       {!lens ? (
         <p className="mt-6 max-w-[52ch] break-keep text-guide text-starlight-dim">
