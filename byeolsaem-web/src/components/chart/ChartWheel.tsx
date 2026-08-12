@@ -1,5 +1,8 @@
-import { ASPECT_TYPES, type Chart } from "@/lib/chart";
-import { PLANET_BY_KEY } from "@/lib/planets";
+"use client";
+import { useState } from "react";
+import { ASPECT_TYPES, formatPlacement, houseOf, type Chart } from "@/lib/chart";
+import { HOUSES } from "@/content/atoms/houses";
+import { PLANET_BY_KEY, type PlanetKey } from "@/lib/planets";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
 /**
@@ -15,6 +18,9 @@ import { ZODIAC_SIGNS } from "@/lib/zodiac";
  *
  * 태어난 시각을 모르면 상승궁이 없다. 그때는 양자리 0도를 왼쪽에 두고 하우스
  * 층을 통째로 비운다.
+ *
+ * 별 기호는 눌러 볼 수 있다. 기호만 봐서는 무엇인지 알 수 없고, 아래 본문까지
+ * 내려가야 알 수 있다면 그림과 설명이 따로 노는 것이다(RENEWAL_PLAN §11.3).
  */
 
 const SIZE = 480;
@@ -34,9 +40,27 @@ function pointAt(longitude: number, rotation: number, radius: number) {
   };
 }
 
-export function ChartWheel({ chart }: { chart: Chart }) {
+export interface WheelSelection {
+  planet: PlanetKey;
+  /** 한 줄 설명. 원반 옆에 그대로 붙일 수 있는 형태로 만들어 내보낸다. */
+  headline: string;
+  detail: string;
+}
+
+export function ChartWheel({
+  chart,
+  onSelect,
+  onActiveChange,
+}: {
+  chart: Chart;
+  /** 기호를 눌렀을 때. 아래 본문의 그 별 자리로 데려가는 데 쓴다. */
+  onSelect?: (planet: PlanetKey) => void;
+  /** 커서를 올리거나 초점이 갔을 때. 옆에 설명을 띄우는 데 쓴다. */
+  onActiveChange?: (selection: WheelSelection | null) => void;
+}) {
   const rotation = chart.ascendant ?? 0;
   const cusps = chart.houseCusps;
+  const [active, setActive] = useState<PlanetKey | null>(null);
 
   // 같은 자리에 두 별이 겹치면 기호가 포개져 읽을 수 없다. 황경이 가까운 것부터
   // 묶어 반지름을 조금씩 벌린다.
@@ -49,6 +73,30 @@ export function ChartWheel({ chart }: { chart: Chart }) {
     cluster = gap < 9 ? cluster + 1 : 0;
     radii.set(sorted[i].planet, PLANET_RING - (cluster % 3) * 21);
   }
+
+  const describe = (planet: PlanetKey): WheelSelection => {
+    const placement = chart.placements.find((p) => p.planet === planet)!;
+    const body = PLANET_BY_KEY[planet];
+    const house = cusps ? HOUSES[houseOf(placement.longitude, cusps) - 1] : null;
+    return {
+      planet,
+      headline: `${body.ko} · ${formatPlacement(placement)}${
+        house ? ` · ${house.number}하우스` : ""
+      }`,
+      detail: house
+        ? `${body.governs} — ${house.ko}(${house.domain})에서.`
+        : `${body.governs}.`,
+    };
+  };
+
+  const enter = (planet: PlanetKey) => {
+    setActive(planet);
+    onActiveChange?.(describe(planet));
+  };
+  const leave = () => {
+    setActive(null);
+    onActiveChange?.(null);
+  };
 
   return (
     <svg
@@ -121,13 +169,17 @@ export function ChartWheel({ chart }: { chart: Chart }) {
         </>
       )}
 
-      {/* 어스펙트. 두 별을 잇는 선이고, 정확한 각도에 가까울수록 진하다. */}
+      {/* 어스펙트. 두 별을 잇는 선이고, 정확한 각도에 가까울수록 진하다.
+          별 하나가 짚어지면 그 별에 걸린 선만 남기고 나머지는 물러난다 —
+          "이 별이 무엇과 이어져 있는가"가 그림에서 바로 보여야 한다. */}
       {chart.aspects.slice(0, 14).map((aspect) => {
         const a = chart.placements.find((p) => p.planet === aspect.a)!;
         const b = chart.placements.find((p) => p.planet === aspect.b)!;
         const from = pointAt(a.longitude, rotation, ASPECT_RING);
         const to = pointAt(b.longitude, rotation, ASPECT_RING);
         const harmonious = aspect.type.harmony > 0;
+        const touched = active === aspect.a || active === aspect.b;
+        const base = 0.15 + aspect.strength * 0.45;
         return (
           <line
             key={`${aspect.a}-${aspect.b}`}
@@ -136,8 +188,9 @@ export function ChartWheel({ chart }: { chart: Chart }) {
             x2={to.x}
             y2={to.y}
             stroke={harmonious ? "var(--color-gold-soft)" : "var(--color-starlight-dim)"}
-            strokeWidth={aspect.type.key === "conjunction" ? 0 : 0.9}
-            opacity={0.15 + aspect.strength * 0.45}
+            strokeWidth={aspect.type.key === "conjunction" ? 0 : touched ? 1.6 : 0.9}
+            opacity={active ? (touched ? 0.95 : base * 0.25) : base}
+            className="transition-all duration-300"
           />
         );
       })}
@@ -149,8 +202,31 @@ export function ChartWheel({ chart }: { chart: Chart }) {
         const at = pointAt(placement.longitude, rotation, radius);
         const tick = pointAt(placement.longitude, rotation, OUTER - SIGN_BAND - 3);
         const planet = PLANET_BY_KEY[placement.planet];
+        const lit = active === placement.planet;
+        const house = cusps ? HOUSES[houseOf(placement.longitude, cusps) - 1] : null;
         return (
-          <g key={placement.planet}>
+          <g
+            key={placement.planet}
+            tabIndex={0}
+            role="button"
+            aria-label={`${planet.ko}, ${formatPlacement(placement)}${
+              house ? `, ${house.number}하우스` : ""
+            }. ${planet.governs}. 누르면 아래 설명으로 갑니다.`}
+            onMouseEnter={() => enter(placement.planet)}
+            onMouseLeave={leave}
+            onFocus={() => enter(placement.planet)}
+            onBlur={leave}
+            onClick={() => onSelect?.(placement.planet)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelect?.(placement.planet);
+              }
+            }}
+            className="cursor-pointer outline-none [&:focus-visible>circle:first-of-type]:stroke-gold-soft"
+          >
+            {/* 손가락과 커서가 닿는 범위. 기호보다 넉넉해야 모바일에서 눌린다. */}
+            <circle cx={at.x} cy={at.y} r="18" fill="transparent" stroke="transparent" strokeWidth="1.5" />
             <line
               x1={tick.x}
               y1={tick.y}
@@ -158,8 +234,20 @@ export function ChartWheel({ chart }: { chart: Chart }) {
               y2={at.y}
               stroke="var(--color-gold)"
               strokeWidth=".5"
-              opacity=".3"
+              opacity={lit ? 0.85 : 0.3}
+              className="transition-opacity duration-300"
             />
+            {lit && (
+              <circle
+                cx={at.x}
+                cy={at.y}
+                r="15"
+                fill="none"
+                stroke="var(--color-gold-soft)"
+                strokeWidth="1"
+                opacity=".8"
+              />
+            )}
             <circle cx={at.x} cy={at.y} r="11" fill="var(--color-ink)" opacity=".85" />
             <text
               x={at.x}
@@ -167,8 +255,8 @@ export function ChartWheel({ chart }: { chart: Chart }) {
               textAnchor="middle"
               dominantBaseline="central"
               fontSize="14"
-              fill="var(--color-starlight)"
-              className="astro-symbol"
+              fill={lit ? "var(--color-gold-soft)" : "var(--color-starlight)"}
+              className="astro-symbol transition-colors duration-300"
             >
               {planet.symbol}
             </text>
@@ -204,21 +292,108 @@ export function ChartWheel({ chart }: { chart: Chart }) {
   );
 }
 
-/** 원반 아래에 붙이는 범례. 기호만으로는 무엇인지 알 수 없다. */
+/**
+ * 원반 옆 범례.
+ *
+ * 예전에는 각도 이름을 글로만 나열했다. "육분 60도 · 사각 90도"를 읽어도 원반의
+ * 어느 선이 그것인지 알 수 없다 — 이름과 그림이 이어지지 않으면 범례가 아니다.
+ * 그래서 각 항목에 그 자리에서 실제로 쓰는 획을 함께 그린다.
+ */
 export function ChartWheelLegend() {
   return (
-    <div className="mt-6 space-y-2 text-center text-guide text-starlight">
-      <p>
-        {ASPECT_TYPES.filter((t) => t.key !== "conjunction").map((type, i) => (
-          <span key={type.key}>
-            {i > 0 && " · "}
-            <span className={type.harmony > 0 ? "text-gold-soft" : "text-starlight-dim"}>
-              {type.ko} {type.angle}도
-            </span>
-          </span>
-        ))}
-      </p>
-      <p>금색 선은 힘이 흐르는 각도, 흐린 선은 마찰이 있는 각도입니다. R은 역행입니다.</p>
+    <dl className="space-y-3 text-guide text-starlight">
+      <LegendRow swatch={<BandSwatch />} term="바깥 띠">
+        열두 별자리. 하늘을 30도씩 나눈 것입니다.
+      </LegendRow>
+      <LegendRow swatch={<HouseSwatch />} term="안쪽 칸과 번호">
+        열두 하우스. 굵은 두 선이 이 차트의 축입니다 — 왼쪽이 상승궁, 위가 중천.
+      </LegendRow>
+      <LegendRow swatch={<AspectSwatch harmony />} term="금색 선">
+        {aspectNames(1)}. 두 별의 힘이 서로 흘러 들어갑니다.
+      </LegendRow>
+      <LegendRow swatch={<AspectSwatch />} term="흐린 선">
+        {aspectNames(-1)}. 두 별이 서로를 밀어 마찰이 생깁니다.
+      </LegendRow>
+      <LegendRow swatch={<RetrogradeSwatch />} term="기호 옆 R">
+        그때 그 행성이 역행 중이었다는 표시입니다.
+      </LegendRow>
+    </dl>
+  );
+}
+
+function aspectNames(harmony: number): string {
+  return ASPECT_TYPES.filter((t) => t.harmony === harmony)
+    .map((t) => `${t.ko} ${t.angle}도`)
+    .join(" · ");
+}
+
+function LegendRow({
+  swatch,
+  term,
+  children,
+}: {
+  swatch: React.ReactNode;
+  term: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid grid-cols-[34px_minmax(0,1fr)] items-start gap-x-3">
+      <div className="pt-1" aria-hidden>
+        {swatch}
+      </div>
+      <div className="min-w-0">
+        <dt className="inline font-display text-starlight">{term}</dt>
+        <dd className="inline break-keep text-starlight-dim"> — {children}</dd>
+      </div>
     </div>
+  );
+}
+
+/* 아래 네 도해는 원반에서 쓰는 획을 그대로 잘라 온 것이다. 굵기·색·투명도가
+   달라지면 범례가 가리키는 것이 원반의 무엇인지 알 수 없게 된다. */
+
+function BandSwatch() {
+  return (
+    <svg viewBox="0 0 34 18" className="w-full" aria-hidden>
+      <path d="M2 15 A15 15 0 0 1 32 15" fill="none" stroke="var(--color-gold)" strokeWidth="1" opacity=".5" />
+      <path d="M6 15 A11 11 0 0 1 28 15" fill="none" stroke="var(--color-gold)" strokeWidth="1" opacity=".35" />
+      <line x1="17" y1="0" x2="17" y2="4" stroke="var(--color-gold)" strokeWidth=".7" opacity=".4" />
+    </svg>
+  );
+}
+
+function HouseSwatch() {
+  return (
+    <svg viewBox="0 0 34 18" className="w-full" aria-hidden>
+      <path d="M4 16 A13 13 0 0 1 30 16" fill="none" stroke="var(--color-starlight)" strokeWidth=".6" opacity=".2" />
+      <line x1="4" y1="16" x2="10" y2="16" stroke="var(--color-gold)" strokeWidth="1.3" opacity=".75" />
+      <line x1="17" y1="3" x2="17" y2="9" stroke="var(--color-gold)" strokeWidth="1.3" opacity=".75" />
+      <line x1="26" y1="8" x2="22" y2="12" stroke="var(--color-starlight)" strokeWidth=".5" opacity=".35" />
+    </svg>
+  );
+}
+
+function AspectSwatch({ harmony = false }: { harmony?: boolean }) {
+  const stroke = harmony ? "var(--color-gold-soft)" : "var(--color-starlight-dim)";
+  return (
+    <svg viewBox="0 0 34 18" className="w-full" aria-hidden>
+      <line x1="4" y1="13" x2="30" y2="5" stroke={stroke} strokeWidth="1.2" opacity={harmony ? 0.85 : 0.5} />
+      <circle cx="4" cy="13" r="2.6" fill="var(--color-starlight)" opacity=".8" />
+      <circle cx="30" cy="5" r="2.6" fill="var(--color-starlight)" opacity=".8" />
+    </svg>
+  );
+}
+
+function RetrogradeSwatch() {
+  return (
+    <svg viewBox="0 0 34 18" className="w-full" aria-hidden>
+      <circle cx="14" cy="9" r="7" fill="var(--color-ink)" stroke="var(--color-starlight)" strokeWidth=".6" opacity=".85" />
+      <text x="14" y="9" textAnchor="middle" dominantBaseline="central" fontSize="8" fill="var(--color-starlight)">
+        ♄
+      </text>
+      <text x="24" y="14" textAnchor="middle" fontSize="8" fill="var(--color-gold-soft)">
+        R
+      </text>
+    </svg>
   );
 }

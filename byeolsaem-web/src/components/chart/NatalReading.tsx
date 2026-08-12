@@ -1,12 +1,15 @@
 "use client";
+import { useState } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { formatPlacement } from "@/lib/chart";
+import type { PlanetKey } from "@/lib/planets";
 import { describeElements, type ReadingPlacement } from "@/lib/reading";
 import { requestRitual } from "@/lib/ritual";
 import { GoldButton } from "@/components/ui/GoldButton";
-import { ChartWheel, ChartWheelLegend } from "./ChartWheel";
+import { ChartWheel, ChartWheelLegend, type WheelSelection } from "./ChartWheel";
 import { ChartLoading, NoProfile, UnknownPlace } from "./NoProfile";
+import { Term } from "./Term";
 import { useChart } from "./useChart";
 
 /**
@@ -26,6 +29,8 @@ import { useChart } from "./useChart";
 export function NatalReading() {
   const { profile, ready } = useBirthProfile();
   const state = useChart(profile);
+  /** 원반에서 지금 짚고 있는 별. 커서·초점이 떠나면 null로 돌아간다. */
+  const [hovered, setHovered] = useState<WheelSelection | null>(null);
 
   if (!ready) return <ChartLoading />;
   if (!profile) return <NoProfile what="천궁도" />;
@@ -45,8 +50,31 @@ export function NatalReading() {
       />
 
       <div className="min-w-0">
+        {/* 이 화면을 읽는 법. 아래 세 줄이 무엇인지 먼저 말해 준다 — 태양·달·상승궁을
+            모르는 채로 "천칭자리 10도"를 읽으면 그냥 낯선 문자열이다(§11.3). */}
+        <section className="border-l-2 border-gold/40 pl-5 text-guide text-starlight">
+          <p className="font-display text-lg text-starlight">이 화면을 읽는 법</p>
+          <ul className="mt-3 space-y-2">
+            <li>
+              <b className="font-normal text-gold-soft">태양</b>은 무엇을 향해 가는
+              사람인지를, <b className="font-normal text-gold-soft">달</b>은 혼자 있을 때
+              어떤 사람인지를 말합니다.
+            </li>
+            <li>
+              <b className="font-normal text-gold-soft">
+                <Term name="상승궁" />
+              </b>
+              은 남들이 처음 보는 나입니다. 이 셋만 알면 나머지는 따라옵니다.
+            </li>
+            <li>
+              아래 원반의 <b className="font-normal text-starlight">별 기호에 커서를 올리거나
+              누르면</b> 그 별이 무엇을 맡는지 옆에 뜹니다.
+            </li>
+          </ul>
+        </section>
+
         {/* 세 줄 요약. 이 셋을 모르면 나머지는 배경이다. */}
-        <section className="space-y-6">
+        <section className="mt-12 space-y-6">
           <CoreLine
             symbol="☉"
             label="태양"
@@ -78,13 +106,32 @@ export function NatalReading() {
             설명이 아래에 있어서, 설명을 읽는 동안 그림이 눈에서 벗어났다. */}
         <figure className="mt-14 flex flex-wrap items-start gap-x-10 gap-y-6">
           <div className="w-full max-w-[340px] flex-none">
-            <ChartWheel chart={chart} />
+            <ChartWheel
+              chart={chart}
+              onActiveChange={setHovered}
+              onSelect={(planet) => scrollToPlacement(planet)}
+            />
           </div>
-          <figcaption className="min-w-0 flex-1 basis-64 space-y-4">
-            <ChartWheelLegend />
-            <p className="break-keep text-meta text-starlight-dim">
-              하우스는 홀사인(whole sign) 방식으로 나눴습니다. 상승궁이 든 별자리의 0도가
-              1하우스의 시작이고, 다음 별자리가 차례로 2, 3하우스가 됩니다.
+          <figcaption className="min-w-0 flex-1 basis-64">
+            {/* 짚은 별의 설명이 범례 자리를 대신 차지한다. 따로 칸을 만들면 아무것도
+                짚지 않았을 때 빈 상자가 남고, 짚었을 때는 범례와 설명이 동시에 떠서
+                어느 쪽을 봐야 할지 알 수 없다. 높이는 미리 잡아 둬 갈릴 때 아래
+                내용이 밀리지 않게 한다. */}
+            <div className="min-h-[220px]">
+              {hovered ? (
+                <div className="border-l-2 border-gold-soft pl-5">
+                  <p className="font-display text-lg text-starlight">{hovered.headline}</p>
+                  <p className="mt-2 break-keep text-guide text-starlight">{hovered.detail}</p>
+                  <p className="mt-4 text-meta text-starlight-dim">
+                    누르면 아래 설명으로 갑니다.
+                  </p>
+                </div>
+              ) : (
+                <ChartWheelLegend />
+              )}
+            </div>
+            <p className="mt-5 break-keep text-meta text-starlight-dim">
+              <Term name="하우스" />는 <Term name="홀사인" /> 방식으로 나눴습니다.
             </p>
           </figcaption>
         </figure>
@@ -122,8 +169,9 @@ export function NatalReading() {
         {reading.aspects.length > 0 && (
           <Section title="별과 별 사이">
             <p className="max-w-[52ch] break-keep text-guide text-starlight">
-              두 별이 특정한 각도로 만나면 서로의 작용이 섞입니다. 정확한 각도에
-              가까운 것부터 {reading.aspects.length}개를 골랐습니다.
+              두 별이 특정한 각도로 만나면 서로의 작용이 섞입니다. 이것을{" "}
+              <Term name="어스펙트" />라고 합니다. 정확한 각도에 가까운 것부터{" "}
+              {reading.aspects.length}개를 골랐습니다.
             </p>
             <ul className="mt-8 space-y-8">
               {reading.aspects.map((item) => (
@@ -135,7 +183,7 @@ export function NatalReading() {
                       <span className="astro-symbol">{item.b.symbol}</span> {item.b.ko}
                     </span>
                     <span className="text-meta text-starlight-dim">
-                      {item.aspect.type.ko} · 오차 {item.aspect.orb.toFixed(1)}도
+                      {item.aspect.type.ko} · <Term name="오브" /> {item.aspect.orb.toFixed(1)}도
                     </span>
                   </p>
                   <p className="mt-3 text-guide text-gold-soft">
@@ -263,10 +311,34 @@ function CoreLine({
   );
 }
 
+/** 원반의 기호를 누르면 그 별의 설명이 있는 자리로 데려간다. */
+function placementDomId(planet: PlanetKey): string {
+  return `placement-${planet}`;
+}
+
+/**
+ * 원반에서 별을 누르면 아래 본문의 그 자리로 간다.
+ *
+ * §11.4에서는 여기에 패널을 열기로 했지만, 아래 본문이 이미 열 개의 별을 전부
+ * 설명하고 있다. 패널을 띄우면 같은 글을 두 곳에 두게 되고 둘이 갈릴 여지가
+ * 생긴다 — 데려가는 편이 짧고, 그 김에 앞뒤 별까지 눈에 들어온다.
+ */
+function scrollToPlacement(planet: PlanetKey): void {
+  const target = document.getElementById(placementDomId(planet));
+  if (!target) return;
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  // 스크롤만 하면 열 개가 비슷하게 생겨 어느 것을 보러 왔는지 놓친다.
+  target.animate(
+    [{ backgroundColor: "color-mix(in srgb, var(--color-gold) 14%, transparent)" }, { backgroundColor: "transparent" }],
+    { duration: 1600, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+  );
+}
+
 function PlacementRow({ item }: { item: ReadingPlacement }) {
   return (
     <li
-      className={`grid grid-cols-[30px_minmax(0,1fr)] gap-x-3 border-t pt-6 ${
+      id={placementDomId(item.planet.key)}
+      className={`scroll-mt-28 grid grid-cols-[30px_minmax(0,1fr)] gap-x-3 border-t pt-6 ${
         item.highlighted ? "border-gold/40" : "border-gold/12"
       }`}
     >
@@ -285,7 +357,9 @@ function PlacementRow({ item }: { item: ReadingPlacement }) {
             </span>
           )}
           {item.placement.retrograde && (
-            <span className="text-meta text-gold-soft">역행</span>
+            <span className="text-meta text-gold-soft">
+              <Term name="역행" />
+            </span>
           )}
         </p>
         <p className="mt-3 max-w-[52ch] break-keep leading-relaxed text-starlight">{item.inSign}</p>
