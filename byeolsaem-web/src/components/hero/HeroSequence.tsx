@@ -4,6 +4,7 @@ import { flushSync } from "react-dom";
 import { gsap } from "gsap";
 import { Flip } from "gsap/Flip";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { SignArchCard } from "@/components/ui/ArchCard";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { Moon } from "./Moon";
@@ -13,6 +14,7 @@ import { MockChart } from "./MockChart";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { clearBirthProfile, saveBirthProfile } from "@/lib/birth-profile";
 import { OPEN_RITUAL_EVENT } from "@/lib/ritual";
+import { signArt } from "@/lib/share-card";
 
 gsap.registerPlugin(Flip);
 
@@ -367,11 +369,24 @@ export function HeroSequence() {
                   <TalismanChip symbol="☉" label={`태양 ${sign.ko}`} />
                   {birth?.concern && <TalismanChip symbol="✦" label={birth.concern} />}
                 </div>
+                {/* 방금 받은 카드를 그대로 들고 나가는 길(스펙 §6.2). */}
+                <SaveCardButton
+                  filename={`byeolsaem-${sign.key}.png`}
+                  spec={() => ({
+                    name: sign.card,
+                    latin: sign.latin,
+                    range: sign.range,
+                    tagline: sign.tagline,
+                    art: signArt(sign),
+                  })}
+                />
                 {/* 저장된 정보를 버리고 처음부터 다시 입력하는 유일한 출구.
-                    잘못 입력했거나 다른 사람의 하늘을 보려는 경우를 위한 것이다. */}
-                <button
-                  type="button"
-                  onClick={() => {
+                    잘못 입력했거나 다른 사람의 하늘을 보려는 경우를 위한 것이다.
+                    한 번 눌렀다고 바로 지우지 않는다 — 이 버튼이 지우는 것은
+                    사이트 전체가 쓰는 유일한 저장값이고, 실수로 눌러 놓고 알아챌
+                    방법이 없다. */}
+                <ForgetBirthProfile
+                  onForget={() => {
                     clearBirthProfile();
                     setEntered(null);
                     setChartDrawn(false);
@@ -380,10 +395,7 @@ export function HeroSequence() {
                     pendingTargetRef.current = "ritual";
                     setScene("ritual");
                   }}
-                  className="text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight"
-                >
-                  다른 정보로 보기
-                </button>
+                />
               </div>
             </div>
             );
@@ -391,5 +403,51 @@ export function HeroSequence() {
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * 저장된 출생 정보를 지우기 전에 한 번 묻는다.
+ *
+ * 대화상자를 띄우지 않고 버튼이 그 자리에서 물음으로 바뀐다. 지울 값의 크기에
+ * 맞는 무게다 — 값 하나를 지우는 데 화면을 덮는 창은 과하고, 확인 없이 지우는
+ * 것은 모자란다. 자리를 옮기지 않으므로 커서도 그대로다.
+ */
+function ForgetBirthProfile({ onForget }: { onForget: () => void }) {
+  const [confirming, setConfirming] = useState(false);
+
+  if (!confirming) {
+    return (
+      <button
+        type="button"
+        onClick={() => setConfirming(true)}
+        className="text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight"
+      >
+        다른 정보로 보기
+      </button>
+    );
+  }
+
+  return (
+    <div role="alert" className="flex flex-wrap items-baseline justify-center gap-x-4 gap-y-2">
+      <span className="break-keep text-meta text-starlight">
+        저장된 출생 정보를 지우고 처음부터 다시 받을까요?
+      </span>
+      <button
+        type="button"
+        autoFocus
+        onClick={onForget}
+        className="text-meta tracking-wide text-gold-soft underline underline-offset-4 transition-colors hover:text-starlight"
+      >
+        지우기
+      </button>
+      <button
+        type="button"
+        onClick={() => setConfirming(false)}
+        className="text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight"
+      >
+        그대로 두기
+      </button>
+    </div>
   );
 }

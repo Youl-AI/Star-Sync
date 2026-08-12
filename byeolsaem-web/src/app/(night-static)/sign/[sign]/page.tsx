@@ -150,6 +150,11 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
           연결된 뒤에 들어온다(RENEWAL_PLAN §6.1). 자리를 미리 잡아 두지 않고
           비워 둔다 — 빈 상자는 준비된 것처럼 보이기만 하고 아무것도 주지 않는다. */}
 
+      {/* 이웃한 자리로 건너가는 길. 황도 순서를 따르고 물고기 다음은 다시 양이다.
+          열두 페이지가 서로 이어져 있지 않으면 하나를 다 읽은 사람이 갈 곳이
+          목록뿐이고, 검색엔진도 열두 페이지를 각각 떨어진 섬으로 본다. */}
+      <SignNeighbors current={sign.key} />
+
       <div data-morph-veil className="mt-20 border-t border-gold/15 pt-12 text-center">
         <p className="break-keep leading-relaxed text-starlight-dim">
           태양이 {sign.ko}에 있다는 것은 당신 하늘의 한 조각입니다. 달과 상승궁까지
@@ -175,5 +180,38 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="break-keep font-display text-xl text-starlight">{title}</h2>
       <div className="mt-5">{children}</div>
     </section>
+  );
+}
+
+/** 황도에서 앞뒤로 이웃한 두 자리. 정적 링크라 빌드된 HTML에 그대로 들어간다. */
+function SignNeighbors({ current }: { current: string }) {
+  const index = ZODIAC_SIGNS.findIndex((s) => s.key === current);
+  const previous = ZODIAC_SIGNS[(index + 11) % 12];
+  const next = ZODIAC_SIGNS[(index + 1) % 12];
+
+  const side =
+    "group flex min-w-0 flex-col gap-1 border-b border-transparent pb-1 transition-colors";
+  const name = "truncate font-display text-lg text-starlight transition-colors group-hover:text-gold-soft";
+  const label = "font-latin text-eyebrow tracking-[0.2em] text-starlight-dim";
+
+  return (
+    <nav
+      data-morph-veil
+      aria-label="이웃한 별자리"
+      className="mt-20 flex items-baseline justify-between gap-8 border-t border-gold/15 pt-10"
+    >
+      <Link href={`/sign/${previous.key}`} className={`${side} text-left`}>
+        <span className={label}>
+          <span aria-hidden>← </span>앞의 자리
+        </span>
+        <span className={name}>{previous.ko}</span>
+      </Link>
+      <Link href={`/sign/${next.key}`} className={`${side} items-end text-right`}>
+        <span className={label}>
+          다음 자리<span aria-hidden> →</span>
+        </span>
+        <span className={name}>{next.ko}</span>
+      </Link>
+    </nav>
   );
 }
