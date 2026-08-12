@@ -108,7 +108,8 @@ export function WheelFigure({
 
   return (
     <figure ref={figureRef} className="mt-14 flex flex-wrap items-start gap-x-10 gap-y-6">
-      <div className="w-full max-w-[340px] flex-none">
+      {/* 원반이 이 그림의 주인공이다. 340px일 때는 기호가 눈을 좁혀야 보였다. */}
+      <div className="w-full max-w-[460px] flex-none">
         <ChartWheel
           chart={chart}
           spotlight={hovered ? null : (tour?.spotlight ?? null)}
