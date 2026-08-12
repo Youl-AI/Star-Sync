@@ -298,5 +298,7 @@ export async function shareCard(spec: CardSpec, filename: string): Promise<void>
   anchor.href = url;
   anchor.download = filename;
   anchor.click();
-  URL.revokeObjectURL(url);
+  // 클릭 직후 바로 회수하면 브라우저가 내려받기를 시작하기 전에 주소가
+  // 죽을 수 있다(명세상 다운로드 취소). 한 박자 늦춘다.
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

@@ -28,6 +28,7 @@ export function SmoothScroll() {
     return () => {
       cancelAnimationFrame(raf);
       registerScroller(null);
+      lenis.off("scroll", ScrollTrigger.update);
       lenis.destroy();
     };
   }, []);
