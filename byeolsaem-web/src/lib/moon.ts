@@ -153,6 +153,8 @@ export const MOON_PHASES = [
 ] as const;
 
 export type MoonPhase = (typeof MOON_PHASES)[number];
+/** 위상 이름의 키. 위상별 문장을 담은 표가 이것으로 색인된다. */
+export type MoonPhaseKey = MoonPhase["key"];
 
 /** 위상각을 여덟 이름 중 하나로. 경계는 45도씩 나누되 22.5도 어긋나게 잡는다. */
 export function moonPhaseOf(phaseAngle: number): MoonPhase {

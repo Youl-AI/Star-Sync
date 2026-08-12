@@ -17,6 +17,7 @@ const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
  * 맡고 있으니 잃는 것도 없다. 그 페이지들이 생기면 그때 다시 올린다.
  */
 const LINKS = [
+  { href: "/today", label: "오늘의 하늘" },
   { href: "/sign", label: "별자리" },
   { href: "/retrograde", label: "수성 역행" },
   { href: "/blog", label: "칼럼" },

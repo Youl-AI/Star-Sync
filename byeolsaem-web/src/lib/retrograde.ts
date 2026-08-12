@@ -1,4 +1,4 @@
-import { ZODIAC_SIGNS } from "./zodiac";
+import { signAtLongitude } from "./zodiac";
 import { fromJulianDay, mercuryApparent, norm180, toJulianDay } from "./ephemeris";
 import type { RetrogradePeriod } from "./retrograde-clock";
 
@@ -138,10 +138,9 @@ export function shadowPeriod(period: RetrogradePeriod): { start: string; end: st
 }
 
 /** 황경이 어느 별자리에 드는가. 0도가 양자리 0도이고 30도마다 한 자리씩. */
-export function signAtLongitude(longitude: number) {
-  const index = Math.floor(((longitude % 360) + 360) % 360 / 30);
-  return ZODIAC_SIGNS[index];
-}
+// signAtLongitude는 zodiac.ts로 옮겼다 — 역행만의 지식이 아니라 황도 자체의
+// 지식이고, 오늘의 하늘도 같은 것을 쓴다. 여기서 쓰던 곳들을 위해 다시 내보낸다.
+export { signAtLongitude };
 
 /** "양자리 12도"처럼 자리와 그 안에서의 도수로 적는다. */
 export function formatZodiacDegree(longitude: number): string {

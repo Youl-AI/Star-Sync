@@ -256,6 +256,17 @@ const SIGN_STARTS: [number, number, string][] = [
 ];
 
 /** "1999-09-27" → 천칭자리. 형식이 깨진 입력은 양자리(첫 자리)로 안전하게 떨어진다. */
+/**
+ * 황경이 어느 자리에 드는가. 30도가 한 자리다.
+ *
+ * 날짜로 태양궁을 찾는 getSunSign과 달리 실제 위치를 그대로 나눈다. 역행 화면과
+ * 오늘의 하늘처럼 계산된 황경을 다루는 곳이 쓴다.
+ */
+export function signAtLongitude(longitude: number): ZodiacSign {
+  const index = Math.floor(((((longitude % 360) + 360) % 360)) / 30);
+  return ZODIAC_SIGNS[index];
+}
+
 export function getSunSign(isoDate: string): ZodiacSign {
   const m = isoDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!m) return ZODIAC_SIGNS[0];
