@@ -13,8 +13,10 @@ export const metadata: Metadata = {
 
 export default function NatalPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
-      <header className="text-center">
+    // 시안 B는 왼쪽에 출생 정보 기둥을 세우므로 그만큼 폭이 더 필요하다.
+    // 본문 자체는 52자에서 끊기니 넓혀도 줄이 길어지지 않는다(§11.4).
+    <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      <header className="mx-auto max-w-xl text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">NATAL CHART</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
           나의 천궁도

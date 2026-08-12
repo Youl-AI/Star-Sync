@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Wordmark } from "../brand/Wordmark";
 import { SEAL_CLIP_SM } from "../ui/goldStyles";
+import { requestRitual } from "@/lib/ritual";
 
 // 모바일 오버레이가 md:hidden으로 사라지는 기준(Tailwind md)과 반드시 일치해야 한다.
 const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
@@ -90,16 +91,17 @@ export function Veil() {
                 {l.label}
               </Link>
             ))}
-            {/* #hero-ritual은 HeroSequence가 "arrival" 장면을 벗어난 뒤에만 마운트되는
-                id라 첫 진입 시(가장 흔한 경우) 걸어두면 클릭해도 아무 일도 안 일어나는
-                깨진 링크가 된다. 항상 존재하는 히어로 섹션 자체(#hero)로 스크롤시켜
-                사용자를 실제 CTA("나의 밤하늘 보기")가 보이는 위치로 되돌려보낸다. */}
-            <a
-              href="#hero"
+            {/* 예전에는 #hero로 가는 앵커였다. 히어로가 있는 메인에서는 맞았지만
+                /sign·/retrograde·/natal에는 그 자리가 없어 눌러도 아무 일도
+                일어나지 않았다. requestRitual이 히어로가 있으면 그리로 데려가고,
+                없으면 패널을 연다(RENEWAL_PLAN §11.4). */}
+            <button
+              type="button"
+              onClick={() => requestRitual()}
               className={`bg-gold-soft px-4 py-2 text-xs font-semibold tracking-wider text-ink transition-colors hover:bg-[#f0d789] ${SEAL_CLIP_SM}`}
             >
               내 밤하늘
-            </a>
+            </button>
           </div>
 
           <button

@@ -1,3 +1,4 @@
+import { BirthPanel } from "@/components/birth/BirthPanel";
 import { Veil } from "@/components/nav/Veil";
 import { StaticStars } from "@/components/sky/StaticStars";
 
@@ -26,6 +27,9 @@ export default function NightStaticLayout({ children }: { children: React.ReactN
 
       <Veil />
       <div className="relative z-10">{children}</div>
+
+      {/* 출생 정보를 어느 페이지에서든 받는다. 예전에는 메인으로 돌려보냈다. */}
+      <BirthPanel />
     </div>
   );
 }
