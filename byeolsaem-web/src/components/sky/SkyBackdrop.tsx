@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { detectSkyTier, type SkyTier } from "@/lib/sky-tier";
+import { detectSkyTier, isSoftwareRenderer, type SkyTier } from "@/lib/sky-tier";
 import { NightJourney } from "./NightJourney";
 import { StaticStars } from "./StaticStars";
 
@@ -15,6 +15,16 @@ export function SkyBackdrop() {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("webgl2") || canvas.getContext("webgl");
     const webgl = !!ctx;
+    // 누가 그리는가 — GPU인가 CPU인가. 이름을 숨기지 않는 확장이 있으면 그것을
+    // 쓰고, 없으면 표준 RENDERER로 물러선다(sky-tier.ts 주석 참고).
+    const debug = ctx?.getExtension("WEBGL_debug_renderer_info");
+    const renderer = ctx
+      ? String(
+          (debug && ctx.getParameter(debug.UNMASKED_RENDERER_WEBGL)) ??
+            ctx.getParameter(ctx.RENDERER) ??
+            "",
+        )
+      : null;
     // 지원 감지용으로만 만든 임시 canvas라 컨텍스트를 계속 들고 있을 이유가 없다.
     // WEBGL_lose_context로 즉시 해제해 GPU 리소스를 낭비하지 않는다.
     ctx?.getExtension("WEBGL_lose_context")?.loseContext();
@@ -22,10 +32,19 @@ export function SkyBackdrop() {
       reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
       isMobile: matchMedia("(max-width: 768px)").matches,
       webgl,
+      softwareRenderer: isSoftwareRenderer(renderer),
     });
     setTier(t);
     if (t !== "static") requestAnimationFrame(() => setVisible(true));
   }, []);
+
+  /**
+   * 감지로 걸러지지 않는 기기가 남는다 — 이름은 멀쩡한 GPU인데 이 셰이더를
+   * 감당하지 못하는 내장 그래픽, 다른 창이 GPU를 물고 있는 상황, 발열로 성능이
+   * 내려간 노트북. 그래서 이름 대신 실제로 그려낸 속도를 보고, 목표에 한참
+   * 못 미치면 하늘을 정지 티어로 내린다. 한 번 내려간 뒤에는 올라오지 않는다.
+   */
+  const downgrade = () => setTier("static");
 
   return (
     // z-0(양수 아님)을 쓴다: 이 환경 Chromium에서 fixed 조상에 음수 z-index(-z-10)가
@@ -49,7 +68,7 @@ export function SkyBackdrop() {
         <div
           className={`h-full w-full transition-opacity duration-1000 ${visible ? "opacity-100" : "opacity-0"}`}
         >
-          <SkyCanvas tier={tier} />
+          <SkyCanvas tier={tier} onTooSlow={downgrade} />
         </div>
       )}
       {/* 질감 층(§10.1). 별 위·글 아래. 순수 CSS라 어느 티어에서도 값이 싸고,

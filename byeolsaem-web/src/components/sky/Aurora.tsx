@@ -46,7 +46,18 @@ const FRAGMENT = /* glsl */ `
   const vec3 GOLD   = vec3(0.788, 0.635, 0.153);
   const vec3 CREAM  = vec3(0.910, 0.894, 0.847);
 
-  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  /**
+   * 해시. 예전에는 fract(sin(dot(p, ...)) * 43758.5453)이었다 — 셰이더 예제에서
+   * 가장 흔한 관용구지만 픽셀마다 초월함수를 부른다. 이 커튼은 픽셀 하나에
+   * 해시를 수십 번 쓰므로(커튼 × fbm × 겹 × 4) 그 비용이 그대로 곱해졌다.
+   * 곱셈과 fract만 쓰는 판으로 바꾼다 — 난수의 성질은 같고 값은 훨씬 싸다.
+   * 무늬의 씨앗이 달라지므로 커튼이 접히는 자리는 바뀌지만 결은 같다.
+   */
+  float hash(vec2 p) {
+    vec3 q = fract(vec3(p.xyx) * 0.1031);
+    q += dot(q, q.yzx + 33.33);
+    return fract((q.x + q.y) * q.z);
+  }
   float noise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
@@ -85,6 +96,11 @@ const FRAGMENT = /* glsl */ `
       /* 스크롤이 커튼을 천천히 밀어 올린다 — 내려가는 사람의 시차. */
       float y = 0.30 + 0.38 * wave + fi * 0.10 + uScroll * 0.22;
       float band = exp(-abs(p.y - y) * (7.5 - fi * 1.8));
+      /* band는 커튼에서 멀어지면 지수로 죽는다. 그 자리의 픽셀은 아래 flow를
+         구해 봐야 결과가 0.001 미만이라 8비트 색으로는 검정과 구분되지 않는다 —
+         화면의 대부분이 그런 픽셀이므로, 여기서 끊는 것이 이 셰이더에서 가장 큰
+         절약이다. 눈에 보이는 것은 하나도 잃지 않는다. */
+      if (band < 0.004) continue;
       float flow = fbm(vec2(p.x * 3.2 - slow * 2.2 + fi * 9.1, p.y * 2.2));
       vec3 tint = mix(VIOLET, GOLD, smoothstep(0.35, 0.75, flow) * (0.35 + fi * 0.22));
       col += tint * band * flow * 0.34 * calm * uIntensity;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mulberry32 } from "../lib/random";
 import { generateStars } from "../lib/stars";
-import { detectSkyTier } from "../lib/sky-tier";
+import { detectSkyTier, isSoftwareRenderer } from "../lib/sky-tier";
 import { validateBirthDate } from "../lib/birth";
 import { getFortuneYear } from "../lib/date";
 import { eul, eun, gwa, iga } from "../lib/josa";
@@ -43,6 +43,39 @@ describe("detectSkyTier", () => {
     expect(detectSkyTier({ reducedMotion: false, isMobile: true, webgl: true })).toBe("lite"));
   it("데스크톱+webgl은 full", () =>
     expect(detectSkyTier({ reducedMotion: false, isMobile: false, webgl: true })).toBe("full"));
+  it("소프트웨어 렌더러면 static — WebGL이 되는 것과 GPU가 그리는 것은 다르다", () => {
+    expect(
+      detectSkyTier({ reducedMotion: false, isMobile: false, webgl: true, softwareRenderer: true }),
+    ).toBe("static");
+    expect(
+      detectSkyTier({ reducedMotion: false, isMobile: true, webgl: true, softwareRenderer: true }),
+    ).toBe("static");
+  });
+});
+
+describe("isSoftwareRenderer", () => {
+  it("크롬이 실제로 돌려주는 소프트웨어 렌더러 이름들을 잡는다", () => {
+    for (const name of [
+      "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "Mesa/X.org, llvmpipe (LLVM 15.0.7, 256 bits)",
+      "Microsoft Basic Render Driver",
+      "Mesa OffScreen",
+    ]) {
+      expect(isSoftwareRenderer(name), name).toBe(true);
+    }
+  });
+  it("진짜 GPU 이름은 통과시킨다", () => {
+    for (const name of [
+      "ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "Apple M2",
+      "ANGLE (AMD, AMD Radeon RX 6600 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    ]) {
+      expect(isSoftwareRenderer(name), name).toBe(false);
+    }
+  });
+  it("이름을 못 얻으면 GPU로 본다 — 모르는 것을 이유로 기능을 끄지 않는다", () =>
+    expect(isSoftwareRenderer(null)).toBe(false));
 });
 
 describe("validateBirthDate", () => {
