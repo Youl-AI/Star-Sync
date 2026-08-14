@@ -1,6 +1,9 @@
-import { HeroSequence } from "@/components/hero/HeroSequence";
+import { VerticalWorld } from "@/components/world/VerticalWorld";
+import { DeepResult } from "@/components/world/DeepResult";
 import { TodayTeaser } from "@/components/sections/TodayTeaser";
 import { ThreeDoors } from "@/components/sections/ThreeDoors";
+import { TwelveRooms } from "@/components/sections/TwelveRooms";
+import { NightsEndCall } from "@/components/sections/NightsEndCall";
 import { ResultPreview } from "@/components/sections/ResultPreview";
 import { Footer } from "@/components/sections/Footer";
 import { Reveal } from "@/components/Reveal";
@@ -27,8 +30,13 @@ import { NightEnd, NightPhase } from "@/components/sky/NightJourney";
 export default function Home() {
   return (
     <main>
+      {/* 별의 샘 수직 세계 (2026-08-14 v4 확정: 하늘 크롭 + 2.4배 압축 — 둘 다
+          데스크톱 전용, 모바일은 그림이 짧아 CSS/JS가 끈다). 크롭 56.7vw는 v4에서
+          조율한 90vh(1290×813 기준)의 vw 환산값이다.
+          하강이 끝난 심연에서, 입력을 마친 사람은 자기 별을 만난다(DeepResult). */}
       <NightPhase index={0}>
-        <HeroSequence />
+        <VerticalWorld compress={2.4} topCrop={56.7} />
+        <DeepResult />
       </NightPhase>
       <NightPhase index={1}>
         <Reveal>
@@ -46,8 +54,18 @@ export default function Home() {
         <Reveal>
           <ThreeDoors />
         </Reveal>
+        {/* 문 바로 아래가 푸터면 여정이 뚝 끊긴다. 문 다음에는 방 — 검색 유입의
+            핵심인 /sign 12페이지로 가는 유일한 메인 내부 링크이기도 하다. */}
+        <Reveal>
+          <TwelveRooms />
+        </Reveal>
       </NightPhase>
       <NightPhase index={4}>
+        {/* 여정의 끝, 여명 무렵의 마지막 초대. 구경만 하고 떠나려던 사람을
+            그 자리에서 입력으로 잇는다(NightsEndCall 주석 참고). */}
+        <Reveal>
+          <NightsEndCall />
+        </Reveal>
         <Footer />
       </NightPhase>
       <NightEnd />
