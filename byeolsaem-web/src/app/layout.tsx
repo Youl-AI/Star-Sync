@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Analytics } from "@/components/analytics/Analytics";
 import { TransitionStage } from "@/components/nav/TransitionStage";
 import "./globals.css";
 
@@ -61,6 +62,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* 페이지 전환 크로스페이드(TransitionStage 주석 참고).
             두 세계 모두에 걸쳐야 하므로 여기, 문서 뼈대에 마운트한다. */}
         <TransitionStage />
+        {/* 측정은 광고와 달리 메인까지 전부 덮는다(Analytics 주석 참고). */}
+        <Analytics />
       </body>
     </html>
   );
