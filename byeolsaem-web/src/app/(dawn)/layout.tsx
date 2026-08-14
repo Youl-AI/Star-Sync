@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdSense } from "@/components/ads/AdSense";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ReadingProgress } from "@/components/dawn/ReadingProgress";
 
@@ -37,6 +38,10 @@ export default function DawnLayout({ children }: { children: React.ReactNode }) 
       </header>
 
       {children}
+
+      {/* 읽는 페이지에만 광고를 싣는다(AdSense 주석 참고). 이 그룹은 칼럼·소개·
+          방침이라 전부 해당한다. */}
+      <AdSense />
     </div>
   );
 }

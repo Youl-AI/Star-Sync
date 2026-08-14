@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AdSense } from "@/components/ads/AdSense";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
@@ -265,6 +266,9 @@ export default function RetrogradePage() {
           를 보세요.
         </p>
       </div>
+
+      {/* 검색으로 사람이 도착하는 긴 글이라 광고를 싣는다(AdSense 주석 참고). */}
+      <AdSense />
     </main>
   );
 }
