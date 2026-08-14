@@ -86,6 +86,25 @@ export function VerticalWorld({
     resize();
     addEventListener("resize", resize);
 
+    /**
+     * 금빛 알갱이 도장. 예전에는 알갱이마다 매 프레임 createRadialGradient로
+     * 새 그라디언트를 만들어 원을 채웠다 — 스무 개면 초당 1200개의 그라디언트
+     * 객체다. 빛무리는 하나뿐이고 달라지는 것은 크기와 밝기뿐이므로, 한 번
+     * 구워 두고 찍는다.
+     */
+    const SPRITE = 64;
+    const sprite = document.createElement("canvas");
+    sprite.width = sprite.height = SPRITE;
+    const sctx = sprite.getContext("2d")!;
+    const halo = sctx.createRadialGradient(
+      SPRITE / 2, SPRITE / 2, 0,
+      SPRITE / 2, SPRITE / 2, SPRITE / 2,
+    );
+    halo.addColorStop(0, "rgba(227,197,104,1)");
+    halo.addColorStop(1, "rgba(227,197,104,0)");
+    sctx.fillStyle = halo;
+    sctx.fillRect(0, 0, SPRITE, SPRITE);
+
     const motes = Array.from({ length: 20 }, () => ({
       x: Math.random(),
       y: Math.random(),
@@ -133,16 +152,10 @@ export function VerticalWorld({
             m.x = Math.random();
           }
           const a = 0.22 + 0.55 * Math.abs(Math.sin(m.tw * 2));
-          const g = ctx.createRadialGradient(
-            m.x * cv.width, m.y * cv.height, 0,
-            m.x * cv.width, m.y * cv.height, m.r * 4,
-          );
-          g.addColorStop(0, `rgba(227,197,104,${a})`);
-          g.addColorStop(1, "rgba(227,197,104,0)");
-          ctx.beginPath();
-          ctx.fillStyle = g;
-          ctx.arc(m.x * cv.width, m.y * cv.height, m.r * 4, 0, Math.PI * 2);
-          ctx.fill();
+          const d = m.r * 8;
+          ctx.globalAlpha = a;
+          ctx.drawImage(sprite, m.x * cv.width - d / 2, m.y * cv.height - d / 2, d, d);
+          ctx.globalAlpha = 1;
         }
         if (under) {
           const ba = Math.min(1, depth01 * 3) * (1 - depth01 * 0.5);
