@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { POSTS, formatPublished, getPost } from "../content/blog";
+import { buildRss, toRfc822 } from "../lib/rss";
 
 const CONTENT_DIR = join(process.cwd(), "src/content/blog");
 
@@ -84,5 +85,48 @@ describe("칼럼 본문", () => {
       );
       expect(broken.map((m) => m[0]), file).toEqual([]);
     }
+  });
+});
+
+describe("칼럼 RSS", () => {
+  const xml = buildRss(POSTS);
+
+  it("RFC 822 날짜로 적는다", () => {
+    // 2026-03-15는 일요일. 한국 시간 자정으로 적어야 목록의 날짜와 어긋나지 않는다.
+    expect(toRfc822("2026-03-15")).toBe("Sun, 15 Mar 2026 00:00:00 +0900");
+    expect(toRfc822("2026-03-11")).toBe("Wed, 11 Mar 2026 00:00:00 +0900");
+  });
+
+  it("글이 모두 실리고 최신이 앞에 온다", () => {
+    const titles = [...xml.matchAll(/<title>(.*?)<\/title>/g)].slice(1).map((m) => m[1]);
+    expect(titles.length).toBe(POSTS.length);
+    const dates = [...xml.matchAll(/<pubDate>(.*?)<\/pubDate>/g)].map((m) => Date.parse(m[1]));
+    // lastBuildDate가 첫 항목이므로 그 뒤부터가 글이다.
+    const posts = dates.slice(1);
+    for (let i = 1; i < posts.length; i += 1) {
+      expect(posts[i - 1] >= posts[i]).toBe(true);
+    }
+  });
+
+  it("한글 주소를 인코딩해 싣는다", () => {
+    for (const post of POSTS) {
+      expect(xml).toContain(`https://byeolsaem.com/blog/${encodeURIComponent(post.slug)}`);
+    }
+    // 날것의 한글이 링크에 남아 있으면 수집기가 주소를 잘못 읽는다.
+    expect(xml).not.toMatch(/<link>[^<]*[가-힣][^<]*<\/link>/);
+  });
+
+  it("XML에서 뜻을 갖는 글자를 이스케이프한다", () => {
+    const escaped = buildRss([
+      { ...POSTS[0], title: "a & b < c", summary: 'he said "x" & \'y\'' },
+    ]);
+    expect(escaped).toContain("a &amp; b &lt; c");
+    expect(escaped).toContain("&quot;x&quot; &amp; &apos;y&apos;");
+    // 이스케이프가 빠지면 파서가 여기서 멈춘다.
+    expect(escaped).not.toMatch(/<title>[^<]*&(?!amp;|lt;|gt;|quot;|apos;)/);
+  });
+
+  it("빌드마다 값이 달라지지 않는다", () => {
+    expect(buildRss(POSTS)).toBe(buildRss(POSTS));
   });
 });

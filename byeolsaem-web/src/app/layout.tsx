@@ -42,6 +42,10 @@ export const metadata: Metadata = {
     // 않는다 — 네이버가 주기적으로 다시 확인하고, 사라지면 소유가 풀린다.
     other: { "naver-site-verification": "e9216a2372ff9e5f3f684e9f5d3c7e192783c1b5" },
   },
+  alternates: {
+    // 수집기와 RSS 리더가 주소를 몰라도 피드를 찾을 수 있게 한다(lib/rss.ts 참고).
+    types: { "application/rss+xml": "/rss.xml" },
+  },
 };
 
 /**
