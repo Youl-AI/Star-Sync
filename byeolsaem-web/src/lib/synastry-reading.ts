@@ -28,6 +28,8 @@ export interface SynastryLine {
   mine: Planet;
   theirs: Planet;
   aspectKo: string;
+  /** "trine" 같은 각도 키. 한 줄 조립이 결을 읽는 데 쓴다. */
+  aspectKey: string;
   aspectSymbol: string;
   orb: number;
   /** 힘이 흐르는 각도인가, 마찰이 있는 각도인가. 0은 겹침. */
@@ -64,6 +66,10 @@ export interface LensView {
 }
 
 export interface SynastryReading {
+  /** 두 사람의 한 줄 — 가장 깊은 자리와 부딪히는 자리를 붙인 요약. 각도가 없으면 null. */
+  oneLiner: string | null;
+  /** 해 볼 것 / 버릴 것 — 부딪히는 각도가 있을 때만. */
+  advice: { try: string; hold: string } | null;
   /** 이름이 붙어 있는 조합이 몇 개 맺혀 있는가. 화면 앞에 세우는 숫자다. */
   named: number;
   bandLabel: string;
@@ -101,6 +107,7 @@ function describe(aspect: CrossAspect, highlighted: boolean): SynastryLine {
     mine,
     theirs,
     aspectKo: aspect.type.ko,
+    aspectKey: aspect.type.key,
     aspectSymbol: aspect.type.symbol,
     orb: aspect.orb,
     harmony: aspect.type.harmony,
@@ -163,6 +170,39 @@ function matchesLens(
   return room !== undefined && lens.houses.includes(room);
 }
 
+/** 각도의 결을 한 줄의 관형절로. 두 사람의 한 줄이 여기서 조립된다. */
+const TONE_CLAUSES: Record<string, string> = {
+  conjunction: "깊게 겹쳐 있는",
+  sextile: "손이 잘 맞는",
+  trine: "말하지 않아도 통하는",
+  square: "서로를 밀며 움직이는",
+  opposition: "정면으로 마주 선",
+};
+
+/**
+ * 두 사람의 한 줄 — B안(2026-08-14 승인).
+ *
+ * 가장 정확하게 흐르는 각도가 관계의 바탕을, 가장 정확한 마찰이 단서를 단다.
+ * 목록은 오브순이므로 각 무리의 첫 항목이 그 무리의 대표다.
+ */
+function composeOneLiner(lines: SynastryLine[]): string | null {
+  if (lines.length === 0) return null;
+  // 목록은 이름 붙은 조합을 앞세운 순서라, "가장 정확한" 것은 오브로 직접 고른다.
+  const byOrb = [...lines].sort((a, b) => a.orb - b.orb);
+  const flowing = byOrb.find((line) => line.harmony >= 0);
+  const friction = byOrb.find((line) => line.harmony < 0);
+
+  if (flowing && friction) {
+    const clause = TONE_CLAUSES[flowing.aspectKey] ?? "깊게 얽힌";
+    return `${clause} 사이인데, ${PLANET_TOUCH[friction.mine.key]} 쪽에서는 자꾸 부딪히는 짝입니다.`;
+  }
+  if (flowing) {
+    const clause = TONE_CLAUSES[flowing.aspectKey] ?? "깊게 얽힌";
+    return `${clause} 짝입니다. 부딪히는 각도가 드물어, 이 관계를 움직이는 것은 별보다 두 사람의 선택입니다.`;
+  }
+  return `서로를 세게 움직이는 짝입니다. ${PLANET_TOUCH[friction!.mine.key]} 쪽에서 자주 부딪히지만, 관계를 실제로 나아가게 하는 것도 대개 그 자리입니다.`;
+}
+
 export function synastryReading(
   mine: Chart,
   theirs: Chart,
@@ -188,6 +228,13 @@ export function synastryReading(
   const band = resonanceBand(result.named);
 
   return {
+    oneLiner: composeOneLiner(described),
+    advice: described.some((line) => line.harmony < 0)
+      ? {
+          try: "자주 부딪히는 주제는 성격 차이로 인정하고, 미리 규칙을 정해 두기",
+          hold: "상대의 방식을 내 방식으로 고치려는 시도",
+        }
+      : null,
     named: result.named,
     bandLabel: band.label,
     bandLine: band.line,

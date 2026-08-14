@@ -20,6 +20,7 @@ import { ChartLoading, NoProfile, UnknownPlace } from "@/components/chart/NoProf
 import { GoldButton } from "@/components/ui/GoldButton";
 import { MotionScope } from "@/components/ui/MotionScope";
 import { TalismanChip } from "@/components/ui/TalismanChip";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { GoldThreads } from "./GoldThreads";
 
 /**
@@ -38,6 +39,8 @@ export function SynastryReading() {
   const [partner, setPartner] = useState<RitualData | null>(null);
   /** 아래 목록에서 짚고 있는 만남. 그림의 실 한 가닥이 이것을 따라 밝아진다. */
   const [activeId, setActiveId] = useState<string | null>(null);
+  /** 이름 없는 만남 중 지금 펼쳐져 있는 것. 이름 붙은 조합(✦)은 늘 펼쳐져 있다. */
+  const [openLineId, setOpenLineId] = useState<string | null>(null);
   /**
    * 이 관계의 무엇을 볼 것인가.
    *
@@ -124,6 +127,30 @@ export function SynastryReading() {
         )}
         {partner && theirChart && reading && (
           <>
+            {/* 두 사람의 한 줄 — 숫자보다 먼저, 이 관계가 어떤 짝인지부터(B안). */}
+            {reading.oneLiner && (
+              <div className="mb-12">
+                <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">
+                  두 사람의 한 줄
+                </p>
+                <p className="mt-3 max-w-[44ch] break-keep font-display text-2xl leading-normal text-starlight">
+                  {reading.oneLiner}
+                </p>
+                {reading.advice && (
+                  <div className="mt-6 max-w-[52ch] border-l-2 border-gold/45 bg-gold/[0.06] py-4 pl-5 pr-4">
+                    <p className="break-keep text-guide">
+                      <b className="font-normal text-gold-soft">해 볼 것</b>{" "}
+                      <span className="text-starlight-dim">{reading.advice.try}</span>
+                    </p>
+                    <p className="mt-2 break-keep text-guide">
+                      <b className="font-normal text-gold-soft">버릴 것</b>{" "}
+                      <span className="text-starlight-dim">{reading.advice.hold}</span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <Resonance reading={reading} />
 
             <div className="mt-12">
@@ -156,18 +183,32 @@ export function SynastryReading() {
                   </h2>
                   <p className="max-w-[52ch] break-keep text-guide text-starlight-dim">
                     {chosen ? `${chosen}에 걸리는 것을 앞에 두고, ` : ""}이름이 붙어 있는
-                    조합과 무게가 실린 것부터 {reading.lines.length}개입니다. 한 줄에 커서를
-                    올리면 위 그림에서 그 실이 밝아집니다.
+                    조합과 무게가 실린 것부터 {reading.lines.length}개입니다. 이름 붙은
+                    조합(✦)은 펼쳐 두었고 나머지는 눌러서 엽니다. 한 줄에 커서를 올리면
+                    위 그림에서 그 실이 밝아집니다.
                   </p>
-                  <ul className="mt-8 space-y-8">
-                    {reading.lines.map((line) => (
-                      <LineRow
-                        key={line.id}
-                        line={line}
-                        onEnter={() => setActiveId(line.id)}
-                        onLeave={() => setActiveId(null)}
-                      />
-                    ))}
+                  <ul className="mt-8">
+                    {reading.lines.map((line) =>
+                      line.highlight ? (
+                        <LineRow
+                          key={line.id}
+                          line={line}
+                          onEnter={() => setActiveId(line.id)}
+                          onLeave={() => setActiveId(null)}
+                        />
+                      ) : (
+                        <CollapsedLineRow
+                          key={line.id}
+                          line={line}
+                          open={openLineId === line.id}
+                          onToggle={() =>
+                            setOpenLineId(openLineId === line.id ? null : line.id)
+                          }
+                          onEnter={() => setActiveId(line.id)}
+                          onLeave={() => setActiveId(null)}
+                        />
+                      ),
+                    )}
                   </ul>
                 </section>
               </>
@@ -424,26 +465,11 @@ function LineRow({
 }) {
   return (
     <li
-      className={`border-t pt-6 ${line.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}
+      className={`border-t py-6 ${line.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        {line.highlighted && (
-          <span className="text-meta tracking-[0.16em] text-gold" aria-hidden>
-            ✦
-          </span>
-        )}
-        <span className="font-display text-lg text-starlight">
-          내 <span className="astro-symbol">{line.mine.symbol}</span> {line.mine.ko}
-          <span className="mx-2 astro-symbol text-gold-soft">{line.aspectSymbol}</span>그쪽{" "}
-          <span className="astro-symbol">{line.theirs.symbol}</span> {line.theirs.ko}
-        </span>
-        <span className="text-meta text-starlight-dim">
-          {line.aspectKo} · 오차 {line.orb.toFixed(1)}도
-        </span>
-        {line.highlighted && <span className="sr-only">고른 관심사에 걸리는 항목입니다.</span>}
-      </p>
+      <LineHead line={line} />
       <p className="mt-3 max-w-[52ch] break-keep text-guide text-gold-soft">
         {line.meeting} — {line.headline}
       </p>
@@ -453,6 +479,90 @@ function LineRow({
           {line.highlight}
         </p>
       )}
+    </li>
+  );
+}
+
+function LineHead({ line }: { line: SynastryLine }) {
+  // span인 이유: 접힌 줄에서는 button 안에 서는데, p는 button의 콘텐츠 모델에
+  // 어긋나 하이드레이션 경고가 난다(natal PlacementHead와 같은 사정).
+  return (
+    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      {line.highlighted && (
+        <span className="text-meta tracking-[0.16em] text-gold" aria-hidden>
+          ✦
+        </span>
+      )}
+      <span className="font-display text-lg text-starlight">
+        내 <span className="astro-symbol">{line.mine.symbol}</span> {line.mine.ko}
+        <span className="mx-2 astro-symbol text-gold-soft">{line.aspectSymbol}</span>그쪽{" "}
+        <span className="astro-symbol">{line.theirs.symbol}</span> {line.theirs.ko}
+      </span>
+      <span className="text-meta text-starlight-dim">
+        {line.aspectKo} · 오차 {line.orb.toFixed(1)}도
+      </span>
+      <ToneBadge harmony={line.harmony} />
+      {line.highlighted && <span className="sr-only">고른 관심사에 걸리는 항목입니다.</span>}
+    </span>
+  );
+}
+
+/**
+ * 이름 없는 만남 — 접혀 있다. 제목 줄의 별 표기 아래에 두 자리가 만나는 생활
+ * 문장(meeting)을 주석처럼 남겨, 접힌 채로 훑어도 지도가 되게 한다.
+ */
+function CollapsedLineRow({
+  line,
+  open,
+  onToggle,
+  onEnter,
+  onLeave,
+}: {
+  line: SynastryLine;
+  open: boolean;
+  onToggle: () => void;
+  onEnter: () => void;
+  onLeave: () => void;
+}) {
+  return (
+    <li
+      className={`border-t ${line.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex w-full items-baseline gap-x-3 py-4 text-left"
+      >
+        <span
+          aria-hidden
+          className={`flex-none text-meta text-gold transition-transform duration-300 ${
+            open ? "rotate-90" : ""
+          }`}
+        >
+          ›
+        </span>
+        <span className="min-w-0 flex-1">
+          <LineHead line={line} />
+          <span className="mt-1 block max-w-[52ch] break-keep text-meta text-starlight-dim">
+            — {line.meeting}
+          </span>
+        </span>
+      </button>
+      <div
+        className={`grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="max-w-[52ch] pb-6 pl-6">
+            <p className="break-keep text-guide text-gold-soft">{line.headline}</p>
+            <p className="mt-2 break-keep leading-relaxed text-starlight-dim">{line.body}</p>
+          </div>
+        </div>
+      </div>
     </li>
   );
 }

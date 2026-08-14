@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { formatPlacement } from "@/lib/chart";
@@ -6,6 +7,7 @@ import type { PlanetKey } from "@/lib/planets";
 import { describeElements, type ReadingPlacement } from "@/lib/reading";
 import { requestRitual } from "@/lib/ritual";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { ChartLoading, NoProfile, UnknownPlace } from "./NoProfile";
 import { Term } from "./Term";
 import { useChart } from "./useChart";
@@ -28,6 +30,9 @@ import { WheelFigure } from "./WheelFigure";
 export function NatalReading() {
   const { profile, ready } = useBirthProfile();
   const state = useChart(profile);
+  /** 사전 섹션에서 지금 펼쳐져 있는 별. 원반에서 골라도 열린다.
+      이른 return들보다 앞에 서야 한다 — 훅 순서 규칙. */
+  const [openPlanet, setOpenPlanet] = useState<PlanetKey | null>(null);
 
   if (!ready) return <ChartLoading />;
   if (!profile) return <NoProfile what="천궁도" />;
@@ -36,6 +41,17 @@ export function NatalReading() {
 
   const { chart, reading } = state;
   const { core } = reading;
+  // 관심사에 걸린 별은 자기 섹션으로, 나머지는 사전 섹션으로 갈라 세운다.
+  const highlighted = reading.lens ? reading.placements.filter((p) => p.highlighted) : [];
+  const rest = highlighted.length > 0
+    ? reading.placements.filter((p) => !p.highlighted)
+    : reading.placements;
+
+  // 원반에서 별을 누르면: 사전 섹션의 접힌 별이면 펼치고, 그 자리로 데려간다.
+  const selectPlanet = (planet: PlanetKey) => {
+    if (rest.some((item) => item.planet.key === planet)) setOpenPlanet(planet);
+    requestAnimationFrame(() => scrollToPlacement(planet));
+  };
 
   return (
     <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
@@ -47,25 +63,40 @@ export function NatalReading() {
       />
 
       <div className="min-w-0">
-        {/* 이 화면을 읽는 법. 아래 세 줄이 무엇인지 먼저 말해 준다 — 태양·달·상승궁을
-            모르는 채로 "천칭자리 10도"를 읽으면 그냥 낯선 문자열이다(§11.3). */}
-        <section className="border-l-2 border-gold/40 pl-5 text-guide text-starlight">
-          <p className="font-display text-lg text-starlight">이 화면을 읽는 법</p>
+        {/* 당신을 한 줄로 — 전체를 관통하는 요약이 맨 앞에 선다(B안, 2026-08-14 승인). */}
+        <div>
+          <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">당신을 한 줄로</p>
+          <p className="mt-3 max-w-[44ch] break-keep font-display text-2xl leading-normal text-starlight">
+            {reading.oneLiner}
+          </p>
+        </div>
+
+        {/* 이 화면을 읽는 법. 볼 것이 많은 화면이라, 무엇이 중요하고 어떤 순서로
+            읽으면 되는지 먼저 말해 준다 — 태양·달·상승궁을 모르는 채로
+            "천칭자리 10도"를 읽으면 그냥 낯선 문자열이다(§11.3). */}
+        <section className="mt-12 border-l-2 border-gold/40 pl-5 text-guide text-starlight">
+          <p className="font-display text-lg text-starlight">이 화면을 읽는 순서</p>
           <ul className="mt-3 space-y-2">
             <li>
-              <b className="font-normal text-gold-soft">태양</b>은 무엇을 향해 가는
-              사람인지를, <b className="font-normal text-gold-soft">달</b>은 혼자 있을 때
-              어떤 사람인지를 말합니다.
+              <b className="font-normal text-gold-soft">① 세 기둥부터.</b> 태양은 무엇을
+              향해 가는 사람인지, 달은 혼자 있을 때 어떤 사람인지,{" "}
+              <Term name="상승궁" />은 남들이 처음 보는 나입니다. 이 셋이 하늘의
+              뼈대이고 나머지는 살입니다.
             </li>
+            {reading.lens && (
+              <li>
+                <b className="font-normal text-gold-soft">
+                  ② 당신이 궁금해한 {reading.lens.label}.
+                </b>{" "}
+                그 영역에 해당하는 별만 골라 아래에 따로 모아 두었습니다.
+              </li>
+            )}
             <li>
               <b className="font-normal text-gold-soft">
-                <Term name="상승궁" />
-              </b>
-              은 남들이 처음 보는 나입니다. 이 셋만 알면 나머지는 따라옵니다.
-            </li>
-            <li>
-              아래 원반의 <b className="font-normal text-starlight">별 기호에 커서를 올리거나
-              누르면</b> 그 별이 무엇을 맡는지 옆에 뜹니다.
+                {reading.lens ? "③" : "②"} 나머지는 사전처럼.
+              </b>{" "}
+              별 열 개를 한 번에 다 읽을 필요는 없습니다. 원반의 별 기호를 누르면 그
+              별의 설명으로 데려갑니다.
             </li>
           </ul>
         </section>
@@ -105,7 +136,7 @@ export function NatalReading() {
         <WheelFigure
           chart={chart}
           ascendantSignKo={core.ascendant?.sign.ko}
-          onSelectPlanet={scrollToPlacement}
+          onSelectPlanet={selectPlanet}
         />
 
         <Section title="하늘 전체의 무게">
@@ -121,19 +152,48 @@ export function NatalReading() {
           </ul>
         </Section>
 
-        {reading.lens && (
-          <Section title={`${reading.lens.label}으로 본다면`}>
-            <p className="break-keep leading-relaxed text-starlight-dim">
-              {reading.lens.summary} 아래 목록에서 이 관심사에 걸리는 자리를 앞에
-              두었습니다.
+        {/* 관심사에 걸린 별은 자기 섹션을 갖는다. 목록 정렬만으로는 "이게 내가
+            물어본 것에 대한 답"이라는 것이 전해지지 않았다(B안). */}
+        {reading.lens && highlighted.length > 0 && (
+          <Section title={`당신이 궁금해한 ${reading.lens.label}`}>
+            <p className="max-w-[52ch] break-keep leading-relaxed text-starlight-dim">
+              {reading.lens.summary}
+            </p>
+            <ul className="mt-8 space-y-8">
+              {highlighted.map((item) => (
+                <PlacementRow key={item.planet.key} item={item} />
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        {reading.lifework && (
+          <Section title="평생의 과제 하나">
+            <p className="max-w-[52ch] break-keep leading-relaxed text-starlight">
+              {reading.lifework.text}
+            </p>
+            <p className="mt-2 max-w-[52ch] break-keep text-guide text-starlight-dim">
+              {reading.lifework.basis}
             </p>
           </Section>
         )}
 
-        <Section title="열 개의 별">
-          <ul className="space-y-8">
-            {reading.placements.map((item) => (
-              <PlacementRow key={item.planet.key} item={item} />
+        <Section title={highlighted.length > 0 ? "나머지 별들" : "열 개의 별"}>
+          {/* 전부 펼쳐 두면 텍스트 벽이 된다(가시성 점검, 2026-08-14). 사전이라
+              말한 대로 사전처럼 — 제목만 보이고, 누르거나 원반에서 고른 것만 열린다. */}
+          <p className="max-w-[52ch] break-keep text-meta text-starlight-dim">
+            눌러서 펼치기 — 별 이름 옆에 그 별이 놓인 삶의 자리를 적어 두었습니다.
+          </p>
+          <ul className="mt-4">
+            {rest.map((item) => (
+              <PlacementAccordionRow
+                key={item.planet.key}
+                item={item}
+                open={openPlanet === item.planet.key}
+                onToggle={() =>
+                  setOpenPlanet(openPlanet === item.planet.key ? null : item.planet.key)
+                }
+              />
             ))}
           </ul>
         </Section>
@@ -157,6 +217,7 @@ export function NatalReading() {
                     <span className="text-meta text-starlight-dim">
                       {item.aspect.type.ko} · <Term name="오브" /> {item.aspect.orb.toFixed(1)}도
                     </span>
+                    <ToneBadge harmony={item.aspect.type.harmony} />
                   </p>
                   <p className="mt-3 text-guide text-gold-soft">
                     {item.theme} — {item.headline}
@@ -310,43 +371,110 @@ function PlacementRow({ item }: { item: ReadingPlacement }) {
   return (
     <li
       id={placementDomId(item.planet.key)}
-      className={`scroll-mt-28 grid grid-cols-[30px_minmax(0,1fr)] gap-x-3 border-t pt-6 ${
+      className={`scroll-mt-28 border-t pt-6 ${
         item.highlighted ? "border-gold/40" : "border-gold/12"
       }`}
     >
-      <span className="astro-symbol text-lg leading-snug text-gold-soft" aria-hidden>
-        {item.planet.symbol}
-        {"︎"}
-      </span>
-      <div className="min-w-0">
-        <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="font-display text-lg text-starlight">
-            {item.planet.ko} · {formatPlacement(item.placement)}
-          </span>
-          {item.house && (
-            <span className="text-meta text-starlight-dim">
-              {item.house.number}하우스 · {item.house.domain}
-            </span>
-          )}
-          {item.placement.retrograde && (
-            <span className="text-meta text-gold-soft">
-              <Term name="역행" />
-            </span>
-          )}
-        </p>
-        <p className="mt-3 max-w-[52ch] break-keep leading-relaxed text-starlight">{item.inSign}</p>
-        {item.inHouse && (
-          <p className="mt-2 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">
-            {item.inHouse}
-          </p>
-        )}
-        {!item.planet.personal && (
-          <p className="mt-2 max-w-[52ch] break-keep text-meta text-starlight-dim">
-            {item.planet.ko}은(는) 한 별자리에 {item.planet.dwell} 머뭅니다. 같은 무렵에
-            태어난 사람이 모두 같은 자리를 가지므로, 이 별은 개인보다 세대를 말합니다.
-          </p>
-        )}
+      <PlacementHead item={item} />
+      <PlacementBody item={item} />
+    </li>
+  );
+}
+
+/**
+ * 사전 섹션의 접힌 별 한 줄. 제목 줄에 별 이름과 삶의 자리(하우스)를 함께 적어,
+ * 훑기만 해도 목차가 되게 한다. 여닫기는 YearEventRows와 같은 grid-rows 전환.
+ */
+function PlacementAccordionRow({
+  item,
+  open,
+  onToggle,
+}: {
+  item: ReadingPlacement;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <li
+      id={placementDomId(item.planet.key)}
+      className="scroll-mt-28 border-t border-gold/12"
+    >
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex w-full items-baseline gap-x-3 py-4 text-left"
+      >
+        <span
+          aria-hidden
+          className={`flex-none text-meta text-gold transition-transform duration-300 ${
+            open ? "rotate-90" : ""
+          }`}
+        >
+          ›
+        </span>
+        <span className="min-w-0 flex-1">
+          <PlacementHead item={item} plain />
+        </span>
+      </button>
+      <div
+        className={`grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="pb-6 pl-6">
+            <PlacementBody item={item} />
+          </div>
+        </div>
       </div>
     </li>
+  );
+}
+
+/**
+ * plain: 아코디언 헤더는 그 자체가 button이라, 안에 또 button을 만드는
+ * Term 툴팁을 쓸 수 없다(HTML 중첩 금지 + 하이드레이션 오류). 헤더에서는
+ * 맨글자로 적고, 용어 설명은 펼친 본문 쪽 Term들이 맡는다.
+ */
+function PlacementHead({ item, plain = false }: { item: ReadingPlacement; plain?: boolean }) {
+  // span인 이유: 아코디언에서는 button 안에 서는데, p는 button의 콘텐츠 모델
+  // (phrasing)에 어긋나 하이드레이션 경고가 난다.
+  return (
+    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <span className="font-display text-lg text-starlight">
+        <span className="astro-symbol">{item.planet.symbol}{"︎"}</span> {item.planet.ko} ·{" "}
+        {formatPlacement(item.placement)}
+      </span>
+      {item.house && (
+        <span className="text-meta text-starlight-dim">
+          {item.house.number}하우스 · {item.house.domain}
+        </span>
+      )}
+      {item.placement.retrograde && (
+        <span className="text-meta text-gold-soft">
+          {plain ? "역행" : <Term name="역행" />}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function PlacementBody({ item }: { item: ReadingPlacement }) {
+  return (
+    <>
+      <p className="mt-3 max-w-[52ch] break-keep leading-relaxed text-starlight">{item.inSign}</p>
+      {item.inHouse && (
+        <p className="mt-2 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">
+          {item.inHouse}
+        </p>
+      )}
+      {!item.planet.personal && (
+        <p className="mt-2 max-w-[52ch] break-keep text-meta text-starlight-dim">
+          {item.planet.ko}은(는) 한 별자리에 {item.planet.dwell} 머뭅니다. 같은 무렵에
+          태어난 사람이 모두 같은 자리를 가지므로, 이 별은 개인보다 세대를 말합니다.
+        </p>
+      )}
+    </>
   );
 }

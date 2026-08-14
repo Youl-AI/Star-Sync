@@ -1,4 +1,5 @@
 "use client";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import type { YearReadingEvent } from "@/lib/yearly-reading";
 
 /**
@@ -51,7 +52,16 @@ export function YearEventRows({
                   <span className="astro-symbol">{event.moving.symbol}</span> {event.moving.ko}
                   <span className="mx-1.5 astro-symbol text-gold-soft">{event.aspectSymbol}</span>내{" "}
                   <span className="astro-symbol">{event.fixed.symbol}</span> {event.fixed.ko}
-                </span>
+                  {/* 관심사에 걸린 날 — 머리글의 "금색 점"이 이것이다. */}
+                  {event.inLens && (
+                    <span aria-label="관심사에 걸리는 날" className="ml-2 align-middle text-gold">
+                      ●
+                    </span>
+                  )}
+                </span>{" "}
+                {/* 별 표기만으로는 삶의 어디인지 안 보인다 — 생활 이름을 주석으로 병기 */}
+                <span className="break-keep text-meta text-starlight-dim">— {event.area}</span>{" "}
+                <ToneBadge harmony={event.harmony} />
               </span>
               <span className="flex-none text-meta text-gold-soft">
                 {event.exact[0].month}월 {event.exact[0].day}일
@@ -66,13 +76,11 @@ export function YearEventRows({
             >
               <div className="overflow-hidden">
                 <div className="max-w-[52ch] pb-6 pl-6">
-                  <p className="text-meta text-starlight-dim">
+                  <p className="break-keep leading-relaxed text-starlight">{event.life}</p>
+                  <p className="mt-2 break-keep text-guide text-starlight-dim">{event.basis}</p>
+                  <p className="mt-3 text-meta text-starlight-dim">
                     {event.dateLine} · {event.aspectKo} · {event.countLine} 힘이 도는 기간은{" "}
                     {event.span}입니다.
-                  </p>
-                  <p className="mt-3 break-keep text-guide text-gold-soft">{event.headline}</p>
-                  <p className="mt-2 break-keep leading-relaxed text-starlight-dim">
-                    {event.body}
                   </p>
                 </div>
               </div>

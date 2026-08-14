@@ -146,7 +146,8 @@ describe("오늘의 카드 조립", () => {
     const sky = todaySky(new Date("2026-08-12T03:00:00Z"));
     const back = todayBack(sky, NATAL);
     expect(back.chips.length).toBeLessThanOrEqual(3);
-    if (back.transits.length === 0) expect(back.quiet).not.toBeNull();
+    const count = back.lensTransits.length + back.otherTransits.length;
+    if (count === 0) expect(back.quiet).not.toBeNull();
     else expect(back.quiet).toBeNull();
   });
 });

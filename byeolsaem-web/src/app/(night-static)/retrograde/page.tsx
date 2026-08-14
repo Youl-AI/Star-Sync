@@ -51,6 +51,8 @@ export default function RetrogradePage() {
     (acc[year] ??= []).push(period);
     return acc;
   }, {});
+  // 일정표에서 "다음"을 달아 줄 구간 — 아직 시작하지 않은 것 중 가장 이른 것.
+  const upcoming = PERIODS.find((period) => Date.parse(period.start) > now.getTime());
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
@@ -109,16 +111,30 @@ export default function RetrogradePage() {
               <ul className="mt-3 divide-y divide-gold/10">
                 {periods.map((period) => {
                   // 이미 지나간 구간은 지우지 않고 흐리게 둔다. "방금 끝난 역행"을
-                  // 확인하러 오는 사람이 적지 않다.
+                  // 확인하러 오는 사람이 적지 않다. 진행 중이거나 다음에 올 구간은
+                  // 날짜 왼쪽에 작은 글자로 조용히 표시한다 — 목록에서 시선이
+                  // 앉을 자리를 하나 정해 주는 것(가시성 점검, 2026-08-14).
                   const past = Date.parse(period.end) < now.getTime();
+                  const ongoing =
+                    Date.parse(period.start) <= now.getTime() &&
+                    now.getTime() <= Date.parse(period.end);
+                  const isNext = period === upcoming;
                   return (
                     <li
                       key={period.start}
-                      className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3 ${
+                      className={`relative flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3 ${
                         past ? "opacity-45" : ""
                       }`}
                     >
                       <span className="text-starlight">
+                        {/* 넓은 화면에서는 본문 기둥 바깥 왼쪽에 매달아 날짜 정렬을
+                            지킨다(li가 relative). 모바일은 바깥 여백이 24px뿐이라
+                            잘리므로 날짜 앞 인라인으로 남는다. */}
+                        {(ongoing || isNext) && (
+                          <span className="mr-2.5 font-latin text-eyebrow tracking-[0.22em] text-gold-soft md:absolute md:right-full md:top-1/2 md:mr-0 md:-translate-y-1/2 md:whitespace-nowrap md:pr-5">
+                            {ongoing ? "지금" : "다음"}
+                          </span>
+                        )}
                         {formatKstMonthDay(period.start)} — {formatKstMonthDay(period.end)}
                       </span>
                       <span className="text-meta text-starlight-dim">
@@ -201,7 +217,7 @@ export default function RetrogradePage() {
         </p>
 
         <h2 className="mt-12 break-keep font-display text-xl text-starlight">자주 묻는 것</h2>
-        <dl className="mt-5 space-y-6">
+        <div className="mt-5 space-y-4">
           <Faq question="역행 기간에 계약이나 이사를 하면 안 되나요?">
             안 되는 것은 없습니다. 다만 이 시기에는 조건을 잘못 이해한 채로 서명하는
             일이 눈에 띄게 늘어난다고 봅니다. 날짜를 미룰 수 있으면 미루고, 미룰 수
@@ -222,7 +238,7 @@ export default function RetrogradePage() {
             깁니다. 수성이 유독 자주 화제가 되는 것은 주기가 짧아 자주 돌아오고,
             맡은 영역이 일상과 가깝기 때문입니다.
           </Faq>
-        </dl>
+        </div>
       </article>
 
       <div className="mt-20 border-t border-gold/15 pt-12 text-center">
@@ -262,11 +278,24 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
+/**
+ * 문답 하나 — 네이티브 details라 자바스크립트 없이 접히고, 검색엔진은 답까지
+ * 그대로 읽는다. 네 문답을 전부 펼쳐 두면 본문 아래가 텍스트 벽이 된다는
+ * 가시성 점검(2026-08-14)에서 접는 쪽으로 바꿨다.
+ */
 function Faq({ question, children }: { question: string; children: React.ReactNode }) {
   return (
-    <div>
-      <dt className="break-keep font-display text-lg text-starlight">{question}</dt>
-      <dd className="mt-2 text-starlight-dim">{children}</dd>
-    </div>
+    <details className="group border-t border-gold/12 pt-4 first:border-t-0 first:pt-0">
+      <summary className="flex cursor-pointer list-none items-baseline gap-3 [&::-webkit-details-marker]:hidden">
+        <span
+          aria-hidden
+          className="flex-none text-meta text-gold transition-transform duration-300 group-open:rotate-90"
+        >
+          ›
+        </span>
+        <span className="break-keep font-display text-lg text-starlight">{question}</span>
+      </summary>
+      <div className="mt-2 pl-6 text-starlight-dim">{children}</div>
+    </details>
   );
 }

@@ -120,7 +120,19 @@ function YearRail({
   );
 }
 
+/**
+ * 모두에게 같은 부분.
+ *
+ * 처음 온 사람에게는 이 부분이 본문이지만, 정보를 남긴 사람은 자기 날짜를 보러
+ * 온 것이라 이 세 섹션을 매번 지나는 것이 벽이 된다(가시성 점검, 2026-08-14).
+ * 그래서 프로필이 있으면 두 줄 요약으로 접고, 원하면 펼친다. 서버 HTML은 언제나
+ * 전체를 담는다 — 검색엔진과 첫 방문자가 보는 것이 그 HTML이다.
+ */
 function BackdropSection({ backdrop, hidden }: { backdrop: YearBackdrop; hidden: boolean }) {
+  const { profile, ready } = useBirthProfile();
+  const [open, setOpen] = useState(false);
+  const collapsed = ready && profile !== null && !open;
+
   return (
     <section hidden={hidden} aria-labelledby={`year-${backdrop.year}`}>
       <h2
@@ -136,8 +148,27 @@ function BackdropSection({ backdrop, hidden }: { backdrop: YearBackdrop; hidden:
         무관하게 모두에게 같습니다.
       </p>
 
-      <SlowPlanet symbol="♃" name="목성" governs="어디가 넓어지는가" spans={backdrop.jupiter} />
-      <SlowPlanet symbol="♄" name="토성" governs="어디에 무게가 실리는가" spans={backdrop.saturn} />
+      {collapsed ? (
+        <div className="mt-8">
+          <p className="max-w-[52ch] break-keep leading-relaxed text-starlight">
+            <BackdropSummaryLine symbol="♃" name="목성" spans={backdrop.jupiter} />
+          </p>
+          <p className="mt-2 max-w-[52ch] break-keep leading-relaxed text-starlight">
+            <BackdropSummaryLine symbol="♄" name="토성" spans={backdrop.saturn} />
+          </p>
+          <button
+            type="button"
+            aria-expanded={false}
+            onClick={() => setOpen(true)}
+            className="mt-5 border-b border-gold/40 pb-0.5 text-meta text-gold-soft transition-colors hover:text-starlight"
+          >
+            자세히 펼치기 — 별자리별 풀이 · 수성 역행 {backdrop.retrogrades.length}회
+          </button>
+        </div>
+      ) : (
+        <>
+          <SlowPlanet symbol="♃" name="목성" governs="어디가 넓어지는가" spans={backdrop.jupiter} />
+          <SlowPlanet symbol="♄" name="토성" governs="어디에 무게가 실리는가" spans={backdrop.saturn} />
 
       <div className="mt-12 border-t border-gold/15 pt-8">
         <p className="flex flex-wrap items-baseline gap-x-3">
@@ -165,7 +196,42 @@ function BackdropSection({ backdrop, hidden }: { backdrop: YearBackdrop; hidden:
           </GoldButton>
         </div>
       </div>
+
+          {profile && (
+            <button
+              type="button"
+              aria-expanded={true}
+              onClick={() => setOpen(false)}
+              className="mt-8 border-b border-gold/40 pb-0.5 text-meta text-gold-soft transition-colors hover:text-starlight"
+            >
+              요약으로 접기
+            </button>
+          )}
+        </>
+      )}
     </section>
+  );
+}
+
+/** 접힌 상태의 두 줄 요약 — 가장 최근에 자리를 옮긴 구간이 그 해의 얼굴이다. */
+function BackdropSummaryLine({
+  symbol,
+  name,
+  spans,
+}: {
+  symbol: string;
+  name: string;
+  spans: BackdropSpan[];
+}) {
+  const last = spans[spans.length - 1];
+  if (!last) return null;
+  const when = last.from ? `${formatYearDate(last.from)}부터` : "해가 시작될 때부터";
+  const firstSentence = last.text.slice(0, last.text.indexOf("다.") + 2) || last.text;
+  return (
+    <>
+      <span className="astro-symbol text-gold-soft">{symbol}</span> {name}은{" "}
+      <span className="text-gold-soft">{when}</span> {last.signKo} — {firstSentence}
+    </>
   );
 }
 
@@ -239,7 +305,7 @@ function PersonalYear({ year }: { year: number }) {
       longitude: coordinates.longitude,
       timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
     });
-    return yearReading(natal, year);
+    return yearReading(natal, year, profile.concern);
   }, [profile, year]);
 
   if (!ready) {
@@ -290,6 +356,38 @@ function PersonalYear({ year }: { year: number }) {
         {year}년, 당신의 날짜
         <span aria-hidden className="h-px flex-1 bg-gold/25" />
       </h2>
+
+      {/* 올해의 한 줄 + 관심사 날짜 + 해 볼 것/미룰 것 — B안(2026-08-14 승인).
+          목록은 시간순 강물을 유지하므로, 방향은 여기 머리글이 잡아 준다. */}
+      {!reading.quiet && reading.headline && (
+        <div className="mb-10">
+          <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">올해의 한 줄</p>
+          <p className="mt-3 max-w-[44ch] break-keep font-display text-2xl leading-normal text-starlight">
+            {reading.headline}
+          </p>
+          {reading.lensLabel && reading.lensDateLine && (
+            <p className="mt-4 max-w-[52ch] break-keep text-guide text-starlight-dim">
+              <span className="mr-2 inline-block rounded-full border border-gold/40 px-3 py-0.5 text-eyebrow tracking-[0.18em] text-gold">
+                당신이 궁금해한 · {reading.lensLabel}
+              </span>
+              그 영역을 건드리는 날 — <span className="text-gold-soft">{reading.lensDateLine}</span>.
+              아래에서 금색 고리와 점으로 표시해 두었습니다.
+            </p>
+          )}
+          {reading.advice && (
+            <div className="mt-6 max-w-[52ch] border-l-2 border-gold/45 bg-gold/[0.06] py-4 pl-5 pr-4">
+              <p className="break-keep text-guide">
+                <b className="font-normal text-gold-soft">해 볼 것</b>{" "}
+                <span className="text-starlight-dim">{reading.advice.try}</span>
+              </p>
+              <p className="mt-2 break-keep text-guide">
+                <b className="font-normal text-gold-soft">미룰 것</b>{" "}
+                <span className="text-starlight-dim">{reading.advice.hold}</span>
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {reading.quiet ? (
         <p className="max-w-[52ch] break-keep leading-relaxed text-starlight">{reading.quiet}</p>

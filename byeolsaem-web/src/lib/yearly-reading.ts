@@ -1,4 +1,13 @@
 import { ASPECT_MEANINGS, pairTheme } from "@/content/atoms/aspects";
+import { lensFor, type ConcernLens } from "@/content/atoms/concerns";
+import {
+  fillLife,
+  HOUSE_AREAS,
+  PLANET_AREAS,
+  toneOf,
+  TRANSIT_ADVICE,
+  TRANSIT_LIFE,
+} from "@/content/atoms/life";
 import {
   EMPTY_HALF,
   EXACT_COUNT_LINES,
@@ -109,6 +118,14 @@ export interface YearReadingEvent {
   dateLine: string;
   countLine: string;
   span: string;
+  /** 건드려지는 자리의 생활 이름 — "돈이 드나드는 자리". */
+  area: string;
+  /** 생활 언어 본문. 결론부터 말한다. */
+  life: string;
+  /** 별 이야기 근거 줄. */
+  basis: string;
+  /** 고른 관심사에 걸리는가. */
+  inLens: boolean;
   headline: string;
   body: string;
 }
@@ -123,6 +140,13 @@ export interface YearHalf {
 export interface YearReading {
   events: YearReadingEvent[];
   halves: [YearHalf, YearHalf];
+  /** 올해의 한 줄 — 머리가 되는 사건의 첫 문장. 사건이 없으면 null. */
+  headline: string | null;
+  /** 해 볼 것 / 미룰 것 — 머리 사건의 별에서 꺼낸다. */
+  advice: { try: string; hold: string } | null;
+  lensLabel: string | null;
+  /** 관심사에 걸린 사건들의 날짜 — "3월 14일 · 7월 2일". 없으면 null. */
+  lensDateLine: string | null;
   /** 올해 아무것도 걸리지 않은 경우의 안내. 있으면 목록 대신 이것을 쓴다. */
   quiet: string | null;
   chips: { symbol: string; label: string }[];
@@ -135,12 +159,28 @@ export function eventDomId(event: YearEvent): string {
 /** 느릴수록 큰 값. 부적 칩은 오래 가는 것부터 고른다. */
 const SLOWNESS: PlanetKey[] = ["jupiter", "saturn", "uranus", "neptune", "pluto"];
 
-function describe(event: YearEvent): YearReadingEvent {
+/** 건드려지는 자리의 생활 이름. 하우스를 알면 하우스가, 모르면 별의 자리가 말한다. */
+function areaOf(natal: Chart, planet: PlanetKey): string {
+  const placement = natal.placements.find((p) => p.planet === planet);
+  if (placement?.house != null) return HOUSE_AREAS[placement.house];
+  return PLANET_AREAS[planet];
+}
+
+/** 하우스를 알면 하우스로만 판정한다 — today-reading의 matchesLens와 같은 이유. */
+function matchesLens(natal: Chart, planet: PlanetKey, lens: ConcernLens): boolean {
+  const placement = natal.placements.find((p) => p.planet === planet);
+  if (placement?.house != null) return lens.houses.includes(placement.house);
+  return lens.planets.includes(planet);
+}
+
+function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): YearReadingEvent {
   const moving = PLANET_BY_KEY[event.transiting];
   const fixed = PLANET_BY_KEY[event.natal];
   const meaning = ASPECT_MEANINGS[event.type.key];
   const frame = YEAR_FRAMES[event.transiting];
   const theme = pairTheme(event.transiting, event.natal);
+  const span = frame?.span ?? "그 무렵";
+  const area = areaOf(natal, event.natal);
 
   return {
     id: eventDomId(event),
@@ -152,15 +192,30 @@ function describe(event: YearEvent): YearReadingEvent {
     exact: event.exact,
     dateLine: event.exact.map(formatYearDate).join(" · "),
     countLine: EXACT_COUNT_LINES[event.exact.length] ?? EXACT_COUNT_LINES[3],
-    span: frame?.span ?? "그 무렵",
+    span,
+    area,
+    // "그 무렵 서너 달"은 날짜 뒤에 붙는 표현이라, 문장 속에서는 "서너 달"만 쓴다.
+    life: fillLife(
+      TRANSIT_LIFE[toneOf(event.type.harmony)][event.transiting],
+      area,
+      span.replace(/^그 무렵 /, ""),
+    ),
+    basis: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
+    inLens: lens ? matchesLens(natal, event.natal, lens) : false,
     headline: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
     body: `${meaning.body} ${frame?.brings ?? ""}`.trim(),
   };
 }
 
-export function yearReading(natal: Chart, year: number): YearReading {
+function firstSentence(text: string): string {
+  const end = text.indexOf("다.");
+  return end === -1 ? text : text.slice(0, end + 2);
+}
+
+export function yearReading(natal: Chart, year: number, concern?: string | null): YearReading {
+  const lens = concern ? (lensFor(concern) ?? null) : null;
   const found = findYearEvents(natal, year);
-  const events = found.map(describe);
+  const events = found.map((event) => describe(event, natal, lens));
 
   const first = events.filter((e) => e.exact[0].at < 0.5);
   const second = events.filter((e) => e.exact[0].at >= 0.5);
@@ -179,12 +234,29 @@ export function yearReading(natal: Chart, year: number): YearReading {
       label: `${e.moving.ko} ${e.aspectKo} 내 ${e.fixed.ko}`,
     }));
 
+  // 올해의 머리: 관심사에 걸린 사건이 있으면 그중 가장 오래가는 것, 없으면
+  // 전체에서 가장 오래가는 것. 하루짜리가 아니라 몇 달짜리가 한 해를 정의한다.
+  const bySlowness = (list: YearReadingEvent[]) =>
+    [...list].sort(
+      (a, b) =>
+        SLOWNESS.indexOf(b.moving.key) - SLOWNESS.indexOf(a.moving.key) ||
+        a.exact[0].at - b.exact[0].at,
+    );
+  const lensEvents = events.filter((e) => e.inLens);
+  const top = bySlowness(lensEvents)[0] ?? bySlowness(events)[0] ?? null;
+
   return {
     events,
     halves: [
       { label: "상반기", events: first, empty: first.length ? null : EMPTY_HALF },
       { label: "하반기", events: second, empty: second.length ? null : EMPTY_HALF },
     ],
+    headline: top ? firstSentence(top.life) : null,
+    advice: top ? TRANSIT_ADVICE[top.moving.key] : null,
+    lensLabel: lens?.label ?? null,
+    lensDateLine: lensEvents.length
+      ? lensEvents.map((e) => formatYearDate(e.exact[0])).join(" · ")
+      : null,
     quiet: events.length === 0 ? QUIET_YEAR : null,
     chips,
   };

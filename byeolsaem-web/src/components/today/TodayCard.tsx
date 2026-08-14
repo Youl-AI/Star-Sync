@@ -13,6 +13,7 @@ import { GoldButton } from "@/components/ui/GoldButton";
 import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { TalismanChip } from "@/components/ui/TalismanChip";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import { MoonDisc } from "./MoonDisc";
 
 /**
@@ -49,7 +50,7 @@ export function TodayCard() {
       longitude: coordinates.longitude,
       timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
     });
-    return todayBack(sky, natal);
+    return todayBack(sky, natal, profile.concern);
   }, [sky, profile]);
 
   if (!sky || !front) {
@@ -179,7 +180,13 @@ export function TodayCard() {
   );
 }
 
+/**
+ * 뒷면의 조립 순서는 B안(2026-08-14 승인): 오늘의 한 줄 → 당신이 궁금해한 영역 →
+ * 해 볼 것/미룰 것 → 그 밖의 하늘. 본문은 생활 언어가 맡고 별 이야기는 근거
+ * 줄(basis)로 내려간다.
+ */
 function TransitList({ back }: { back: NonNullable<ReturnType<typeof todayBack>> }) {
+  const hasLens = back.lensTransits.length > 0;
   return (
     // scroll-mt로 베일(네비) 아래 여유를 남긴다 — 뒤집는 순간 여기로 데려온다.
     <section id="today-transits" className="mt-16 scroll-mt-24">
@@ -192,37 +199,66 @@ function TransitList({ back }: { back: NonNullable<ReturnType<typeof todayBack>>
         <p className="max-w-[52ch] break-keep text-guide text-starlight">{back.quiet}</p>
       ) : (
         <>
-          <div className="flex flex-wrap gap-2.5">
+          {back.headline && (
+            <div className="animate-prompt-in">
+              <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">
+                오늘의 한 줄
+              </p>
+              <p className="mt-3 max-w-[44ch] break-keep font-display text-2xl leading-normal text-starlight">
+                {back.headline}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-wrap gap-2.5">
             {back.chips.map((chip) => (
               <TalismanChip key={chip.label} symbol={chip.symbol} label={chip.label} />
             ))}
           </div>
 
-          <ul className="mt-10 space-y-8">
-            {back.transits.map((t, index) => (
-              <li
-                key={`${t.moving.key}-${t.fixed.key}-${t.aspectKo}`}
-                className={`animate-prompt-in border-t pt-6 ${t.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}
-                // 위에서부터 시차를 두고 선다 — 시선을 아래로 데려가는 손이다.
-                style={{ animationDelay: `${120 + index * 90}ms` }}
-              >
-                <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="font-display text-lg text-starlight">
-                    오늘의 <span className="astro-symbol">{t.moving.symbol}</span> {t.moving.ko}
-                    <span className="mx-2 astro-symbol text-gold-soft">{t.aspectSymbol}</span>내{" "}
-                    <span className="astro-symbol">{t.fixed.symbol}</span> {t.fixed.ko}
-                  </span>
-                  <span className="text-meta text-starlight-dim">
-                    {t.aspectKo} · 오차 {t.orb.toFixed(1)}도 · 약 {t.span}
-                  </span>
+          {hasLens && back.lensLabel && (
+            <div className="animate-prompt-in mt-12" style={{ animationDelay: "120ms" }}>
+              <p className="inline-block rounded-full border border-gold/40 px-3 py-1 text-eyebrow tracking-[0.18em] text-gold">
+                당신이 궁금해한 · {back.lensLabel}
+              </p>
+              <ul className="mt-2 space-y-8">
+                {back.lensTransits.map((t) => (
+                  <TransitItem key={`${t.moving.key}-${t.fixed.key}-${t.aspectKo}`} t={t} />
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {back.advice && (
+            <div
+              className="animate-prompt-in mt-10 max-w-[52ch] border-l-2 border-gold/45 bg-gold/[0.06] py-4 pl-5 pr-4"
+              style={{ animationDelay: "200ms" }}
+            >
+              <p className="break-keep text-guide">
+                <b className="font-normal text-gold-soft">해 볼 것</b>{" "}
+                <span className="text-starlight-dim">{back.advice.try}</span>
+              </p>
+              <p className="mt-2 break-keep text-guide">
+                <b className="font-normal text-gold-soft">미룰 것</b>{" "}
+                <span className="text-starlight-dim">{back.advice.hold}</span>
+              </p>
+            </div>
+          )}
+
+          {back.otherTransits.length > 0 && (
+            <div className="animate-prompt-in mt-12" style={{ animationDelay: "280ms" }}>
+              {hasLens && (
+                <p className="font-latin text-eyebrow tracking-[0.28em] text-starlight-dim">
+                  그 밖의 하늘
                 </p>
-                <p className="mt-3 max-w-[52ch] text-guide text-gold-soft">{t.headline}</p>
-                <p className="mt-2 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">
-                  {t.body}
-                </p>
-              </li>
-            ))}
-          </ul>
+              )}
+              <ul className="mt-2 space-y-8">
+                {back.otherTransits.map((t) => (
+                  <TransitItem key={`${t.moving.key}-${t.fixed.key}-${t.aspectKo}`} t={t} />
+                ))}
+              </ul>
+            </div>
+          )}
         </>
       )}
 
@@ -231,5 +267,31 @@ function TransitList({ back }: { back: NonNullable<ReturnType<typeof todayBack>>
         이른 아침과 늦은 밤은 이 값과 조금 다릅니다.
       </p>
     </section>
+  );
+}
+
+/**
+ * 별 표기("오늘의 토성 □ 내 태양")가 제목으로 서고, 그 옆에 건드려지는 자리의
+ * 생활 이름이 주석처럼 붙는다 — 표기를 지우는 대신 번역을 병기하라는 결정
+ * (2026-08-14). 강도 라벨(순풍/마찰/겹침)도 제목 줄에 함께 선다.
+ */
+function TransitItem({ t }: { t: NonNullable<ReturnType<typeof todayBack>>["otherTransits"][number] }) {
+  return (
+    <li className={`border-t pt-6 ${t.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}>
+      <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span className="font-display text-lg text-starlight">
+          오늘의 <span className="astro-symbol">{t.moving.symbol}</span> {t.moving.ko}
+          <span className="mx-2 astro-symbol text-gold-soft">{t.aspectSymbol}</span>내{" "}
+          <span className="astro-symbol">{t.fixed.symbol}</span> {t.fixed.ko}
+        </span>
+        <span className="break-keep text-meta text-starlight-dim">— {t.area}</span>
+        <ToneBadge harmony={t.harmony} span={`약 ${t.span}`} />
+      </p>
+      <p className="mt-1 text-meta text-starlight-dim">
+        {t.aspectKo} · 오차 {t.orb.toFixed(1)}도
+      </p>
+      <p className="mt-3 max-w-[52ch] break-keep leading-relaxed text-starlight">{t.life}</p>
+      <p className="mt-2 max-w-[52ch] break-keep text-guide text-starlight-dim">{t.basis}</p>
+    </li>
   );
 }

@@ -3,6 +3,7 @@ import { useId, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { refreshOnBodyGrowth } from "@/lib/pin";
+import { ToneBadge } from "@/components/ui/ToneBadge";
 import {
   TRACK_HEIGHT,
   TRACK_PATH,
@@ -208,6 +209,19 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
                       strokeWidth="1.5"
                       className="transition-[r] duration-200"
                     />
+                    {/* 관심사에 걸린 날은 금색 고리를 하나 더 두른다(머리글이 이 표시를 가리킨다). */}
+                    {event.inLens && (
+                      <circle
+                        cx={trackX(first)}
+                        cy={trackY(first)}
+                        r={isActive ? 13 : 9.5}
+                        fill="none"
+                        stroke="var(--color-gold)"
+                        strokeOpacity="0.65"
+                        strokeWidth="1"
+                        className="transition-[r] duration-200"
+                      />
+                    )}
                     <text
                       x={trackX(first)}
                       y={trackY(first) - 18}
@@ -237,14 +251,19 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
                   <span className="mx-2 astro-symbol text-gold-soft">{current.aspectSymbol}</span>내{" "}
                   <span className="astro-symbol">{current.fixed.symbol}</span> {current.fixed.ko}
                 </span>
+                {/* 별 표기 옆 주석 — 건드려지는 자리의 생활 이름 + 강도 */}
+                <span className="break-keep text-meta text-starlight-dim">— {current.area}</span>
+                <ToneBadge harmony={current.harmony} />
                 <span className="text-meta text-gold-soft">{current.dateLine}</span>
+              </p>
+              <p className="mt-3 max-w-[52ch] break-keep leading-relaxed text-starlight">
+                {current.life}
+              </p>
+              <p className="mt-2 max-w-[52ch] break-keep text-guide text-starlight-dim">
+                {current.basis}
               </p>
               <p className="mt-2 text-meta text-starlight-dim">
                 {current.aspectKo} · {current.countLine} 힘이 도는 기간은 {current.span}입니다.
-              </p>
-              <p className="mt-3 max-w-[52ch] text-guide text-gold-soft">{current.headline}</p>
-              <p className="mt-2 max-w-[52ch] break-keep leading-relaxed text-starlight-dim">
-                {current.body}
               </p>
             </div>
           ) : (

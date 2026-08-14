@@ -1,6 +1,8 @@
 import { ASPECT_MEANINGS, pairTheme } from "@/content/atoms/aspects";
 import { ASCENDANT_ATOMS, MIDHEAVEN_ATOMS } from "@/content/atoms/ascendant";
 import { lensFor, type ConcernLens } from "@/content/atoms/concerns";
+import { SIGN_FACES } from "@/content/atoms/life";
+import { iga } from "./josa";
 import { HOUSE_BY_NUMBER, type House } from "@/content/atoms/houses";
 import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
@@ -42,6 +44,13 @@ export interface ReadingAspect {
 }
 
 export interface Reading {
+  /** 당신을 한 줄로 — 태양(겉)과 달(안)의 결을 붙인 요약. B안(2026-08-14 승인). */
+  oneLiner: string;
+  /**
+   * 평생의 과제 하나 — 가장 정확한 마찰 각도. 마찰이 없는 하늘이면 null.
+   * 생활 문장과, 그것이 어느 별 이야기인지 근거 줄.
+   */
+  lifework: { text: string; basis: string } | null;
   /** 태양·달·상승궁 세 줄. 이 셋이 없으면 나머지는 배경이다. */
   core: {
     sun: ReadingPlacement;
@@ -70,10 +79,14 @@ function toReadingPlacement(placement: Placement, lens: ConcernLens | null): Rea
     inSign: PLANET_IN_SIGN[placement.planet][placement.sign.key],
     inHouse: placement.house === null ? null : PLANET_IN_HOUSE[placement.planet][placement.house],
     house,
+    // 하우스를 알면 하우스로만 판정한다. 화면이 "7하우스 · 동반자"라고 말하는
+    // 별이 재물운 섹션에 서면 글과 섹션이 서로 다른 이야기를 한다(실측).
+    // 시각을 몰라 하우스가 없을 때만 행성 목록(전통적 지표성)이 대신 판정한다.
     highlighted: Boolean(
       lens &&
-        (lens.planets.includes(placement.planet) ||
-          (placement.house !== null && lens.houses.includes(placement.house))),
+        (placement.house !== null
+          ? lens.houses.includes(placement.house)
+          : lens.planets.includes(placement.planet)),
     ),
   };
 }
@@ -128,6 +141,8 @@ export function assembleReading(
   }
 
   return {
+    oneLiner: composeOneLiner(byKey.get("sun")!, byKey.get("moon")!),
+    lifework: composeLifework(aspects),
     core: {
       sun: byKey.get("sun")!,
       moon: byKey.get("moon")!,
@@ -153,6 +168,34 @@ export function assembleReading(
       .map(([element, count]) => ({ element, count }))
       .sort((a, b) => b.count - a.count),
     timeUnknown: chart.timeUnknown,
+  };
+}
+
+/**
+ * 당신을 한 줄로 — 겉(태양)과 안(달)의 결을 붙인다.
+ *
+ * 조사(2026-08-14)에서 확인한 것: 읽히는 서비스는 전체를 관통하는 요약을 맨
+ * 앞에 세운다. 여기서는 뽑는 수식 없이, 이미 계산된 두 자리의 결만 잇는다.
+ */
+function composeOneLiner(sun: ReadingPlacement, moon: ReadingPlacement): string {
+  const out = SIGN_FACES[sun.placement.sign.key].out;
+  const inner = SIGN_FACES[moon.placement.sign.key].in;
+  if (sun.placement.sign.key === moon.placement.sign.key) {
+    return `겉도 안도 ${out} 결 하나로 이루어져 있습니다 — 드물게 또렷한 하늘입니다.`;
+  }
+  if (sun.placement.sign.element === moon.placement.sign.element) {
+    return `겉은 ${out} 사람, 혼자일 때는 ${inner} 사람입니다. 같은 원소의 결이라 겉과 안이 크게 다투지 않습니다.`;
+  }
+  return `겉은 ${out} 사람, 혼자일 때는 ${inner} 사람입니다. 이 간격이 당신을 움직이는 힘입니다.`;
+}
+
+/** 평생의 과제 하나 — 목록에서 가장 정확한 마찰 각도. */
+function composeLifework(aspects: ReadingAspect[]): Reading["lifework"] {
+  const friction = aspects.find((a) => a.aspect.type.harmony < 0);
+  if (!friction) return null;
+  return {
+    text: `${friction.theme}${iga(friction.theme)} 계속 부딪힙니다. 편한 배치는 아니지만, 당신을 실제로 움직여 온 것도 이 마찰입니다.`,
+    basis: `${friction.a.ko} ${friction.aspect.type.ko} ${friction.b.ko} · 태어난 순간부터 평생 가는 각도`,
   };
 }
 
