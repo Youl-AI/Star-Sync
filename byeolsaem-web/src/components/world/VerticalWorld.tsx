@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { requestRitual } from "@/lib/ritual";
+import { useBirthProfile } from "@/hooks/useBirthProfile";
+import { getSunSign } from "@/lib/zodiac";
+import { scrollToId } from "@/lib/scroll";
 
 /**
  * 별의 샘 — 수직 세계. 페이지 자체가 하나의 세로 공간이다:
@@ -30,6 +33,14 @@ export function VerticalWorld({
   const aboveRef = useRef<HTMLImageElement>(null);
   const raysRef = useRef<HTMLDivElement>(null);
   const fxRef = useRef<HTMLCanvasElement>(null);
+
+  // 첫 화면에서의 알아봄 — 이미 정보를 남긴 사람에게는 히어로가 인사를 바꾼다.
+  // 서버 HTML은 언제나 첫 방문 카피다(WithoutBirthProfile과 같은 원칙: 검색엔진과
+  // 처음 오는 사람이 보는 것이 그 HTML). ready 후에만 갈아끼우고, 그 순간이
+  // 화면 안이므로 hero-greet 페이드로 덮는다.
+  const { profile, ready } = useBirthProfile();
+  const returning = ready && profile !== null;
+  const sign = profile ? getSunSign(profile.date) : null;
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -176,27 +187,47 @@ export function VerticalWorld({
           카피까지 딸려 올라가는 것을 막는다(BFC). 잘린 하늘은 클리핑으로 사라진다. */}
       <div ref={wrapRef} className="relative overflow-hidden" style={{ willChange: "transform" }}>
         {showCopy && (
-          <div className="absolute inset-x-0 top-0 z-10 px-[8vw] pt-[16vh]">
+          /* key로 갈아끼워 재방문 카피가 hero-greet 페이드와 함께 통째로 등장한다.
+             첫 방문 쪽에는 애니메이션을 걸지 않는다 — 서버 HTML 그대로가 첫 페인트다. */
+          <div
+            key={returning ? "returning" : "first"}
+            /* 문자열 연결로 둔다: 템플릿 리터럴에서 `pt-[16vh]${…}`처럼 클래스 바로
+               뒤에 보간이 붙으면 Tailwind 스캐너가 토큰을 잘못 읽어 규칙을 안 만든다. */
+            className={"absolute inset-x-0 top-0 z-10 px-[8vw] pt-[16vh]" + (returning ? " hero-greet" : "")}
+          >
             <p className="font-latin text-eyebrow tracking-[0.3em] text-gold">
               Byeolsaem · Your Night Sky
             </p>
             <h1 className="mt-4 break-keep font-display text-4xl leading-snug text-starlight md:text-6xl">
-              별이 솟는 샘,
-              <br />
-              <span className="font-light text-starlight-dim">
-                그 아래에 당신의 하늘이 있습니다
-              </span>
+              {returning ? (
+                <>
+                  다시 밤이 내렸습니다,
+                  <br />
+                  <span className="font-light text-starlight-dim">
+                    {sign?.ko}의 별이 샘 아래에 떠 있습니다
+                  </span>
+                </>
+              ) : (
+                <>
+                  별이 솟는 샘,
+                  <br />
+                  <span className="font-light text-starlight-dim">
+                    그 아래에 당신의 하늘이 있습니다
+                  </span>
+                </>
+              )}
             </h1>
             <p className="mt-5 max-w-xl break-keep leading-relaxed text-starlight-dim">
-              샘은 밤하늘을 머금은 우물입니다. 천천히 내려가 보세요 — 수면을
-              지나면, 물속이 곧 하늘입니다.
+              {returning
+                ? "남겨 두신 그 밤의 하늘은 그대로 있습니다. 수면을 지나, 바로 별을 만나러 가세요."
+                : "샘은 밤하늘을 머금은 우물입니다. 천천히 내려가 보세요 — 수면을 지나면, 물속이 곧 하늘입니다."}
             </p>
             <button
               type="button"
-              onClick={() => requestRitual()}
+              onClick={() => (returning ? scrollToId("deep-result") : requestRitual())}
               className="mt-9 inline-block border border-gold bg-ink/35 px-8 py-3.5 text-sm tracking-[0.12em] text-gold-soft backdrop-blur-sm transition-colors hover:bg-gold hover:text-ink"
             >
-              내 밤하늘 열기
+              {returning ? "내 별 보러 가기" : "내 밤하늘 열기"}
             </button>
             <p className="mt-10 font-latin text-eyebrow tracking-[0.24em] text-starlight-dim">
               SCROLL — 샘 아래로

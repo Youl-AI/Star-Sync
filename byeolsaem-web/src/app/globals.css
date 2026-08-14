@@ -609,3 +609,19 @@ body {
   filter: blur(3px);
   will-change: transform, opacity;
 }
+
+/* 재방문 인사 — 첫 페인트의 기본 카피 위로 재방문 카피가 갈아끼워지는 순간을
+   페이드로 덮는다(VerticalWorld의 key 교체). 움직임 최소화 설정에서는 즉시 교체. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-greet {
+    animation: hero-greet-in 640ms ease both;
+  }
+  @keyframes hero-greet-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
