@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AdSense } from "@/components/ads/AdSense";
 import { SignArrival } from "@/components/sign/SignArrival";
 import { CARD_WIDTH } from "@/components/sign/signMorph";
 import { SignArchCard } from "@/components/ui/ArchCard";
@@ -170,11 +169,6 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
           </GoldButton>
         </div>
       </div>
-
-      {/* 본문이 긴 검색 착지 페이지라 광고를 싣는다(AdSense 주석 참고). 도착 모프는
-          `/sign`에서 넘어올 때만 돌고 검색 직접 유입에는 동작하지 않으므로
-          (SignArrival의 표식 검사), 광고 주입과 부딪힐 자리가 없다. */}
-      <AdSense />
     </main>
     </SignArrival>
   );

@@ -1,3 +1,4 @@
+import { AdSense } from "@/components/ads/AdSense";
 import { BirthPanel } from "@/components/birth/BirthPanel";
 import { Veil } from "@/components/nav/Veil";
 import { StaticStars } from "@/components/sky/StaticStars";
@@ -31,6 +32,9 @@ export default function NightStaticLayout({ children }: { children: React.ReactN
 
       {/* 출생 정보를 어느 페이지에서든 받는다. 예전에는 메인으로 돌려보냈다. */}
       <BirthPanel />
+
+      {/* 이 그룹 전체가 광고를 싣는다 — 메인만 빼고 전부라는 결정(AdSense 주석). */}
+      <AdSense />
     </div>
   );
 }
