@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 import { EASE_IN_OUT, EASE_OUT, clearStyles, setStyles, tween, tweenAll } from "@/lib/tween";
+import { SignArchCard } from "@/components/ui/ArchCard";
 import { SignGlyph } from "./SignGlyph";
 import {
   ARRIVE_MORPH_KEY,
@@ -14,15 +15,20 @@ import {
   BACK_MORPH_KEY,
   CARD_HEIGHT,
   CARD_WIDTH,
-  archPath,
   setMarker,
   takeMarker,
 } from "./signMorph";
 
-/** 모프 각 단계의 길이(ms). 합쳐서 스펙이 말하는 0.8초 안에 들어온다. */
+/**
+ * 모프 타이밍(ms). 진에서는 성좌의 비행까지만 하고, 카드의 응결은 상세 페이지가
+ * 라우트가 바뀌는 바로 그 순간에 한다(SignArrival) — 카드를 진에서 미리 만들어
+ * 두면 글자 없는 테두리가 한 단계로 보이고, 글자까지 넣으면 아직 /sign인데 상세
+ * 내용이 떠 있는 셈이 된다는 피드백(2026-08-14). 전환 순간의 연속성은 성좌가
+ * 담보한다: 날아간 복제가 착지한 자리에서 상세 페이지의 성좌가 픽셀 그대로
+ * 이어받고, 카드는 그 주위로 차오른다.
+ */
 const FLIGHT_MS = 720;
-const ARCH_DELAY_MS = 320;
-const ARCH_MS = 500;
+const PUSH_AT_MS = 740;
 
 /**
  * 천구의 진 — 열두 성좌가 이중 금선 링 위에 떠 있고, 진 전체가 아주 느리게 돈다.
@@ -68,8 +74,7 @@ export function Astrolabe() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const flyerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
-  const archRef = useRef<SVGPathElement>(null);
-  const fillRef = useRef<HTMLDivElement>(null);
+  const ghostRef = useRef<HTMLDivElement>(null);
 
   useIsoLayoutEffect(() => {
     const quiet = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -90,15 +95,13 @@ export function Astrolabe() {
     const flyer = flyerRef.current;
     const target = targetRef.current;
     const overlay = overlayRef.current;
-    const arch = archRef.current;
-    const fill = fillRef.current;
+    const ghost = ghostRef.current;
     const ring = ringRef.current;
     const caption = captionRef.current;
-    if (!art || !flyer || !target || !overlay || !arch || !fill || !ring || !caption) return;
+    if (!art || !flyer || !target || !overlay || !ghost || !ring || !caption) return;
 
     const others = slotRefs.current.filter((el, i): el is HTMLDivElement => !!el && i !== index);
     const sign = ZODIAC_SIGNS[index];
-    const length = arch.getTotalLength();
 
     // FLIP의 계산 부분. 성좌가 링 위에서 차지한 자리와 카드 안에서 앉을 자리를
     // 재고, 그 둘을 잇는 이동과 배율을 구한다. 날아가는 복제는 늘 출발 자리에
@@ -120,60 +123,54 @@ export function Astrolabe() {
       height: `${from.height}px`,
       opacity: "1",
     });
-    setStyles(arch, { "stroke-dasharray": `${length}` });
 
     let timer: ReturnType<typeof setTimeout>;
 
+    // 전환 프레임의 무결성: 라우트가 바뀌는 순간 화면에는 배경과 성좌만 남아야
+    // 한다. 흐려진 링이나 아래 목록이 5%라도 남아 있으면 그것들이 일제히
+    // 사라지는 한 프레임이 "깜빡"으로 보인다(사용자 피드백 2026-08-14). 그래서
+    // 열한 개도, 페이지의 나머지 글(data-morph-fade)도 전부 0까지 보낸다.
+    const pageRest = document.querySelectorAll<HTMLElement>("[data-morph-fade]");
+
     if (dir === "in") {
-      // 나머지 열한 개는 물러난다. 선택한 것만 남기려는 것이지 지우려는 것이
-      // 아니므로 완전히 0으로 보내지 않는다.
-      tweenAll(others, { opacity: "1", transform: "none" }, { opacity: "0.05", transform: "scale(0.93)" }, {
+      tweenAll(others, { opacity: "1", transform: "none" }, { opacity: "0", transform: "scale(0.93)" }, {
         duration: 500,
         ease: EASE_IN_OUT,
       });
-      tweenAll([ring, caption], { opacity: "1" }, { opacity: "0" }, { duration: 450, ease: EASE_IN_OUT });
+      tweenAll([ring, caption, ...pageRest], { opacity: "1" }, { opacity: "0" }, {
+        duration: 450,
+        ease: EASE_IN_OUT,
+      });
 
       tween(flyer, { transform: "none" }, { transform: landed }, {
         duration: FLIGHT_MS,
         ease: EASE_IN_OUT,
       });
 
-      // 아치 테두리가 선으로 그려지며 성좌를 감싼다 — 응결의 마지막 획이다.
-      tween(
-        arch,
-        { "stroke-dashoffset": `${length}`, opacity: "0" },
-        { "stroke-dashoffset": "0", opacity: "1" },
-        { duration: ARCH_MS, delay: ARCH_DELAY_MS, ease: EASE_IN_OUT },
-      );
-      tween(fill, { opacity: "0" }, { opacity: "1" }, { duration: 400, delay: 420, ease: EASE_OUT });
-
       timer = setTimeout(() => {
-        // 상세 페이지가 이 표식을 보고 카드를 화면 한가운데에서 받아 제자리로
-        // 올려보낸다. 없으면 연출 없이 완성된 화면으로 뜬다.
+        // 상세 페이지가 이 표식을 보고 카드가 응결된 자리 그대로 문서를 연다
+        // (SignArrival). 없으면 연출 없이 완성된 화면으로 뜬다.
         setMarker(ARRIVE_MORPH_KEY, sign.key);
         // 돌아올 길도 지금 적어 둔다. 이유는 signMorph.ts의 BACK_MORPH_KEY 참고.
         setMarker(BACK_MORPH_KEY, sign.key);
-        router.push(`/sign/${sign.key}`);
-      }, ARCH_DELAY_MS + ARCH_MS);
+        // scroll: false — 도착 페이지가 스크롤을 직접 놓는다(SignArrival). 라우터의
+        // scroll-to-top이 그 값을 한 프레임 뒤에 덮어쓰면 카드가 착지 자리에서
+        // 제자리로 순간이동해 버린다(실측 58px 점프).
+        router.push(`/sign/${sign.key}`, { scroll: false });
+      }, PUSH_AT_MS);
     } else {
-      // 감쌌던 선이 먼저 풀리고, 그 다음 성좌가 제 자리로 돌아간다.
-      tweenAll(others, { opacity: "0.05", transform: "scale(0.93)" }, { opacity: "1", transform: "none" }, {
+      // 감쌌던 카드가 먼저 스러지고, 그 다음 성좌가 제 자리로 돌아간다.
+      tweenAll(others, { opacity: "0", transform: "scale(0.93)" }, { opacity: "1", transform: "none" }, {
         duration: 600,
         delay: 240,
         ease: EASE_OUT,
       });
-      tweenAll([ring, caption], { opacity: "0" }, { opacity: "1" }, {
+      tweenAll([ring, caption, ...pageRest], { opacity: "0" }, { opacity: "1" }, {
         duration: 600,
         delay: 240,
         ease: EASE_OUT,
       });
-      tween(fill, { opacity: "1" }, { opacity: "0" }, { duration: 280, ease: EASE_IN_OUT });
-      tween(
-        arch,
-        { "stroke-dashoffset": "0", opacity: "1" },
-        { "stroke-dashoffset": `${length}`, opacity: "0" },
-        { duration: 340, ease: EASE_IN_OUT },
-      );
+      tween(ghost, { opacity: "1" }, { opacity: "0" }, { duration: 300, ease: EASE_IN_OUT });
       tween(flyer, { transform: landed }, { transform: "none" }, {
         duration: 680,
         delay: 160,
@@ -191,6 +188,7 @@ export function Astrolabe() {
       for (const element of others) clearStyles(element, ["opacity", "transform"]);
       clearStyles(ring, ["opacity"]);
       clearStyles(caption, ["opacity"]);
+      for (const element of pageRest) clearStyles(element, ["opacity"]);
     };
   }, [morph, router]);
 
@@ -359,31 +357,15 @@ export function Astrolabe() {
               marginTop: -CARD_HEIGHT / 2,
             }}
           >
-            {/* 카드의 속. 아치 선이 다 그려질 때 함께 차오른다 — 선만 남기고
-                넘기면 상세 페이지에서 배경이 갑자기 생겨 한 번 튄다. */}
-            <div
-              ref={fillRef}
-              className="absolute inset-0 bg-gradient-to-b from-nebula/90 to-ink opacity-0"
-              style={{
-                borderRadius: `${CARD_WIDTH / 2}px ${CARD_WIDTH / 2}px 10px 10px`,
-                boxShadow:
-                  "0 0 44px 6px color-mix(in srgb, var(--color-gold) 12%, transparent)",
-              }}
-            />
-            <svg
-              viewBox={`0 0 ${CARD_WIDTH} ${CARD_HEIGHT}`}
-              className="absolute inset-0 size-full"
-              aria-hidden
-            >
-              <path
-                ref={archRef}
-                d={archPath()}
-                fill="none"
-                stroke="var(--color-gold)"
-                strokeWidth="1.2"
-                opacity="0"
-              />
-            </svg>
+            {/*
+              카드의 유령 — **역모프(뒤로가기) 전용**이다. 상세 페이지에서 돌아오면
+              화면 한가운데의 카드가 여기서 스러지고 성좌가 제자리로 날아간다.
+              순방향에서는 쓰지 않는다: 카드의 응결은 상세 페이지의 몫이다(위
+              타이밍 주석). 성좌(data-morph-art)는 날아다니는 복제가 대신 그린다.
+            */}
+            <div ref={ghostRef} className="opacity-0 [&_[data-morph-art]]:opacity-0">
+              <SignArchCard sign={ZODIAC_SIGNS[morph.index]} width={CARD_WIDTH} />
+            </div>
             {/* 카드 안에서 성좌가 앉을 자리. 보이지 않는 기준 상자다. */}
             <div
               ref={targetRef}

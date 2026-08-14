@@ -57,8 +57,12 @@ export function ArchCard({
           <path d="M7 .5 8 4.6l4.5.6L9 8l1 4.5L7 9.9 4 12.5 5 8 1.5 5.2l4.5-.6Z" fill="var(--color-gold-soft)" />
         </svg>
         {/* pt-8은 /sign의 모프가 성좌의 착지 좌표를 계산할 때 쓰는 값이다
-            (signMorph.ts의 ART_OFFSET_Y). 바꾸면 착지 순간 그림이 튄다. */}
-        <div className="pt-8">{children}</div>
+            (signMorph.ts의 ART_OFFSET_Y). 바꾸면 착지 순간 그림이 튄다.
+            data-morph-art: 진의 오버레이가 이 카드를 유령으로 그릴 때 성좌만
+            숨기는 표식 — 성좌는 날아오는 복제가 대신 그린다(Astrolabe 참고). */}
+        <div className="pt-8" data-morph-art>
+          {children}
+        </div>
         <div className="absolute inset-x-0 bottom-0 px-4 pb-4 text-center">
           <div className="font-display text-xl tracking-wide">{name}</div>
           <div className="mt-1.5 font-latin text-eyebrow uppercase tracking-[0.28em] text-starlight-dim">

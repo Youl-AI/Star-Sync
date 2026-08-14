@@ -77,13 +77,24 @@ export function WheelFigure({
       const trigger = ScrollTrigger.create({
         trigger: figure,
         start: "top 18%",
-        // 한 별에 화면 절반쯤의 스크롤을 준다. 너무 짧으면 셋이 스쳐 지나가고,
-        // 너무 길면 붙잡힌 기분이 든다.
-        end: `+=${stepCount * 55}%`,
+        // 한 별에 화면 4할의 스크롤. 처음 55%로 잡았더니 전환은 순간인데
+        // 다음 전환까지의 대기가 길어 붙잡힌 기분이 들었다.
+        end: `+=${stepCount * 40}%`,
         pin: true,
         onUpdate: (self) => {
-          const index = Math.min(stepCount - 1, Math.floor(self.progress * stepCount));
-          setTourIndex(self.isActive ? index : null);
+          if (!self.isActive) {
+            setTourIndex(null);
+            return;
+          }
+          // 투어는 내려갈 때만 진행한다. 위로 되짚어 올라올 때 단계가 역순으로
+          // 갈리면 페이지가 붙잡는 느낌이 들어서(사용자 피드백), 올라오는 동안은
+          // 범례 — 바깥 띠·하우스 번호를 읽는 법 — 를 그대로 둔다. 방향을 다시
+          // 아래로 꺾으면 그 지점의 단계부터 이어진다.
+          if (self.direction < 0) {
+            setTourIndex(null);
+            return;
+          }
+          setTourIndex(Math.min(stepCount - 1, Math.floor(self.progress * stepCount)));
         },
         onToggle: (self) => {
           if (!self.isActive) setTourIndex(null);
