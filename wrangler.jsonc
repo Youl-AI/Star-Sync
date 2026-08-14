@@ -1,7 +1,13 @@
 {
   "name": "byeolsaem",
   "compatibility_date": "2026-08-01",
+  // 리뉴얼(2026-08-14): 루트의 구사이트 대신 Next 정적 export를 서빙한다.
+  // 배포 절차: byeolsaem-web에서 `npm run build` → 루트에서 `npx wrangler deploy`.
   "assets": {
-    "directory": "./"
+    "directory": "./byeolsaem-web/out",
+    // /today → today.html 매핑과 /today/ ↔ /today 정리를 커버한다.
+    "html_handling": "auto-trailing-slash",
+    // 없는 주소는 우리 404.html로 — 기본값(빈 404)이면 검색엔진이 soft-404로 헷갈린다.
+    "not_found_handling": "404-page"
   }
 }
