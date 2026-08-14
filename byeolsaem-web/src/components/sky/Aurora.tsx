@@ -105,10 +105,16 @@ const FRAGMENT = /* glsl */ `
 `;
 
 export function Aurora({
-  octaves = 5,
+  octaves = 3,
   intensity = 1,
 }: {
-  /** fbm 겹 수. lite 티어가 4로 낮춰 픽셀 비용을 줄인다. */
+  /**
+   * fbm 겹 수. 이 셰이더의 비용은 여기에 정비례한다 — 픽셀 하나가 커튼 3장 ×
+   * fbm 2회 = 6회 fbm을 돌고, fbm 한 번이 octaves × noise(=hash 4회)다. 겹마다
+   * 진폭이 반씩 줄어 4번째 겹은 전체의 6%, 5번째는 3%인데 그 3%가 픽셀당
+   * sin() 48회를 더 부른다. 흐릿한 빛 커튼에서는 보이지 않는 값이라 3에서
+   * 끊는다(2026-08-14 프로파일).
+   */
   octaves?: number;
   intensity?: number;
 }) {

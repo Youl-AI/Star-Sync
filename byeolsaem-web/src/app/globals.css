@@ -421,8 +421,12 @@ body {
   inset: -10%;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 180px 180px;
-  mix-blend-mode: overlay;
-  opacity: 0.13;
+  /* overlay였다. 블렌드 모드는 아래에 깔린 것을 읽어 와 섞으므로, 이 층이
+     화면을 덮고 있는 한 아래(하늘 셰이더)가 한 프레임 바뀔 때마다 화면 전체를
+     다시 합성하게 만든다 — 2026-08-14 프로파일에서 셰이더 다음가는 비용이었다.
+     검은 밤 배경에서 overlay와 normal의 차이는 거의 보이지 않아, 불투명도만
+     조금 올려 입자감을 지킨다. */
+  opacity: 0.16;
   animation: grain-shift 0.9s steps(1) infinite;
 }
 
