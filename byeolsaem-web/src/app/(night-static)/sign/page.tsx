@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Astrolabe } from "@/components/sign/Astrolabe";
+import { SignPrimer } from "@/components/sign/SignPrimer";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 import { SIGN_CONTENT } from "@/lib/sign-content";
 
@@ -56,6 +57,9 @@ export default function SignIndexPage() {
           })}
         </ul>
       </nav>
+
+      {/* 진과 링크만으로는 크롤러가 읽을 글이 없다(SignPrimer 주석 참고). */}
+      <SignPrimer />
 
       <p className="mt-16 text-center text-sm text-starlight-dim" data-morph-fade>
         태양만으로는 절반입니다.{" "}

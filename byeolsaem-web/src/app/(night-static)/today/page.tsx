@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PlaceBand } from "@/components/place/PlaceBand";
+import { MoonPrimer } from "@/components/today/MoonPrimer";
 import { TodayCard } from "@/components/today/TodayCard";
 
 export const metadata: Metadata = {
@@ -30,6 +31,10 @@ export default function TodayPage() {
       <div className="mt-14">
         <TodayCard />
       </div>
+
+      {/* 카드는 브라우저가 그날 그리므로 HTML에는 남지 않는다. 날짜와 무관하게
+          언제나 참인 이야기를 아래에 둔다(MoonPrimer 주석 참고). */}
+      <MoonPrimer />
     </main>
   );
 }
