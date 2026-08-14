@@ -31,35 +31,38 @@ export function DoorsPin({ children }: { children: React.ReactNode }) {
       const doors = section.querySelectorAll<HTMLElement>("[data-door]");
       if (doors.length === 0) return;
 
-      // autoAlpha(visibility까지 끔)라 숨은 문도 자리는 차지한다 — 핀이 시작되기
-      // 전에 격자 높이가 변하면 시작점 계산이 어긋난다.
-      gsap.set(doors, { autoAlpha: 0, y: 72, scale: 0.96 });
+      // autoAlpha(visibility까지 끔)라 숨은 문도 자리는 차지한다 — 등장 전에
+      // 격자 높이가 변하면 시작점 계산이 어긋난다.
+      gsap.set(doors, { autoAlpha: 0, y: 36, scale: 0.97 });
 
-      const tl = gsap.timeline({
+      // 핀을 걸었다가 풀었다. 핀은 빨리 내리고 싶은 사람에게 90vh의 통행세를
+      // 걷는다 — 수상작들도 핀은 그림 자체가 변형되는 장면(/yearly의 가로 강
+      // 같은 것)에만 걸고, 카드 몇 장의 등장은 지나가는 길에 스스로 서게 한다.
+      // "차례로 선다"는 스태거가 지킨다: 천천히 보면 I → II → III이 시차를
+      // 두고 서고, 빨리 내리면 아무것도 막지 않는다. 문이 서는 속도는
+      // 스크롤이 아니라 시간(0.7초, power3.out)이 정한다.
+      const tween = gsap.to(doors, {
+        autoAlpha: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.7,
+        ease: "power3.out",
+        stagger: 0.18,
         scrollTrigger: {
           trigger: section,
-          // 섹션 높이가 화면보다 낮으므로 위쪽 1/5 지점에 앉힌다. top에 붙이면
-          // 아래가 텅 빈다.
-          start: "top 20%",
-          end: "+=130%",
-          pin: true,
-          scrub: 0.5,
+          start: "top 55%",
+          // 위로 되감으면 문도 되돌아간다 — 사이트의 다른 등장(Reveal)과 같다.
+          toggleActions: "play none none reverse",
         },
       });
 
-      doors.forEach((door, i) => {
-        tl.to(
-          door,
-          { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: "power2.out" },
-          i * 0.75,
-        );
-      });
-      // 셋째 문이 선 뒤 잠깐의 여백. 서자마자 풀리면 마지막 문만 보지 못한다.
-      tl.to({}, { duration: 0.35 });
-
       // 히어로가 장면을 접거나 늦게 그려지는 내용이 끼어들면 시작점을 다시 잰다.
       const stopWatching = refreshOnBodyGrowth(() => ScrollTrigger.refresh());
-      return stopWatching;
+      return () => {
+        stopWatching();
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
     });
 
     return () => mm.revert();

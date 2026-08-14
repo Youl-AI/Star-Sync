@@ -115,6 +115,9 @@ export function BirthPanel() {
 
   return (
     <div
+      // 덮개는 짙은 어둠 그대로. 바깥은 깊게 가라앉고, 그 어둠이 유리 카드
+      // 너머로 비쳐 카드만 은은하게 떠 보인다(유리판, 2026-08-13 사용자 확정 —
+      // 덮개까지 옅게 한 시안은 화면 전체가 밝아져서 버렸다).
       className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-ink/85 p-6 backdrop-blur-md motion-safe:animate-panel-in"
       // 이 층이 화면 전체를 덮으므로 그 아래에 따로 스크림을 깔아 봐야 클릭이
       // 닿지 않는다. 격자의 빈 칸(= 카드 바깥)을 눌렀는지 여기서 직접 가린다.
@@ -127,7 +130,10 @@ export function BirthPanel() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="birth-panel-title"
-        className="relative w-full max-w-lg border border-gold/35 bg-ink-raised px-8 pb-10 pt-14 text-center shadow-[0_30px_90px_rgba(0,0,0,.6)] md:px-12"
+        // 젖빛 유리: 반투명 카드가 뒤에서 움직이는 하늘을 흐릿하게 머금는다.
+        // backdrop-filter가 없는 기기에서는 globals.css의 @supports 폴백이
+        // 불투명으로 되돌린다 — 유리가 안 되면 창호지가 아니라 벽이어야 한다.
+        className="panel-glass relative w-full max-w-lg border border-gold/45 bg-ink-raised/55 px-8 pb-10 pt-14 text-center shadow-[0_30px_90px_rgba(0,0,0,.6)] backdrop-blur-2xl md:px-12"
       >
         <button
           type="button"

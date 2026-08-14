@@ -11,7 +11,8 @@ export function SmoothScroll() {
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const lenis = new Lenis({ lerp: 0.1 });
+    // 0.1은 핀 스크럽과 지연이 겹쳐 손보다 화면이 한 박자 늦었다. 살짝 기민하게.
+    const lenis = new Lenis({ lerp: 0.14 });
     // Lenis가 스크롤을 쥐고 있는 동안 다른 컴포넌트가 네이티브 scrollIntoView를
     // 쓰면 두 시스템이 위치를 두고 다툰다. 인스턴스를 공유해 요청을 넘겨받는다.
     registerScroller(lenis);

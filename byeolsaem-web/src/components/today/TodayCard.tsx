@@ -62,6 +62,19 @@ export function TodayCard() {
 
   const canFlip = ready && back !== null;
 
+  // 뒤집으면 결과가 스스로 화면 안으로 들어온다. 새 내용이 접힌 선 아래에
+  // 생기기만 하면 스크롤해야 한다는 것을 모르는 사람에게는 아무 일도 일어나지
+  // 않은 것이다 — 유도 문구는 스펙 §4.4가 금지하므로, 문구 대신 화면이 간다.
+  const flip = () => {
+    setFlipped(true);
+    requestAnimationFrame(() => {
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document
+        .getElementById("today-transits")
+        ?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    });
+  };
+
   return (
     <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
       <aside
@@ -139,7 +152,7 @@ export function TodayCard() {
 
             {canFlip && !flipped && (
               <div className="mt-8">
-                <GoldButton variant="solid" onClick={() => setFlipped(true)}>
+                <GoldButton variant="solid" onClick={flip}>
                   내 하늘과 겹쳐 보기
                 </GoldButton>
               </div>
@@ -168,8 +181,9 @@ export function TodayCard() {
 
 function TransitList({ back }: { back: NonNullable<ReturnType<typeof todayBack>> }) {
   return (
-    <section className="mt-16">
-      <h2 className="mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
+    // scroll-mt로 베일(네비) 아래 여유를 남긴다 — 뒤집는 순간 여기로 데려온다.
+    <section id="today-transits" className="mt-16 scroll-mt-24">
+      <h2 className="animate-prompt-in mb-6 flex items-center gap-4 break-keep font-display text-xl text-starlight">
         오늘 하늘이 건드리는 자리
         <span aria-hidden className="h-px flex-1 bg-gold/25" />
       </h2>
@@ -185,10 +199,12 @@ function TransitList({ back }: { back: NonNullable<ReturnType<typeof todayBack>>
           </div>
 
           <ul className="mt-10 space-y-8">
-            {back.transits.map((t) => (
+            {back.transits.map((t, index) => (
               <li
                 key={`${t.moving.key}-${t.fixed.key}-${t.aspectKo}`}
-                className={`border-t pt-6 ${t.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}
+                className={`animate-prompt-in border-t pt-6 ${t.harmony > 0 ? "border-gold/40" : "border-gold/12"}`}
+                // 위에서부터 시차를 두고 선다 — 시선을 아래로 데려가는 손이다.
+                style={{ animationDelay: `${120 + index * 90}ms` }}
               >
                 <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="font-display text-lg text-starlight">

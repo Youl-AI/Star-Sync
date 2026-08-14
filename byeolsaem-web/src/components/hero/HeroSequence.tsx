@@ -256,6 +256,10 @@ export function HeroSequence() {
     //     intercept로 실측 확인). 이제 히어로가 자기 내용만큼 실제 높이를 갖는다.
     <section ref={sectionRef} className="relative min-h-[100dvh]" id="hero">
       <div className="relative h-[100dvh] overflow-hidden">
+        {/* 헤드라인 자리의 스크림(§10-2). 글 뒤에만 깃털처럼 번지는 국소 어둠 —
+            커튼과 별이 그 아래서 살짝 가라앉아 글이 뜬다. 경계가 없어 상자로
+            보이지 않는다. 하이엔드 히어로의 표준 수법. */}
+        <div className="hero-scrim pointer-events-none absolute inset-0" aria-hidden />
         <Moon className={MOON_POSITION[scene]} />
 
         {(scene === "arrival" || scene === "altar") && (

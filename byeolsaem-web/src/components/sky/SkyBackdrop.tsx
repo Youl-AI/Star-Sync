@@ -52,6 +52,10 @@ export function SkyBackdrop() {
           <SkyCanvas tier={tier} />
         </div>
       )}
+      {/* 질감 층(§10.1). 별 위·글 아래. 순수 CSS라 어느 티어에서도 값이 싸고,
+          감소 모드에서는 전역 규칙이 그레인의 이동만 멈춘다(입자는 남는다). */}
+      <div className="sky-vignette absolute inset-0" />
+      <div className="film-grain absolute" />
     </div>
   );
 }

@@ -60,7 +60,7 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
           trigger: zone,
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.4,
+          scrub: 0.25,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             if (fillRef.current) {

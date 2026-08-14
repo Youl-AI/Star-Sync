@@ -61,9 +61,66 @@ const FRAGMENT_SHADER = /* glsl */ `
   }
 `;
 
-export function Starfield({ count, parallax }: { count: number; parallax: boolean }) {
+// 블룸 대신 쓰는 글로우 패스(§10.1). 같은 별을 훨씬 크고 흐리게 한 번 더,
+// 가산 블렌딩으로 그린다 — 점광원의 블룸은 원리적으로 이것과 같다.
+//
+// 후처리 합성기(EffectComposer)를 쓰지 않는 이유: 이 캔버스는 투명하고 배경
+// 그라디언트(밤의 여정)는 그 뒤 CSS 층이다. 합성기의 블룸은 빛이 번진 픽셀의
+// RGB만 키우고 알파는 0으로 남겨서, 번짐이 CSS 배경 위에 합성되지 않는다.
+// 배경이 셰이더로 들어와 캔버스가 불투명해지는 날(§10.2) 합성기로 승격한다.
+const GLOW_VERTEX_SHADER = /* glsl */ `
+  attribute float aSize;
+  attribute float aAlpha;
+  attribute float aPhase;
+
+  uniform float uTime;
+  uniform float uPixelRatio;
+  uniform float uSizeScale;
+
+  varying float vAlpha;
+
+  void main() {
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+    float twinkle = 0.88 + 0.12 * sin(uTime * 0.5 + aPhase);
+    // 3제곱: 밝은 소수만 후광을 얻는다. 모든 별이 번지면 안개가 된다.
+    vAlpha = aAlpha * aAlpha * aAlpha * twinkle;
+
+    float attenuation = uSizeScale / max(0.001, -mvPosition.z);
+    gl_PointSize = clamp(aSize * uPixelRatio * attenuation * 3.4, 0.0, 44.0);
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+
+const GLOW_FRAGMENT_SHADER = /* glsl */ `
+  uniform vec3 uColor;
+  varying float vAlpha;
+
+  void main() {
+    vec2 centered = gl_PointCoord - vec2(0.5);
+    float dist = length(centered) * 2.0;
+    // 본체와 반대로 반경 전체에 걸쳐 서서히 죽인다 — 이 흐림이 곧 후광이다.
+    float falloff = smoothstep(1.0, 0.0, dist);
+    float alpha = falloff * falloff * vAlpha * 0.5;
+    if (alpha < 0.004) discard;
+
+    gl_FragColor = vec4(uColor, alpha);
+  }
+`;
+
+export function Starfield({
+  count,
+  parallax,
+  glow = true,
+}: {
+  count: number;
+  parallax: boolean;
+  /** 밝은 별의 후광(블룸 대역). lite 티어가 끌 수 있게 열어 둔다. */
+  glow?: boolean;
+}) {
   const group = useRef<THREE.Group>(null);
   const material = useRef<THREE.ShaderMaterial>(null);
+  const glowMaterial = useRef<THREE.ShaderMaterial>(null);
   const { pointer } = useThree();
 
   const { positions, sizes, alphas, phases } = useMemo(() => {
@@ -106,6 +163,17 @@ export function Starfield({ count, parallax }: { count: number; parallax: boolea
     [color],
   );
 
+  // 글로우 패스의 유니폼. 본체와 값은 같지만 셰이더 인스턴스가 달라 따로 든다.
+  const glowUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uPixelRatio: { value: 1 },
+      uSizeScale: { value: 26 },
+      uColor: { value: color },
+    }),
+    [color],
+  );
+
   useFrame((state, dt) => {
     if (!group.current) return;
     group.current.rotation.z += dt * 0.004; // 하늘의 자전
@@ -113,21 +181,42 @@ export function Starfield({ count, parallax }: { count: number; parallax: boolea
       group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, pointer.y * 0.03, 0.05);
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, pointer.x * 0.03, 0.05);
     }
-    if (material.current) {
-      material.current.uniforms.uTime.value = state.clock.elapsedTime;
-      material.current.uniforms.uPixelRatio.value = state.gl.getPixelRatio();
+    for (const m of [material.current, glowMaterial.current]) {
+      if (!m) continue;
+      m.uniforms.uTime.value = state.clock.elapsedTime;
+      m.uniforms.uPixelRatio.value = state.gl.getPixelRatio();
     }
   });
 
+  const attributes = (
+    <>
+      <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      <bufferAttribute attach="attributes-aSize" args={[sizes, 1]} />
+      <bufferAttribute attach="attributes-aAlpha" args={[alphas, 1]} />
+      <bufferAttribute attach="attributes-aPhase" args={[phases, 1]} />
+    </>
+  );
+
   return (
     <group ref={group}>
+      {/* 후광을 먼저(별 본체 아래에) 그린다. 가산 블렌딩이라 순서가 색을 바꾸지는
+          않지만, 본체의 discard 픽셀 위에 후광이 얹히는 편이 경계가 곱다. */}
+      {glow && (
+        <points>
+          <bufferGeometry>{attributes}</bufferGeometry>
+          <shaderMaterial
+            ref={glowMaterial}
+            uniforms={glowUniforms}
+            vertexShader={GLOW_VERTEX_SHADER}
+            fragmentShader={GLOW_FRAGMENT_SHADER}
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </points>
+      )}
       <points>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-          <bufferAttribute attach="attributes-aSize" args={[sizes, 1]} />
-          <bufferAttribute attach="attributes-aAlpha" args={[alphas, 1]} />
-          <bufferAttribute attach="attributes-aPhase" args={[phases, 1]} />
-        </bufferGeometry>
+        <bufferGeometry>{attributes}</bufferGeometry>
         <shaderMaterial
           ref={material}
           uniforms={uniforms}
