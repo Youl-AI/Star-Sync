@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NatalPrimer } from "@/components/chart/NatalPrimer";
 import { NatalReading } from "@/components/chart/NatalReading";
 import { PlaceBand } from "@/components/place/PlaceBand";
 
@@ -35,6 +36,10 @@ export default function NatalPage() {
       <div className="mt-14">
         <NatalReading />
       </div>
+
+      {/* 차트는 브라우저가 그리므로 HTML에는 남지 않는다. 누구의 차트인지와 무관하게
+          참인 이야기를 아래에 둔다(NatalPrimer 주석 참고). */}
+      <NatalPrimer />
     </main>
   );
 }

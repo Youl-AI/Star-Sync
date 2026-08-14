@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DawnDocument } from "@/components/dawn/Document";
+import { JsonLd, SITE_URL, breadcrumbSchema } from "@/components/seo/JsonLd";
 import { POSTS, formatPublished, getPost } from "@/content/blog";
 
 type Params = { slug: string };
@@ -81,6 +82,31 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         </>
       }
     >
+      {/* 검색 결과에 발행일과 분류가 붙는다. 값은 전부 화면에도 있는 것들이다. */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: post.title,
+          description: post.summary,
+          datePublished: post.published,
+          dateModified: post.published,
+          articleSection: post.category,
+          inLanguage: "ko",
+          url: `${SITE_URL}/blog/${encodeURIComponent(post.slug)}`,
+          mainEntityOfPage: `${SITE_URL}/blog/${encodeURIComponent(post.slug)}`,
+          author: { "@type": "Organization", name: "별샘", url: SITE_URL },
+          publisher: { "@type": "Organization", name: "별샘", url: SITE_URL },
+        }}
+      />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "별샘", path: "/" },
+          { name: "칼럼", path: "/blog" },
+          { name: post.title, path: `/blog/${encodeURIComponent(post.slug)}` },
+        ])}
+      />
+
       <Body />
 
       {/* 글 끝의 CTA. 읽은 이야기를 자기 하늘에서 확인하게 하는 것이 이 글들의

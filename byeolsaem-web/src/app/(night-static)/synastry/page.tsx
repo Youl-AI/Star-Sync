@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PlaceBand } from "@/components/place/PlaceBand";
+import { SynastryPrimer } from "@/components/synastry/SynastryPrimer";
 import { SynastryReading } from "@/components/synastry/SynastryReading";
 
 export const metadata: Metadata = {
@@ -29,6 +30,10 @@ export default function SynastryPage() {
       <div className="mt-14">
         <SynastryReading />
       </div>
+
+      {/* 두 사람의 정보가 있어야 결과가 생긴다. 그 전에도 읽을 것을 둔다
+          (SynastryPrimer 주석 참고). */}
+      <SynastryPrimer />
     </main>
   );
 }

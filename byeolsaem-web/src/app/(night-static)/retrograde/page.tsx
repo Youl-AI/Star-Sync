@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PlaceBand } from "@/components/place/PlaceBand";
+import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
 import { GoldButton } from "@/components/ui/GoldButton";
@@ -32,6 +33,36 @@ export const metadata: Metadata = {
  * 3년 뒤까지 미리 구하는 이유는 이 페이지가 한동안 다시 빌드되지 않아도 표가
  * 비지 않게 하기 위해서다. 계산은 4년치를 훑어도 수십 밀리초다.
  */
+/**
+ * 자주 묻는 것.
+ *
+ * 화면과 구조화 데이터가 이 한 배열에서 함께 나온다. 스키마에만 있고 화면에는
+ * 없는 문답은 구글 정책 위반이라 리치 결과가 통째로 막힌다 — 두 곳에 따로
+ * 적어 두면 언젠가 반드시 어긋난다(JsonLd 주석 참고).
+ */
+const FAQS = [
+  {
+    question: "역행 기간에 계약이나 이사를 하면 안 되나요?",
+    answer:
+      "안 되는 것은 없습니다. 다만 이 시기에는 조건을 잘못 이해한 채로 서명하는 일이 눈에 띄게 늘어난다고 봅니다. 날짜를 미룰 수 있으면 미루고, 미룰 수 없으면 조항을 한 번 더 읽으면 됩니다.",
+  },
+  {
+    question: "수성 역행은 모두에게 똑같이 영향을 주나요?",
+    answer:
+      "아니요. 역행이 일어나는 하늘의 자리가 개인 차트의 어느 영역을 지나는지에 따라 다릅니다. 같은 역행이라도 누군가에게는 일의 영역이고 누군가에게는 관계의 영역입니다.",
+  },
+  {
+    question: "여기 날짜는 어디서 가져온 건가요?",
+    answer:
+      "가져오지 않았습니다. 수성과 지구의 궤도 요소에서 위치를 직접 계산하고, 겉보기 황경의 변화율이 0이 되는 순간을 찾아 유 시각을 구했습니다. 빛이 오는 데 걸리는 시간과 세차운동까지 넣었습니다.",
+  },
+  {
+    question: "다른 행성도 역행하나요?",
+    answer:
+      "합니다. 금성·화성·목성·토성 모두 역행하고, 바깥쪽 행성일수록 역행 기간이 깁니다. 수성이 유독 자주 화제가 되는 것은 주기가 짧아 자주 돌아오고, 맡은 영역이 일상과 가깝기 때문입니다.",
+  },
+];
+
 const now = new Date();
 const PERIODS = mercuryRetrogrades(
   new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1)),
@@ -56,6 +87,14 @@ export default function RetrogradePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+      {/* 화면의 문답과 같은 배열에서 나온다(FAQS 주석 참고). */}
+      <JsonLd data={faqSchema(FAQS)} />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "별샘", path: "/" },
+          { name: "수성 역행", path: "/retrograde" },
+        ])}
+      />
       {/* 역행의 장소: 밤하늘에 고리를 그리며 되돌아가는 금빛 별 */}
       <PlaceBand src="/world/place-retro.webp" />
       <header className="text-center">
@@ -218,26 +257,11 @@ export default function RetrogradePage() {
 
         <h2 className="mt-12 break-keep font-display text-xl text-starlight">자주 묻는 것</h2>
         <div className="mt-5 space-y-4">
-          <Faq question="역행 기간에 계약이나 이사를 하면 안 되나요?">
-            안 되는 것은 없습니다. 다만 이 시기에는 조건을 잘못 이해한 채로 서명하는
-            일이 눈에 띄게 늘어난다고 봅니다. 날짜를 미룰 수 있으면 미루고, 미룰 수
-            없으면 조항을 한 번 더 읽으면 됩니다.
-          </Faq>
-          <Faq question="수성 역행은 모두에게 똑같이 영향을 주나요?">
-            아니요. 역행이 일어나는 하늘의 자리가 개인 차트의 어느 영역을 지나는지에
-            따라 다릅니다. 같은 역행이라도 누군가에게는 일의 영역이고 누군가에게는
-            관계의 영역입니다.
-          </Faq>
-          <Faq question="여기 날짜는 어디서 가져온 건가요?">
-            가져오지 않았습니다. 수성과 지구의 궤도 요소에서 위치를 직접 계산하고,
-            겉보기 황경의 변화율이 0이 되는 순간을 찾아 유 시각을 구했습니다. 빛이
-            오는 데 걸리는 시간과 세차운동까지 넣었습니다.
-          </Faq>
-          <Faq question="다른 행성도 역행하나요?">
-            합니다. 금성·화성·목성·토성 모두 역행하고, 바깥쪽 행성일수록 역행 기간이
-            깁니다. 수성이 유독 자주 화제가 되는 것은 주기가 짧아 자주 돌아오고,
-            맡은 영역이 일상과 가깝기 때문입니다.
-          </Faq>
+          {FAQS.map((faq) => (
+            <Faq key={faq.question} question={faq.question}>
+              {faq.answer}
+            </Faq>
+          ))}
         </div>
       </article>
 

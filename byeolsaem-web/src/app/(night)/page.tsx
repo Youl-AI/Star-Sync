@@ -7,6 +7,7 @@ import { NightsEndCall } from "@/components/sections/NightsEndCall";
 import { ResultPreview } from "@/components/sections/ResultPreview";
 import { Footer } from "@/components/sections/Footer";
 import { Reveal } from "@/components/Reveal";
+import { JsonLd, siteSchema } from "@/components/seo/JsonLd";
 import { WithoutBirthProfile } from "@/components/WithoutBirthProfile";
 import { NightEnd, NightPhase } from "@/components/sky/NightJourney";
 
@@ -30,6 +31,9 @@ import { NightEnd, NightPhase } from "@/components/sky/NightJourney";
 export default function Home() {
   return (
     <main>
+      {/* 이 사이트가 무엇인지 한 번 밝힌다 — 검색 결과의 사이트 이름이 주소가
+          아니라 '별샘'으로 나온다. */}
+      <JsonLd data={siteSchema()} />
       {/* 별의 샘 수직 세계 (2026-08-14 v4 확정: 하늘 크롭 + 2.4배 압축 — 둘 다
           데스크톱 전용, 모바일은 그림이 짧아 CSS/JS가 끈다). 크롭 56.7vw는 v4에서
           조율한 90vh(1290×813 기준)의 vw 환산값이다.

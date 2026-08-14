@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { SignArrival } from "@/components/sign/SignArrival";
 import { CARD_WIDTH } from "@/components/sign/signMorph";
 import { SignArchCard } from "@/components/ui/ArchCard";
@@ -49,6 +50,20 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
   return (
     <SignArrival sign={sign.key}>
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+      {/* 본문이 있는 자리만. 오해 문답은 화면에 그대로 있는 것이라 스키마로 낼 수
+          있다(JsonLd 주석 — 화면에 없는 것을 넣으면 정책 위반이다). */}
+      {content && (
+        <>
+          <JsonLd data={faqSchema(content.misread)} />
+          <JsonLd
+            data={breadcrumbSchema([
+              { name: "별샘", path: "/" },
+              { name: "열두 개의 방", path: "/sign" },
+              { name: sign.ko, path: `/sign/${sign.key}` },
+            ])}
+          />
+        </>
+      )}
       <header className="text-center">
         <div data-morph-veil>
           <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">{sign.range}</p>
