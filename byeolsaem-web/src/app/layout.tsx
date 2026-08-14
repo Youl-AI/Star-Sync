@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { TransitionStage } from "@/components/nav/TransitionStage";
 import "./globals.css";
 
 const maruburi = localFont({
@@ -55,7 +56,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={`${maruburi.variable} ${cinzel.variable}`}>
-      <body className="min-h-[100dvh] antialiased">{children}</body>
+      <body className="min-h-[100dvh] antialiased">
+        {children}
+        {/* 페이지 전환 크로스페이드(TransitionStage 주석 참고).
+            두 세계 모두에 걸쳐야 하므로 여기, 문서 뼈대에 마운트한다. */}
+        <TransitionStage />
+      </body>
     </html>
   );
 }
