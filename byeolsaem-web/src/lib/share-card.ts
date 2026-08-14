@@ -273,9 +273,14 @@ export function moonArt(illumination: number, phase: MoonPhaseKey): CardSpec["ar
 }
 
 /**
- * 카드를 굽고 건네준다. 파일 공유가 되는 기기(대개 모바일)에서는 공유 시트를
- * 열고, 아니면 내려받는다. 무엇이 됐든 파일은 기기 밖으로 나가지 않는다 —
- * 서버가 만드는 것이 아니라 이 브라우저가 그린 것이다.
+ * 카드를 굽고 건네준다. 터치 기기에서는 공유 시트를(사진 앱에 바로 저장하는
+ * 자연스러운 길), 데스크톱에서는 곧장 내려받는다. 무엇이 됐든 파일은 기기
+ * 밖으로 나가지 않는다 — 서버가 만드는 것이 아니라 이 브라우저가 그린 것이다.
+ *
+ * 공유 시트를 터치 기기로 한정하는 이유: Windows 데스크톱 크롬도
+ * canShare가 true라 OS 공유 대화상자가 뜨는데, 공유 대상 앱이 없는 환경에서는
+ * "공유할 수단이 없습니다" 빈 창이 나온다(2026-08-14 실사용 보고). 데스크톱에서
+ * "저장"을 누른 사람이 기대하는 것은 어차피 다운로드다.
  */
 export async function shareCard(spec: CardSpec, filename: string): Promise<void> {
   const canvas = await drawCard(spec);
@@ -283,7 +288,8 @@ export async function shareCard(spec: CardSpec, filename: string): Promise<void>
   if (!blob) throw new Error("카드를 그리지 못했습니다");
 
   const file = new File([blob], filename, { type: "image/png" });
-  if (navigator.canShare?.({ files: [file] })) {
+  const touch = matchMedia("(pointer: coarse)").matches;
+  if (touch && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file] });
       return;
