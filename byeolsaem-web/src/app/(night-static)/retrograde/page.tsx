@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PlaceBand } from "@/components/place/PlaceBand";
 import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
 import { GoldButton } from "@/components/ui/GoldButton";
@@ -53,6 +54,8 @@ export default function RetrogradePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+      {/* 역행의 장소: 밤하늘에 고리를 그리며 되돌아가는 금빛 별 */}
+      <PlaceBand src="/world/place-retro.webp" />
       <header className="text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">☿︎ MERCURY RETROGRADE</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">

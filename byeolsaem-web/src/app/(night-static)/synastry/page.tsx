@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PlaceBand } from "@/components/place/PlaceBand";
 import { SynastryReading } from "@/components/synastry/SynastryReading";
 
 export const metadata: Metadata = {
@@ -14,6 +15,8 @@ export const metadata: Metadata = {
 export default function SynastryPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 궁합의 장소: 물결이 서로 겹치는 두 개의 샘 */}
+      <PlaceBand src="/world/place-synastry.webp" />
       <header className="mx-auto max-w-xl text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">TWO SKIES</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">궁합</h1>

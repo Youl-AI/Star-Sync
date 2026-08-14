@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { NatalReading } from "@/components/chart/NatalReading";
+import { PlaceBand } from "@/components/place/PlaceBand";
 
 export const metadata: Metadata = {
   title: "나의 천궁도 | 별샘",
@@ -16,6 +17,10 @@ export default function NatalPage() {
     // 시안 B는 왼쪽에 출생 정보 기둥을 세우므로 그만큼 폭이 더 필요하다.
     // 본문 자체는 52자에서 끊기니 넓혀도 줄이 길어지지 않는다(§11.4).
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 천궁도를 읽는 장소: 촛불 하나 켜진 해석의 서재. 촛불은 천천히 숨쉰다. */}
+      <PlaceBand src="/world/place-natal.webp">
+        <div className="natal-candle" />
+      </PlaceBand>
       <header className="mx-auto max-w-xl text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">NATAL CHART</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">

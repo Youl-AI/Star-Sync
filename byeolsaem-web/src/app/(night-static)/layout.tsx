@@ -21,7 +21,8 @@ export default function NightStaticLayout({ children }: { children: React.ReactN
         <style>{`[data-reveal]{opacity:1;transform:none}`}</style>
       </noscript>
 
-      <div className="nebula-bg pointer-events-none fixed inset-0 z-0" aria-hidden>
+      {/* 바탕은 메인의 성운이 아니라 심연이다 — 도구는 샘 아래에서 열린다(.deep-bg 주석). */}
+      <div className="deep-bg pointer-events-none fixed inset-0 z-0" aria-hidden>
         <StaticStars />
       </div>
 

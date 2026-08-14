@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PlaceBand } from "@/components/place/PlaceBand";
 import { YearScope } from "@/components/yearly/YearScope";
 import { getFortuneYear } from "@/lib/date";
 import { yearBackdrop } from "@/lib/yearly-reading";
@@ -27,6 +28,8 @@ export const metadata: Metadata = {
 export default function YearlyPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 한 해의 장소: 별을 싣고 흐르는 밤의 강 — YearFlow의 강 은유가 여기서 시작된다 */}
+      <PlaceBand src="/world/place-yearly.webp" />
       <header className="mx-auto max-w-xl text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">THE YEAR AHEAD</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">

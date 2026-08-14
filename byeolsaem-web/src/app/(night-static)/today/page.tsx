@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PlaceBand } from "@/components/place/PlaceBand";
 import { TodayCard } from "@/components/today/TodayCard";
 
 export const metadata: Metadata = {
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 export default function TodayPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 오늘의 하늘이 열리는 장소: 별이 비치는 샘의 수면 */}
+      <PlaceBand src="/world/place-today.webp" />
       <header className="mx-auto max-w-xl text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold">TONIGHT&rsquo;S SKY</p>
         <h1 className="mt-4 break-keep font-display text-3xl text-starlight md:text-4xl">
