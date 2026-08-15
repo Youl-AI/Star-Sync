@@ -49,6 +49,23 @@ export const metadata: Metadata = {
     // 수집기와 RSS 리더가 주소를 몰라도 피드를 찾을 수 있게 한다(lib/rss.ts 참고).
     types: { "application/rss+xml": "/rss.xml" },
   },
+  /**
+   * 링크 미리보기. 자기 카드를 따로 두지 않은 모든 경로가 이 그림을 쓴다
+   * (별자리 상세만 자기 성좌를 쓴다).
+   *
+   * 그림은 scripts/build-og.mjs가 미리 구워 public/og/에 둔 **파일**이다. Next의
+   * opengraph-image 파일 규칙도 되지만 그 결과물은 확장자가 없는 주소로 나가고,
+   * 우리 호스트는 확장자로 content-type을 정해서 타입 헤더 없이 서빙된다
+   * — 카카오·X는 그걸 보고 이미지를 그릴지 정하므로 미리보기가 죽는다(실측).
+   */
+  openGraph: {
+    type: "website",
+    siteName: "별샘",
+    locale: "ko_KR",
+    url: "https://byeolsaem.com",
+    images: [{ url: "/og/default.png", width: 1200, height: 630, alt: "별샘" }],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 /**

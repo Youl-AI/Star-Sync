@@ -37,6 +37,15 @@ export async function generateMetadata({
     // 본문이 없는 페이지는 색인시키지 않는다. 얇은 페이지가 색인되면 사이트
     // 전체의 평가가 내려간다(RENEWAL_PLAN §2.4).
     robots: content ? undefined : { index: false, follow: true },
+    // 자기 성좌가 그려진 공유 카드. 열두 장이 서로 다른 그림이라 공유될 때
+    // 그 자체가 이 사이트의 얼굴이 된다(scripts/build-og.mjs).
+    openGraph: {
+      title: `${sign.ko} (${sign.range})`,
+      description: sign.tagline,
+      images: [
+        { url: `/og/sign/${sign.key}.png`, width: 1200, height: 630, alt: `${sign.ko} 성좌` },
+      ],
+    },
   };
 }
 

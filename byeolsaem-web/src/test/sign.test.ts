@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ZODIAC_SIGNS } from "../lib/zodiac";
 import { SIGN_CONTENT, getSignBySlug, getSignContent } from "../lib/sign-content";
@@ -72,6 +74,34 @@ describe("별자리 본문", () => {
         .replace(/\s/g, "").length;
       // 스펙 §6.4가 요구하는 2,000자는 공백 포함 기준이라 여기서는 조금 낮춰 잡는다.
       expect(chars, `${key}: ${chars}자`).toBeGreaterThanOrEqual(1500);
+    }
+  });
+});
+
+describe("공유 카드", () => {
+  const OG_DIR = join(process.cwd(), "public/og");
+
+  it("사이트 기본 카드가 있다", () => {
+    expect(existsSync(join(OG_DIR, "default.png"))).toBe(true);
+  });
+
+  /**
+   * 별자리를 추가하거나 key를 바꾸면 카드가 없는 채로 메타데이터만 그 주소를
+   * 가리키게 된다. 링크를 공유해 보기 전에는 아무도 모르는 종류의 고장이라
+   * 여기서 막는다. 고치는 법: node --experimental-strip-types scripts/build-og.mjs
+   */
+  it("열두 별자리 카드가 모두 있다", () => {
+    const missing = ZODIAC_SIGNS.filter(
+      (s) => !existsSync(join(OG_DIR, "sign", `${s.key}.png`)),
+    ).map((s) => s.key);
+    expect(missing, "scripts/build-og.mjs를 다시 돌리세요").toEqual([]);
+  });
+
+  it("카드가 PNG이고 비어 있지 않다", () => {
+    for (const s of ZODIAC_SIGNS) {
+      const buf = readFileSync(join(OG_DIR, "sign", `${s.key}.png`));
+      expect(buf.subarray(0, 4).toString("hex"), s.key).toBe("89504e47");
+      expect(buf.length, s.key).toBeGreaterThan(10_000);
     }
   });
 });
