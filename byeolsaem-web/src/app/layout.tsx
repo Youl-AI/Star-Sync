@@ -33,6 +33,9 @@ const cinzel = localFont({
 });
 
 export const metadata: Metadata = {
+  // 공유 카드의 og:image는 절대 주소여야 한다. 이 값이 없으면 Next가
+  // http://localhost:3000을 넣어 배포본에 그대로 박힌다(실측).
+  metadataBase: new URL("https://byeolsaem.com"),
   title: "별샘 | 당신이 태어난 밤, 하늘은 기억하고 있어요",
   description:
     "태어난 순간의 실제 하늘로 읽는 나의 이야기. 천궁도, 오늘의 하늘, 별자리 궁합.",

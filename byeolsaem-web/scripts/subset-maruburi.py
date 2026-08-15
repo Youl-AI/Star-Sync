@@ -78,7 +78,7 @@ def characters_in_repo() -> set[str]:
     return found
 
 
-def subset(source: Path, target: Path, text: str) -> None:
+def subset(source: Path, target: Path, text: str, flavor: str = "woff2") -> None:
     subprocess.run(
         [
             sys.executable,
@@ -86,7 +86,7 @@ def subset(source: Path, target: Path, text: str) -> None:
             "fontTools.subset",
             str(source),
             f"--text={text}",
-            "--flavor=woff2",
+            *([f"--flavor={flavor}"] if flavor else []),
             f"--output-file={target}",
             "--layout-features=*",
             "--no-hinting",
@@ -94,6 +94,34 @@ def subset(source: Path, target: Path, text: str) -> None:
         ],
         check=True,
     )
+
+
+# ── 공유 카드(OG 이미지)용 ────────────────────────────────────────────────
+#
+# 링크 미리보기 이미지는 빌드할 때 Satori가 그리는데, 이 엔진은 woff2를 읽지
+# 못한다(ttf·otf·woff만). 게다가 폰트가 이미지 번들 500KB 안에 들어가야 해서
+# 위의 2,500자짜리 서브셋을 ttf로 바꾸면(약 3MB) 예산을 한참 넘긴다.
+#
+# 그래서 공유 카드에 실제로 찍히는 글자만 따로 잘라 ttf로 낸다. 그 글자는
+# 사이트 이름과 열두 별자리의 이름·기간·한 줄 문구뿐이라 200자 안팎이다.
+OG_TEXT_SOURCES = [ROOT / "src" / "lib" / "zodiac.ts"]
+OG_EXTRA = (
+    "별샘"
+    "당신이 태어난 밤, 하늘은 기억하고 있어요"
+    "태어난 순간의 실제 하늘로 읽는 나의 이야기"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789 .,-·—'"
+)
+
+
+def og_charset() -> set[str]:
+    found = set(OG_EXTRA)
+    for path in OG_TEXT_SOURCES:
+        found.update(path.read_text(encoding="utf-8", errors="ignore"))
+    # 소스 파일에서 긁으므로 코드에 쓰인 라틴·기호가 섞여 들어온다. 한글과
+    # 위에서 명시한 것만 남기면 글리프 수가 크게 줄어든다.
+    return {c for c in found if ("가" <= c <= "힣" or c in OG_EXTRA) and c.isprintable()}
 
 
 def main() -> None:
@@ -122,6 +150,12 @@ def main() -> None:
         before = source.stat().st_size
         after = target.stat().st_size
         print(f"{name}: {before / 1024:,.0f}KB → {after / 1024:,.0f}KB")
+
+    # 공유 카드용 ttf (OG_TEXT_SOURCES 주석 참고)
+    og_text = "".join(sorted(og_charset()))
+    og_target = OUT / "MaruBuri-OG.ttf"
+    subset(VENDOR / "MaruBuri-Bold.woff2", og_target, og_text, flavor="")
+    print(f"MaruBuri-OG.ttf: {len(og_charset()):,}자 → {og_target.stat().st_size / 1024:,.0f}KB")
 
 
 if __name__ == "__main__":
