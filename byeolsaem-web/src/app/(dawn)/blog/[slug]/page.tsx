@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { DawnDocument } from "@/components/dawn/Document";
 import { JsonLd, SITE_URL, breadcrumbSchema } from "@/components/seo/JsonLd";
 import { POSTS, formatPublished, getPost } from "@/content/blog";
+import { alternatesFor } from "@/lib/metadata";
 
 type Params = { slug: string };
 
@@ -49,6 +50,9 @@ export async function generateMetadata({
   return {
     title: `${post.title} | 별샘 칼럼`,
     description: post.summary,
+    // 슬러그가 한글이라 정규 주소는 퍼센트 인코딩된 형태로 나간다. 사이트맵·RSS와
+    // 같은 표기여야 검색엔진이 같은 문서로 센다.
+    alternates: alternatesFor(`/blog/${post.slug}`),
     openGraph: {
       type: "article",
       title: post.title,

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DawnDocument, DawnSection } from "@/components/dawn/Document";
+import { alternatesFor } from "@/lib/metadata";
 
 export const metadata: Metadata = {
   title: "소개 | 별샘",
   description:
     "별샘은 태어난 순간의 실제 행성 배치를 계산해 읽어주는 점성술 서비스입니다. 무작위 카드가 아니라 천문 계산에서 출발합니다.",
+  alternates: alternatesFor("/about"),
 };
 
 export default function AboutPage() {

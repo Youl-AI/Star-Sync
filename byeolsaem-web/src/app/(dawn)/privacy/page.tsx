@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { DawnDocument, DawnSection } from "@/components/dawn/Document";
+import { alternatesFor } from "@/lib/metadata";
 
 export const metadata: Metadata = {
   title: "개인정보처리방침 | 별샘",
   description:
     "별샘이 수집하는 정보, 저장 위치, 보관 기간, 제3자 처리 위탁과 이용자의 권리를 안내합니다.",
+  alternates: alternatesFor("/privacy"),
 };
 
 // 정책 문서는 같은 템플릿에서 장식(장 번호·드롭캡)을 뺀 판을 쓴다(스펙 §6.8).

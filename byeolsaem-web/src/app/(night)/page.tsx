@@ -10,6 +10,15 @@ import { Reveal } from "@/components/Reveal";
 import { JsonLd, siteSchema } from "@/components/seo/JsonLd";
 import { WithoutBirthProfile } from "@/components/WithoutBirthProfile";
 import { NightEnd, NightPhase } from "@/components/sky/NightJourney";
+import type { Metadata } from "next";
+import { alternatesFor } from "@/lib/metadata";
+
+// 제목·설명은 루트 레이아웃의 값이 그대로 이 페이지의 것이라 다시 적지 않는다.
+// 여기서 필요한 건 정규 주소뿐이다 — 공유 링크에 파라미터가 붙어 들어와도
+// (`?utm_source=…`, 페이스북이 붙이는 `?fbclid=…`) 한 주소로 세어지도록.
+export const metadata: Metadata = {
+  alternates: alternatesFor("/"),
+};
 
 // SkyBackdrop과 Veil은 layout.tsx에서 전역으로 마운트돼 있다 (relative z-10 래퍼 안에서
 // 히어로가 그 위에 그려진다) — 여기서 다시 만들지 않는다.

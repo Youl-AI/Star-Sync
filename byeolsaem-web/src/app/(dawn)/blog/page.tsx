@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { POSTS, formatPublished } from "@/content/blog";
+import { alternatesFor } from "@/lib/metadata";
 
 export const metadata: Metadata = {
   title: "칼럼 | 별샘",
   description:
     "점성술을 처음 읽는 사람을 위한 글. 하우스와 상승궁, 수성 역행, 달의 위상처럼 자주 묻는 것부터 차례로 다룹니다.",
+  alternates: alternatesFor("/blog"),
 };
 
 export default function BlogIndexPage() {

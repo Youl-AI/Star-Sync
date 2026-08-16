@@ -7,6 +7,7 @@ import { CARD_WIDTH } from "@/components/sign/signMorph";
 import { SignArchCard } from "@/components/ui/ArchCard";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { LineDiamond } from "@/components/ui/LineDiamond";
+import { alternatesFor } from "@/lib/metadata";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 import { getSignBySlug, getSignContent } from "@/lib/sign-content";
 
@@ -37,6 +38,8 @@ export async function generateMetadata({
     // 본문이 없는 페이지는 색인시키지 않는다. 얇은 페이지가 색인되면 사이트
     // 전체의 평가가 내려간다(RENEWAL_PLAN §2.4).
     robots: content ? undefined : { index: false, follow: true },
+    // 색인시키지 않는 쪽에는 정규 주소도 주지 않는다 — 서로 어긋나는 신호다.
+    alternates: content ? alternatesFor(`/sign/${sign.key}`) : undefined,
     // 자기 성좌가 그려진 공유 카드. 열두 장이 서로 다른 그림이라 공유될 때
     // 그 자체가 이 사이트의 얼굴이 된다(scripts/build-og.mjs).
     openGraph: {

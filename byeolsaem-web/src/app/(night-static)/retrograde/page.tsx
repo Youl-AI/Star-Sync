@@ -6,6 +6,7 @@ import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { LineDiamond } from "@/components/ui/LineDiamond";
+import { alternatesFor } from "@/lib/metadata";
 import {
   formatZodiacDegree,
   mercuryRetrogrades,
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
   title: "수성 역행 — 지금 역행 중인가요? | 별샘",
   description:
     "수성 역행 기간을 궤도 계산으로 직접 구했습니다. 지금이 역행 중인지, 다음 역행이 언제인지, 그리고 수성이 하늘에 그리는 실제 역행 고리까지.",
+  alternates: alternatesFor("/retrograde"),
 };
 
 /**

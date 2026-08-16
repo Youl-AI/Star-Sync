@@ -18,7 +18,10 @@ const BASE = "https://byeolsaem.com";
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const tools: MetadataRoute.Sitemap = [
-    { url: `${BASE}/`, priority: 1 },
+    // 끝의 슬래시를 붙이지 않는다. Next가 메인의 canonical을 BASE 그대로
+    // 내보내므로, 여기에만 슬래시를 붙이면 사이트맵과 canonical의 표기가 갈린다
+    // (같은 주소로 취급되긴 하지만 굳이 다르게 적을 이유가 없다).
+    { url: BASE, priority: 1 },
     { url: `${BASE}/today`, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/retrograde`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/yearly`, changeFrequency: "monthly", priority: 0.8 },
