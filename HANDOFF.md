@@ -1,8 +1,16 @@
-# Star-Sync 인수인계 문서
+# 별샘 인수인계 문서
 
 > 작성일 2026-08-09
 > 배포 주소: https://byeolsaem.com (구 daily-star-sync.vercel.app → 308 리다이렉트)
 > 이 문서는 실제 배포본을 브라우저로 직접 방문·측정한 결과다. 추정치가 아니다.
+
+> **읽기 전에 (2026-08-17 갱신)**
+> 이 문서는 **구 사이트(Star Sync)를 진단한 기록**이다. 그 사이트는 리뉴얼로 대체됐고,
+> 코드는 저장소에서 삭제됐다(git 히스토리에는 남아 있다). 그러니 §1 실측값과
+> §2 "오늘 할 일"은 **당시의 상태**로 읽을 것 — `index.html:374` 같은 행 번호는
+> 더 이상 가리킬 파일이 없다.
+> 여전히 유효한 것은 **§3 향후 전략 · §4 판단 게이트 · §5 하지 말 것**이다.
+> 현재 구조는 `README.md`, 실행 계획은 `RENEWAL_PLAN.md`를 본다.
 
 ---
 
@@ -135,7 +143,7 @@ README에는 "GA 연결"이라 적혀 있으나 **배포본에 추적 코드가 
 **② 재방문할 이유가 없다.**
 현재 구조는 한 번 보면 끝이다. 운세 서비스의 트래픽은 **매일 여는 사용자**에서 나온다.
 
-| | 포스텔러 · 점신 | Star-Sync 현재 |
+| | 포스텔러 · 점신 | 별샘 (2026-08 리뉴얼 전) |
 | --- | --- | --- |
 | 주제 | 사주 · 토정비결 · 궁합 | 서양 점성술 |
 | 콘텐츠량 | 200페이지+ | 1만자 미만 |
@@ -262,28 +270,39 @@ README에는 "GA 연결"이라 적혀 있으나 **배포본에 추적 코드가 
 
 ## 6. 저장소 구조 참고
 
+> 2026-08-17 갱신. 아래 구 사이트 트리는 삭제됐고 현재 구조로 대체했다.
+
 ```
-Star-Sync/
+byeolsaem/
+├─ byeolsaem-web/      현재 서비스 (Next 16 · 정적 export → Cloudflare)
+├─ main.py             FastAPI 백엔드 (Render). 지금은 호출하는 곳이 없다
+├─ logic.py            kerykeion 차트 계산 + Gemini 호출
+├─ requirements.txt
+├─ measure_latency.py  백엔드 응답 시간 측정
+├─ wrangler.jsonc      Cloudflare — byeolsaem-web/out 을 서빙
+├─ vercel.json         구 vercel.app → byeolsaem.com 301 (삭제 금지)
+├─ HANDOFF.md          이 문서
+└─ RENEWAL_PLAN.md     리뉴얼 실행 계획
+```
+
+<details>
+<summary>삭제된 구 사이트 트리 (2026-08-17 이전)</summary>
+
+```
 ├─ index.html          메인 (33KB) — 폼 · 결과 영역 · 블로그 카드 · 한/영 동시 포함
 ├─ script.js           프론트 로직 (36KB) — analyze() 는 468행부터
 ├─ style.css           (36KB)
 ├─ blog.html ~ blog5.html   칼럼 5편 (각 약 1,100자)
 ├─ blog-list.html      칼럼 목록
 ├─ about.html / privacy.html
-├─ ads.txt             pub-6538739927923803
-├─ og-image.png        ⚠ 7.7MB
-├─ main.py             FastAPI 백엔드 (Render 배포)
-├─ logic.py            천궁도 계산 + Gemini 호출
-└─ requirements.txt
+├─ ads.txt             pub-6538739927923803  → byeolsaem-web/public/ads.txt 로 이관
+└─ og-image.png        ⚠ 7.7MB
 ```
 
-**주요 지점**
-- `script.js:468` `analyze()` 진입
-- `script.js:478` 입력 검증
-- `script.js:489` 로딩 표시 on
-- `script.js:553` 결과 표시 — **여기에 `scrollIntoView` 추가**
-- `index.html:38` 애드센스 스크립트
-- `index.html:374` 문의 mailto — **플레이스홀더**
+위 문서에서 참조하는 `script.js:553`, `index.html:374` 같은 행 번호는
+전부 이 트리 기준이다. 복원하려면 `git log -- index.html` 로 찾는다.
+
+</details>
 
 ---
 

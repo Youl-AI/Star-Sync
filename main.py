@@ -18,7 +18,7 @@ load_dotenv()
 COUPANG_ACCESS_KEY = os.getenv("COUPANG_ACCESS_KEY")
 COUPANG_SECRET_KEY = os.getenv("COUPANG_SECRET_KEY")
 
-app = FastAPI(title="Star Sync API")
+app = FastAPI(title="별샘 API")
 
 # CORS 설정
 app.add_middleware(

@@ -46,7 +46,7 @@ def get_location_info(city, country):
     User-Agent를 추가하여 차단을 방지하고, 위치 정보를 가져옵니다.
     """
     try:
-        geolocator = Nominatim(user_agent="daily-star-sync/1.0 (hayoul1999@gmail.com)") 
+        geolocator = Nominatim(user_agent="byeolsaem/1.0 (hayoul1999@gmail.com)")
         
         # 타임아웃 설정 추가
         location = geolocator.geocode(f"{city}, {country}", timeout=10)

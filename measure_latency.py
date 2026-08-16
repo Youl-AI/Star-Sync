@@ -1,5 +1,10 @@
 """
-Star Sync /analyze 엔드포인트의 실제 응답 시간을 잰다.
+별샘 백엔드(FastAPI)의 /analyze 엔드포인트 응답 시간을 잰다.
+
+이 엔드포인트는 구 사이트(Star Sync)가 쓰던 경로다. 리뉴얼된 byeolsaem.com은
+차트를 브라우저에서 계산하므로 이 백엔드를 호출하지 않는다. 스크립트를 남겨 둔
+이유는 두 가지다 — 백엔드가 살아 있는지 확인할 수단이고, 이력서에 적은
+"평균 응답 14.7초"가 어떻게 나온 숫자인지 보여주는 근거다.
 
 Render 무료 플랜은 비활성 15분 뒤 인스턴스가 잠든다. 첫 요청은 서버가
 깨어나는 시간까지 포함해 수십 초가 걸리므로, 그 값을 평균에 넣으면
@@ -27,6 +32,8 @@ import time
 import urllib.error
 import urllib.request
 
+# Render 서비스 이름은 아직 star-sync 다. 대시보드에서 바꾸면 여기와
+# ../byeolsaem-keepalive/worker.js 두 곳을 함께 고쳐야 한다.
 URL = "https://star-sync.onrender.com/analyze"
 
 CITIES = [("Seoul", "KR"), ("Busan", "KR"), ("Incheon", "KR"),
@@ -57,7 +64,7 @@ def call(body, timeout=180):
     req = urllib.request.Request(
         URL, data=data,
         headers={"Content-Type": "application/json",
-                 "User-Agent": "star-sync-latency-probe"},
+                 "User-Agent": "byeolsaem-latency-probe"},
         method="POST")
     t0 = time.perf_counter()
     try:
