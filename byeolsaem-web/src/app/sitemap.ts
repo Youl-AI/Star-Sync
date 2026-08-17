@@ -9,9 +9,10 @@ export const dynamic = "force-static";
 const BASE = "https://byeolsaem.com";
 
 /**
- * 색인시킬 페이지만 싣는다. noindex인 /natal·/synastry, 본문이 아직 없는
- * 별자리 상세는 뺀다 — 사이트맵에 있는데 noindex인 주소는 Search Console에서
- * 경고로 쌓여 신뢰만 깎는다.
+ * 색인시킬 페이지만 싣는다. 본문이 아직 없는 별자리 상세는 뺀다 — 사이트맵에
+ * 있는데 noindex인 주소는 Search Console에서 경고로 쌓여 신뢰만 깎는다.
+ * (/natal·/synastry도 한동안 그래서 빠져 있었다. primer가 붙어 색인 대상이
+ * 되면서 다시 들어왔다 — 각 페이지의 metadata 주석 참고.)
  *
  * lastModified는 아는 것만 적는다: 칼럼은 발행일이 있고, 나머지는 배포마다
  * 갱신되므로 굳이 거짓 날짜를 만들지 않는다.
@@ -24,6 +25,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: BASE, priority: 1 },
     { url: `${BASE}/today`, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/retrograde`, changeFrequency: "weekly", priority: 0.9 },
+    // 계산은 브라우저가 하지만 안내 본문은 배포마다 그대로다.
+    { url: `${BASE}/natal`, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/synastry`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/yearly`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/sign`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/blog`, changeFrequency: "weekly", priority: 0.6 },

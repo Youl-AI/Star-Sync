@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { alternatesFor } from "@/lib/metadata";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { SynastryPrimer } from "@/components/synastry/SynastryPrimer";
 import { SynastryReading } from "@/components/synastry/SynastryReading";
@@ -7,10 +8,9 @@ export const metadata: Metadata = {
   title: "궁합 | 별샘",
   description:
     "두 사람의 출생 차트가 서로의 어디를 건드리는지 계산합니다. 궁합 점수가 아니라 두 하늘이 맺는 실제 각도이고, 상대의 정보는 저장하지 않습니다.",
-  // 두 사람의 출생 정보가 있어야 내용이 생기는 페이지다. 검색엔진이 보는 것은
-  // 안내뿐이므로 색인시키지 않는다 — 얇은 페이지가 색인되면 사이트 전체의
-  // 평가가 내려간다(RENEWAL_PLAN §2.4).
-  robots: { index: false, follow: true },
+  // /natal과 같은 이유로 noindex를 풀었다(그쪽 주석 참고). SynastryPrimer가
+  // 두 사람의 정보 없이도 읽을 것을 깔아 준다.
+  alternates: alternatesFor("/synastry"),
 };
 
 export default function SynastryPage() {

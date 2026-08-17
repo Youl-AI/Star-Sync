@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { alternatesFor } from "@/lib/metadata";
 import { NatalPrimer } from "@/components/chart/NatalPrimer";
 import { NatalReading } from "@/components/chart/NatalReading";
 import { PlaceBand } from "@/components/place/PlaceBand";
@@ -7,10 +8,17 @@ export const metadata: Metadata = {
   title: "나의 천궁도 | 별샘",
   description:
     "태어난 순간의 행성 배치를 계산해 읽어 드립니다. 태양과 달, 상승궁, 열 개의 별과 하우스, 그리고 별 사이의 각도까지.",
-  // 저장된 출생 정보가 있어야 내용이 생기는 페이지다. 검색엔진이 보는 것은
-  // "정보를 남겨 달라"는 안내뿐이므로 색인시키지 않는다. 얇은 페이지가 색인되면
-  // 사이트 전체의 평가가 내려간다(RENEWAL_PLAN §2.4).
-  robots: { index: false, follow: true },
+  /**
+   * 한동안 noindex였다. 출생 정보가 없으면 크롤러에게 보이는 것이 "정보를
+   * 남겨 달라"는 안내뿐이라, 얇은 페이지로 사이트 평가를 깎을 이유가 없었다
+   * (RENEWAL_PLAN §2.4).
+   *
+   * 그 전제가 NatalPrimer로 사라졌다. 차트가 없어도 하우스·행성·어스펙트를
+   * 무엇부터 읽는지가 누구에게나 같은 본문으로 먼저 깔린다 — 색인되는 대상은
+   * 개인의 차트가 아니라 그 안내다. "천궁도"는 이 사이트가 가장 정면으로
+   * 답하는 검색어인데 스스로 막아 둘 이유가 없다.
+   */
+  alternates: alternatesFor("/natal"),
 };
 
 export default function NatalPage() {
