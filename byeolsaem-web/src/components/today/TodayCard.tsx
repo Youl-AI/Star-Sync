@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart } from "@/lib/chart";
@@ -38,6 +39,8 @@ export function TodayCard() {
 
   const sky = useMemo(() => (now ? todaySky(now) : null), [now]);
   const front = useMemo(() => (sky ? todayFront(sky) : null), [sky]);
+  const mercuryRetrograde =
+    sky?.placements.find((p) => p.planet === "mercury")?.retrograde ?? false;
 
   const back = useMemo(() => {
     if (!sky || !profile) return null;
@@ -88,6 +91,19 @@ export function TodayCard() {
           {front.phaseName} · {front.illumination}%
         </p>
         <p className="text-meta text-starlight-dim">달 {front.moonSign}</p>
+        {/* 역행 중일 때만 나온다. 이 사이트에서 검색량이 가장 크게 뛰는 주제인데,
+            정작 "지금 역행인가"를 묻는 사람에게는 머리글 메뉴 말고 길이 없었다.
+            오늘 하늘의 계산 결과에 이미 행성별 역행 여부가 들어 있어(lib/today.ts)
+            따로 구하지 않는다. */}
+        {mercuryRetrograde && (
+          <Link
+            href="/retrograde"
+            className="mt-3 inline-block border-b border-gold/40 pb-0.5 text-meta text-gold-soft transition-colors hover:border-gold-soft hover:text-starlight"
+          >
+            지금 수성 역행 중
+            <span aria-hidden> →</span>
+          </Link>
+        )}
         {profile ? (
           <>
             <p className="mt-3 text-meta text-gold-soft">{formatBirthDate(profile.date)}</p>
