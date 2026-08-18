@@ -9,6 +9,8 @@ import type { RitualData } from "@/components/hero/RitualForm";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart, type Chart } from "@/lib/chart";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
+import Link from "next/link";
+import { getSunSign } from "@/lib/zodiac";
 import { openBirthPanel, requestRitual } from "@/lib/ritual";
 import {
   synastryReading,
@@ -214,6 +216,11 @@ export function SynastryReading() {
               </>
             )}
 
+            {/* 상대의 생년월일을 방금 받았으니 그 사람의 태양궁을 이미 안다.
+                일반 메뉴 대신 그 자리로 보낸다 — 열두 장을 이미 써 두었고,
+                "그 사람은 어떤 사람인가"가 궁합 다음에 오는 물음이다. */}
+            <PartnerRoom date={partner.date} />
+
             <p className="mt-14 max-w-[52ch] break-keep text-meta text-starlight-dim">
               상대의 정보는 어디에도 저장되지 않았습니다. 계산은 이 브라우저 안에서
               끝났고, 새로고침하면 사라집니다.
@@ -221,6 +228,26 @@ export function SynastryReading() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/** 궁합을 다 읽은 사람이 다음에 궁금해하는 것 — 상대의 자리. */
+function PartnerRoom({ date }: { date: string }) {
+  const sign = getSunSign(date);
+  return (
+    <div className="mt-16 border-t border-gold/15 pt-10">
+      <p className="max-w-[52ch] break-keep leading-relaxed text-starlight-dim">
+        상대의 태양은 <span className="text-starlight">{sign.ko}</span>에 있습니다.
+        각도가 둘 사이의 일이라면, 그 자리는 그 사람 혼자서도 그런 사람인 부분입니다.
+      </p>
+      <Link
+        href={`/sign/${sign.key}`}
+        className="mt-4 inline-block border-b border-gold/40 pb-0.5 text-gold-soft transition-colors hover:border-gold-soft hover:text-starlight"
+      >
+        {sign.ko} 읽어 보기
+        <span aria-hidden> →</span>
+      </Link>
     </div>
   );
 }

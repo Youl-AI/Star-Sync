@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Wordmark } from "../brand/Wordmark";
 import { BirthMenu } from "./BirthMenu";
@@ -8,20 +8,36 @@ import { BirthMenu } from "./BirthMenu";
 const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
 
 /**
- * 실제로 존재하는 페이지만 건다.
+ * 머리글의 길. 성격이 다른 두 무리로 나눈다.
  *
- * 여기 있던 /today · /natal · /synastry는 아직 만들어지지 않은 페이지였고,
- * 이 머리글은 사이트 전체에 붙으므로 모든 페이지가 404로 가는 링크를 세 개씩
- * 달고 다니던 셈이다. 천궁도와 궁합으로 가는 길은 메인의 "세 개의 문"이 이미
- * 맡고 있으니 잃는 것도 없다. 그 페이지들이 생기면 그때 다시 올린다.
+ *   도구  — 내 출생 정보가 있어야 말이 되는 곳
+ *   읽을거리 — 누가 보든 같은 것이 나오는 곳
+ *
+ * 전에는 여기서 /natal·/synastry·/today가 빠져 있었다. 만들어지지 않은
+ * 페이지였던 시절의 흔적인데, 그 사이 셋 다 생겼고 색인까지 열었다. 그래서
+ * 구글에서 "천궁도"로 들어온 사람이 궁합이 있다는 것조차 알 길이 없었다 —
+ * 유일한 통로가 메인의 세로 여정을 스크롤해 세 개의 문까지 내려가는 것이었다.
+ *
+ * 라벨은 줄인다. 페이지 안의 제목은 "오늘의 하늘"·"한 해의 하늘" 그대로 두되
+ * 여기서는 "오늘"·"한 해"로 적는다 — 일곱 개가 한 줄에 서려면 글자가 짧아야
+ * 하고, 문맥이 있는 자리에서는 짧은 쪽이 오히려 빨리 읽힌다.
+ *
+ * 소개는 뺐다. 바닥글에 이미 있어서 두 번 걸 이유가 없다.
  */
-const LINKS = [
-  { href: "/today", label: "오늘의 하늘" },
+const TOOLS = [
+  { href: "/natal", label: "천궁도" },
+  { href: "/today", label: "오늘" },
+  { href: "/yearly", label: "한 해" },
+  { href: "/synastry", label: "궁합" },
+];
+
+const READS = [
   { href: "/sign", label: "별자리" },
   { href: "/retrograde", label: "수성 역행" },
   { href: "/blog", label: "칼럼" },
-  { href: "/about", label: "소개" },
 ];
+
+const LINKS = [...TOOLS, ...READS];
 
 export function Veil() {
   const [scrolled, setScrolled] = useState(false);
@@ -81,8 +97,20 @@ export function Veil() {
             <Wordmark size="nav" />
           </Link>
 
-          <div className="hidden items-center gap-7 md:flex">
-            {LINKS.map((l) => (
+          <div className="hidden items-center gap-5 md:flex lg:gap-7">
+            {TOOLS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="text-sm text-starlight-dim transition-colors hover:text-starlight"
+              >
+                {l.label}
+              </Link>
+            ))}
+            {/* 두 무리를 가르는 금선. 일곱이 평평하게 늘어서면 무엇이 도구이고
+                무엇이 읽을거리인지 구분이 사라진다. */}
+            <span aria-hidden className="h-3.5 w-px bg-gold/25" />
+            {READS.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
@@ -129,18 +157,23 @@ export function Veil() {
         aria-hidden={!open}
       >
         {LINKS.map((l, i) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            tabIndex={open ? 0 : -1}
-            onClick={() => setOpen(false)}
-            style={{ transitionDelay: open ? `${i * 60}ms` : "0ms" }}
-            className={`font-display text-2xl text-starlight transition-all duration-300 ${
-              open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-            }`}
-          >
-            {l.label}
-          </Link>
+          <Fragment key={l.href}>
+            <Link
+              href={l.href}
+              tabIndex={open ? 0 : -1}
+              onClick={() => setOpen(false)}
+              style={{ transitionDelay: open ? `${i * 60}ms` : "0ms" }}
+              className={`font-display text-2xl text-starlight transition-all duration-300 ${
+                open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+              }`}
+            >
+              {l.label}
+            </Link>
+            {/* 도구와 읽을거리 사이. 데스크톱의 금선과 같은 자리를 세로로 옮긴 것이다. */}
+            {i === TOOLS.length - 1 && (
+              <span aria-hidden className="h-px w-10 bg-gold/25" />
+            )}
+          </Fragment>
         ))}
         {/* 데스크톱의 금색 인장은 md:flex 안에 있어 모바일에서는 보이지 않았다.
             그래서 휴대폰으로 온 사람에게는 저장된 정보를 지울 길이 아예 없었다. */}

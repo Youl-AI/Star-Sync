@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PlaceBand } from "@/components/place/PlaceBand";
+import { NextSteps } from "@/components/nav/NextSteps";
 import { YearScope } from "@/components/yearly/YearScope";
 import { getFortuneYear } from "@/lib/date";
 import { alternatesFor } from "@/lib/metadata";
@@ -45,6 +46,17 @@ export default function YearlyPage() {
       <div className="mt-14">
         <YearScope backdrops={BACKDROPS} />
       </div>
+
+      <NextSteps
+        lead={
+          <>
+            한 해는 넓게 보는 눈금입니다. 그 날짜들이 오늘 어디까지 와 있는지는
+            오늘의 하늘이 짧게 잘라 보여 줍니다.
+          </>
+        }
+        primary={{ href: "/today", label: "그래서 오늘은" }}
+        secondary={{ href: "/natal", label: "이 날짜들이 걸리는 자리" }}
+      />
     </main>
   );
 }

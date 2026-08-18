@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { alternatesFor } from "@/lib/metadata";
 import { PlaceBand } from "@/components/place/PlaceBand";
+import { NextSteps } from "@/components/nav/NextSteps";
 import { SynastryPrimer } from "@/components/synastry/SynastryPrimer";
 import { SynastryReading } from "@/components/synastry/SynastryReading";
 
@@ -34,6 +35,19 @@ export default function SynastryPage() {
       {/* 두 사람의 정보가 있어야 결과가 생긴다. 그 전에도 읽을 것을 둔다
           (SynastryPrimer 주석 참고). */}
       <SynastryPrimer />
+
+      {/* 상대의 자리로 가는 개인화된 길은 결과 안에 있다(PartnerRoom).
+          여기 있는 것은 정보가 없는 사람과 크롤러를 위한 정적인 길이다. */}
+      <NextSteps
+        lead={
+          <>
+            두 하늘이 맺는 각도는 관계의 이야기입니다. 그 전에 각자의 하늘이 있고,
+            내 것을 알아야 무엇이 겹치는지도 보입니다.
+          </>
+        }
+        primary={{ href: "/natal", label: "내 하늘 먼저 보기" }}
+        secondary={{ href: "/sign", label: "열두 개의 방" }}
+      />
     </main>
   );
 }

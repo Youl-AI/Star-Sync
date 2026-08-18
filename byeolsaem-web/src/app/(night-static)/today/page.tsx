@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { alternatesFor } from "@/lib/metadata";
 import { PlaceBand } from "@/components/place/PlaceBand";
+import { NextSteps } from "@/components/nav/NextSteps";
 import { MoonPrimer } from "@/components/today/MoonPrimer";
 import { TodayCard } from "@/components/today/TodayCard";
 
@@ -36,6 +37,17 @@ export default function TodayPage() {
       {/* 카드는 브라우저가 그날 그리므로 HTML에는 남지 않는다. 날짜와 무관하게
           언제나 참인 이야기를 아래에 둔다(MoonPrimer 주석 참고). */}
       <MoonPrimer />
+
+      <NextSteps
+        lead={
+          <>
+            오늘 하늘이 당신의 어디를 건드리는지는 태어난 순간마다 다릅니다. 그
+            자리들이 어디인지는 천궁도가 통째로 보여 줍니다.
+          </>
+        }
+        primary={{ href: "/natal", label: "내 하늘 전체 보기" }}
+        secondary={{ href: "/yearly", label: "올해는 어떤가" }}
+      />
     </main>
   );
 }
