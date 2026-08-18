@@ -2,8 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Wordmark } from "../brand/Wordmark";
-import { SEAL_CLIP_SM } from "../ui/goldStyles";
-import { requestRitual } from "@/lib/ritual";
+import { BirthMenu } from "./BirthMenu";
 
 // 모바일 오버레이가 md:hidden으로 사라지는 기준(Tailwind md)과 반드시 일치해야 한다.
 const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
@@ -96,13 +95,8 @@ export function Veil() {
                 /sign·/retrograde·/natal에는 그 자리가 없어 눌러도 아무 일도
                 일어나지 않았다. requestRitual이 히어로가 있으면 그리로 데려가고,
                 없으면 패널을 연다(RENEWAL_PLAN §11.4). */}
-            <button
-              type="button"
-              onClick={() => requestRitual()}
-              className={`bg-gold-soft px-4 py-2 text-xs font-semibold tracking-wider text-ink transition-colors hover:bg-[#f0d789] ${SEAL_CLIP_SM}`}
-            >
-              내 밤하늘
-            </button>
+            {/* 저장된 정보가 있으면 여기가 메뉴가 된다(BirthMenu 주석 참고). */}
+            <BirthMenu variant="nav" />
           </div>
 
           <button
@@ -148,6 +142,16 @@ export function Veil() {
             {l.label}
           </Link>
         ))}
+        {/* 데스크톱의 금색 인장은 md:flex 안에 있어 모바일에서는 보이지 않았다.
+            그래서 휴대폰으로 온 사람에게는 저장된 정보를 지울 길이 아예 없었다. */}
+        <div
+          style={{ transitionDelay: open ? `${LINKS.length * 60}ms` : "0ms" }}
+          className={`mt-2 border-t border-gold/15 pt-8 transition-all duration-300 ${
+            open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+          }`}
+        >
+          <BirthMenu variant="sheet" onNavigate={() => setOpen(false)} />
+        </div>
       </div>
     </>
   );
