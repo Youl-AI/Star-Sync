@@ -64,23 +64,13 @@ export default function PrivacyPage() {
             처리됩니다.
           </li>
           <li>
-            <strong>Render</strong> — 계산 서버 운영.
-          </li>
-          <li>
-            <strong>OpenStreetMap Nominatim</strong> — 입력한 지역명을 좌표로 바꾸는 데
-            사용합니다. 지역명만 전달되며 다른 정보는 함께 보내지 않습니다.
-          </li>
-          <li>
-            <strong>Google Gemini</strong> — 이용자가 직접 요청한 경우에만, 더 깊은 해석을
-            만들기 위해 계산된 배치 정보를 전달합니다. 누르지 않으면 호출되지 않습니다.
-          </li>
-          <li>
             <strong>Google Analytics</strong> — 어떤 페이지가 얼마나 읽히는지 집계합니다.
             개인을 식별하지 않는 형태로 수집합니다.
           </li>
           <li>
-            <strong>쿠팡 파트너스</strong> — 추천 상품 링크. 링크를 누르면 쿠팡으로
-            이동하며, 그 이후의 처리는 쿠팡의 방침을 따릅니다.
+            <strong>Google AdSense</strong> — 메인을 제외한 페이지에 광고를 싣습니다.
+            Google을 비롯한 제3자 공급업체가 쿠키를 사용해 이전 방문 기록을 바탕으로
+            광고를 게재할 수 있습니다.
           </li>
         </ul>
         <p>
@@ -93,10 +83,6 @@ export default function PrivacyPage() {
           별샘은 로그인 쿠키를 쓰지 않습니다. 방문 분석과 광고 목적의 쿠키가 위 외부
           서비스에 의해 설정될 수 있으며, 브라우저 설정에서 차단할 수 있습니다. 차단해도
           천궁도 계산 기능은 그대로 동작합니다.
-        </p>
-        <p>
-          이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받을
-          수 있습니다.
         </p>
       </DawnSection>
 

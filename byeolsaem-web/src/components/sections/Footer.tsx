@@ -22,9 +22,9 @@ export function Footer() {
         </a>
       </nav>
 
-      <p className="mx-auto mt-8 max-w-lg break-keep text-meta text-starlight-dim">
-        이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받을 수 있습니다.
-      </p>
+      {/* 제휴 고지가 있었는데 정작 제휴 링크가 사이트에 하나도 없었다. 하지 않는
+          활동을 모든 페이지에서 알리고 있던 셈이라 내렸다. 쿠팡 파트너스에 실제로
+          가입하고 링크를 붙이는 날 이 자리에 되살린다 — 그때는 표시광고법상 필수다. */}
     </footer>
   );
 }
