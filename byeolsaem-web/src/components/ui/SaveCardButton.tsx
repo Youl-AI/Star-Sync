@@ -39,10 +39,13 @@ export function SaveCardButton({
       aria-live="polite"
       className={`text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight ${className}`}
     >
-      {state === "busy" && "카드를 그리는 중…"}
-      {state === "done" && "저장했어요"}
-      {state === "failed" && "저장하지 못했어요"}
-      {state === "idle" && "카드 이미지로 저장"}
+      {/* 네 말이 같은 칸에 겹쳐 있다(globals.css의 .label-swap 주석 참고). */}
+      <span className="label-swap">
+        <span data-on={String(state === "idle")}>카드 이미지로 저장</span>
+        <span data-on={String(state === "busy")}>카드를 그리는 중…</span>
+        <span data-on={String(state === "done")}>저장했어요</span>
+        <span data-on={String(state === "failed")}>저장하지 못했어요</span>
+      </span>
     </button>
   );
 }

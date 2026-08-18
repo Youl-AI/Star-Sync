@@ -12,24 +12,34 @@ import type { YearReadingEvent } from "@/lib/yearly-reading";
  * 해서 짧은 글에서는 닫히는 동작이 한참 늦게 시작하는 것처럼 보인다.
  */
 export function YearEventRows({
+  year,
   events,
   openId,
   onToggle,
 }: {
+  /** 목록을 통째로 다시 마운트시키는 열쇠 (아래 ul의 key 주석 참고). */
+  year: number;
   events: YearReadingEvent[];
   /** 지금 열려 있는 사건. 강의 점을 눌러 열어 줄 수 있도록 부모가 쥔다. */
   openId: string | null;
   onToggle: (id: string | null) => void;
 }) {
   return (
-    <ul className="mt-8">
-      {events.map((event) => {
+    /* 연도를 key로 준다. 사건 id는 `year-토성-태양-사각` 꼴이라 연도가 없어서,
+       두 해에 같은 각도가 있으면 React가 같은 li로 보고 재사용한다 — 그러면
+       그 줄만 등장 애니메이션을 건너뛰어 목록이 얼룩덜룩해진다. */
+    <ul key={year} className="mt-8">
+      {events.map((event, i) => {
         const open = event.id === openId;
         return (
           <li
             key={event.id}
             id={event.id}
-            className={`scroll-mt-28 border-t ${
+            /* 해를 바꾸면 위쪽 강은 1800ms에 걸쳐 다시 그어지는데 이 목록만
+               같은 순간 통째로 갈렸다. 한 화면에서 두 요소가 서로 다른 세계에
+               살지 않도록 여기에도 다리를 놓는다. */
+            style={{ animationDelay: `${Math.min(i, 5) * 40}ms` }}
+            className={`animate-list-item-in scroll-mt-28 border-t ${
               event.harmony > 0 ? "border-gold/40" : "border-gold/12"
             }`}
           >

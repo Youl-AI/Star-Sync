@@ -64,6 +64,11 @@
   --animate-river-draw: river-draw 1800ms cubic-bezier(0.33, 1, 0.68, 1) both;
   --animate-node-rise: node-rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-thread-draw: river-draw 900ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  /* 역행 고리. 길이 한 번 그어지고, 되짚는 구간이 그 위로 다시 그어진다 —
+     그리는 순서 자체가 '뒤로 가는 것처럼 보인다'는 설명이다. */
+  --animate-retro-draw: river-draw 1500ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  --animate-retro-back: river-draw 900ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  --animate-soft-in: soft-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /*
@@ -177,6 +182,15 @@
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
   }
+}
+
+/*
+ * 그룹 통째로 스며들게 할 때. 개별 요소의 opacity를 건드리지 않으므로
+ * SVG의 opacity 속성으로 이미 밝기를 나눠 둔 점들에도 쓸 수 있다.
+ */
+@keyframes soft-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes node-rise {
@@ -451,6 +465,55 @@ body {
     animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---- 용어 풀이 여닫기 --------------------------------------------------- */
+/*
+ * 풀이가 높이 0에서 곧바로 제 높이로 나타나면 읽던 문장이 아래로 밀리고,
+ * 눈이 방금까지 있던 줄을 다시 찾아야 한다. 밀려나는 만큼의 다리를 놓는다.
+ *
+ * grid-rows 방식인 이유는 NatalReading의 펼침과 같다 — max-height는 넉넉한
+ * 값을 어림해야 해서 짧은 글에서 닫힘이 늦게 시작하는 것처럼 보인다.
+ */
+.term-def {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.term-def[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.term-def > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ---- 갈아 끼우는 라벨 --------------------------------------------------- */
+/*
+ * 한 버튼이 상태에 따라 다른 말을 할 때. 글자를 그냥 갈아 끼우면 눈을 한 번
+ * 깜빡이는 사이에 '저장했어요'가 지나가 버린다 — 그 라벨이 저장됐다는 유일한
+ * 증거인데도 그렇다.
+ *
+ * 모든 후보를 같은 칸에 겹쳐 둔다. 버튼 폭이 가장 긴 말에 고정되므로 말이
+ * 바뀔 때 옆 요소가 밀리지 않는다.
+ */
+.label-swap {
+  display: inline-grid;
+}
+.label-swap > * {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  transition:
+    opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.label-swap > [data-on="false"] {
+  opacity: 0;
+  transform: translateY(4px);
 }
 
 /* ---- 수직 세계 (별의 샘 여정) ------------------------------------------- */

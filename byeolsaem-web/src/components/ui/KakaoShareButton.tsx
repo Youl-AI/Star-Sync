@@ -46,7 +46,10 @@ export function KakaoShareButton({
       aria-live="polite"
       className={`text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight ${className}`}
     >
-      {failed ? "공유하지 못했어요" : "카카오톡으로 공유"}
+      <span className="label-swap">
+        <span data-on={String(!failed)}>카카오톡으로 공유</span>
+        <span data-on={String(failed)}>공유하지 못했어요</span>
+      </span>
     </button>
   );
 }

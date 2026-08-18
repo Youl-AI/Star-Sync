@@ -436,7 +436,12 @@ function PersonalYear({ year }: { year: number }) {
             ))}
           </div>
 
-          <YearEventRows events={reading.events} openId={openId} onToggle={setOpenId} />
+          <YearEventRows
+            year={year}
+            events={reading.events}
+            openId={openId}
+            onToggle={setOpenId}
+          />
 
           <ClosingNote />
         </>

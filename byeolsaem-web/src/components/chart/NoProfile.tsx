@@ -1,5 +1,6 @@
 "use client";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { eul } from "@/lib/josa";
 import { requestRitual } from "@/lib/ritual";
 
 /**
@@ -16,7 +17,8 @@ export function NoProfile({ what }: { what: string }) {
   return (
     <div className="mx-auto max-w-md py-16 text-center">
       <p className="break-keep leading-relaxed text-starlight">
-        {what}을(를) 보려면 태어난 순간이 필요합니다.
+        {what}
+        {eul(what)} 보려면 태어난 순간이 필요합니다.
       </p>
       <p className="mt-3 break-keep text-guide text-starlight-dim">
         날짜와 시각, 그리고 태어난 곳. 한 번만 남기면 이 사이트의 모든 페이지가 그

@@ -1,3 +1,5 @@
+"use client";
+import { useInView } from "@/hooks/useInView";
 import type { LoopSample } from "@/lib/retrograde";
 import { formatKstDate, type RetrogradePeriod } from "@/lib/retrograde-clock";
 
@@ -11,6 +13,11 @@ import { formatKstDate, type RetrogradePeriod } from "@/lib/retrograde-clock";
  *
  * 순행 구간은 가늘고 흐리게, 역행 구간은 굵고 밝게. 눈이 먼저 닿아야 하는 것은
  * 되짚어 가는 부분이다.
+ *
+ * 화면에 들어오면 길이 그어진다. 이 페이지가 하려는 말이 "수성이 뒤로 가는
+ * 것처럼 보인다"인데 길이 처음부터 완성돼 있으면 그 말을 그림이 거들지 않는다.
+ * 그리는 순서가 곧 설명이다 — 다가오고, 멈추고, 되짚는다.
+ * 감소 모드에서는 useInView가 곧바로 참을 주므로 완성된 그림만 남는다.
  */
 
 const VIEW_WIDTH = 1000;
@@ -59,8 +66,10 @@ export function RetrogradeLoop({
   const start = points[firstRetro];
   const end = points[lastRetro];
 
+  const [frame, drawn] = useInView<HTMLElement>(0.3);
+
   return (
-    <figure className="mx-auto max-w-3xl">
+    <figure ref={frame} className="mx-auto max-w-3xl">
       <svg
         viewBox={`0 0 ${VIEW_WIDTH} ${viewHeight.toFixed(1)}`}
         className="w-full"
@@ -82,7 +91,16 @@ export function RetrogradeLoop({
         />
 
         {/* 전체 경로 — 순행으로 다가오고 물러나는 부분까지. */}
-        <path d={path} fill="none" stroke="var(--color-starlight)" strokeWidth="1.4" opacity=".28" />
+        <path
+          d={path}
+          fill="none"
+          stroke="var(--color-starlight)"
+          strokeWidth="1.4"
+          opacity=".28"
+          pathLength={1}
+          className={drawn ? "animate-retro-draw" : undefined}
+          style={drawn ? undefined : { strokeDasharray: 1, strokeDashoffset: 1 }}
+        />
         {/* 되짚어 가는 구간. */}
         <path
           d={retroPath}
@@ -91,19 +109,33 @@ export function RetrogradeLoop({
           strokeWidth="2.6"
           strokeLinecap="round"
           opacity=".95"
+          pathLength={1}
+          className={drawn ? "animate-retro-back" : undefined}
+          style={
+            drawn
+              ? { animationDelay: "1150ms" }
+              : { strokeDasharray: 1, strokeDashoffset: 1 }
+          }
         />
 
         {/* 하루치 발자국. 유 근처에서 점이 촘촘해지는 것이 곧 "멈춘다"는 뜻이다. */}
-        {points.map((p, i) => (
-          <circle
-            key={i}
-            cx={toX(p.x)}
-            cy={toY(p.y)}
-            r={p.retrograde ? 2.6 : 2}
-            fill={p.retrograde ? "var(--color-starlight)" : "var(--color-starlight-dim)"}
-            opacity={p.retrograde ? 0.9 : 0.45}
-          />
-        ))}
+        {/* 그룹 불투명도로 스며들게 한다. 점마다 밝기를 달리 준 것이 있어
+            (역행 0.9 / 순행 0.45) 개별 opacity를 애니메이션하면 그 구분이 지워진다. */}
+        <g
+          className={drawn ? "animate-soft-in" : undefined}
+          style={drawn ? { animationDelay: "1100ms" } : { opacity: 0 }}
+        >
+          {points.map((p, i) => (
+            <circle
+              key={i}
+              cx={toX(p.x)}
+              cy={toY(p.y)}
+              r={p.retrograde ? 2.6 : 2}
+              fill={p.retrograde ? "var(--color-starlight)" : "var(--color-starlight-dim)"}
+              opacity={p.retrograde ? 0.9 : 0.45}
+            />
+          ))}
+        </g>
 
         {/* 두 번의 유. */}
         {[
@@ -116,7 +148,11 @@ export function RetrogradeLoop({
           const cx = toX(p.x);
           const inward = cx > VIEW_WIDTH / 2 ? -1 : 1;
           return (
-            <g key={label}>
+            <g
+              key={label}
+              className={drawn ? "animate-node-rise" : undefined}
+              style={drawn ? { animationDelay: "1900ms" } : { opacity: 0 }}
+            >
               <circle
                 cx={cx}
                 cy={toY(p.y)}

@@ -2,7 +2,7 @@ import { ASPECT_MEANINGS, pairTheme } from "@/content/atoms/aspects";
 import { ASCENDANT_ATOMS, MIDHEAVEN_ATOMS } from "@/content/atoms/ascendant";
 import { lensFor, type ConcernLens } from "@/content/atoms/concerns";
 import { SIGN_FACES } from "@/content/atoms/life";
-import { iga } from "./josa";
+import { eun, iga } from "./josa";
 import { HOUSE_BY_NUMBER, type House } from "@/content/atoms/houses";
 import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
@@ -215,8 +215,8 @@ export function describeElements(elements: { element: string; count: number }[])
   const strong =
     top.count >= 5
       ? `열 개의 별 중 ${top.count}개가 ${top.element}에 몰려 있습니다.`
-      : `${top.element}이(가) ${top.count}개로 가장 많지만 한쪽으로 크게 치우치지는 않았습니다.`;
+      : `${top.element}${iga(top.element)} ${top.count}개로 가장 많지만 한쪽으로 크게 치우치지는 않았습니다.`;
 
   if (missing.length === 0) return `${strong} 네 원소가 모두 채워져 있습니다.`;
-  return `${strong} 반면 ${missing.join("·")}은(는) 비어 있어, 그 성질은 스스로 익혀야 하는 쪽에 가깝습니다.`;
+  return `${strong} 반면 ${missing.join("·")}${eun(missing[missing.length - 1])} 비어 있어, 그 성질은 스스로 익혀야 하는 쪽에 가깝습니다.`;
 }
