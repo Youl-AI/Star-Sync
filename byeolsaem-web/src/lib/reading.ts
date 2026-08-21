@@ -1,8 +1,9 @@
-import { ASPECT_MEANINGS, pairTheme } from "@/content/atoms/aspects";
+import { ASPECT_MEANINGS, PAIR_READINGS, modeOf, pairKey, pairTheme } from "@/content/atoms/aspects";
 import { ASCENDANT_ATOMS, MIDHEAVEN_ATOMS } from "@/content/atoms/ascendant";
 import { lensFor, type ConcernLens } from "@/content/atoms/concerns";
 import { SIGN_FACES } from "@/content/atoms/life";
 import { eun, iga } from "./josa";
+import { firstSentence } from "./text";
 import { HOUSE_BY_NUMBER, type House } from "@/content/atoms/houses";
 import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
@@ -131,8 +132,8 @@ export function strengthLabel(strength: number): string {
 const GENERATIONAL_NOTE = "비슷한 시기에 태어난 사람들이 함께 가지는 각도입니다.";
 
 /**
- * 어스펙트를 문장으로. 각도가 사이를 정하고 행성 쌍이 무엇의 사이인지를 정한다
- * (content/atoms/aspects.ts 참고).
+ * 어스펙트를 문장으로. 본문은 행성 쌍이 정하고(PAIR_READINGS), 각도는 headline과
+ * nuance 한 줄로 5방의 구분을 지킨다 (content/atoms/aspects.ts 참고).
  */
 function toReadingAspect(aspect: Aspect): ReadingAspect | null {
   const theme = pairTheme(aspect.a, aspect.b);
@@ -141,15 +142,15 @@ function toReadingAspect(aspect: Aspect): ReadingAspect | null {
   const a = PLANET_BY_KEY[aspect.a];
   const b = PLANET_BY_KEY[aspect.b];
   const bothNonPersonal = a.tier !== "personal" && b.tier !== "personal";
+  // 쌍의 문단 + 각도의 꼬리. 세대끼리의 각도에는 그 사실을 밝히는 문장이 하나 더 붙는다.
+  const paragraph = `${PAIR_READINGS[pairKey(aspect.a, aspect.b)][modeOf(aspect.type.key)]} ${meaning.nuance}`;
   return {
     aspect,
     a,
     b,
     theme,
     headline: meaning.headline,
-    // nuance는 PAIR_READINGS(2단계)와 짝이다. ASPECT_MEANINGS.body와는 문장이
-    // 겹치므로 폴백에 붙이지 않는다.
-    body: bothNonPersonal ? `${meaning.body} ${GENERATIONAL_NOTE}` : meaning.body,
+    body: bothNonPersonal ? `${paragraph} ${GENERATIONAL_NOTE}` : paragraph,
     strengthKo: strengthLabel(aspect.strength),
   };
 }
@@ -239,12 +240,18 @@ function composeOneLiner(sun: ReadingPlacement, moon: ReadingPlacement): string 
   return `겉은 ${out} 사람, 혼자일 때는 ${inner} 사람입니다. 이 간격이 당신을 움직이는 힘입니다.`;
 }
 
-/** 평생의 과제 하나 — 목록에서 가중 세기가 가장 높은 마찰 각도. */
+/**
+ * 평생의 과제 하나 — 목록에서 가중 세기가 가장 높은 마찰 각도.
+ *
+ * 예전에는 테마 라벨을 되읽었다("…힘이 계속 부딪힙니다"). 지금은 그 쌍의 마찰
+ * 문단 첫 문장을 그대로 쓴다 — 아톰 작문 규칙(스펙 §7)이 첫 문장을 홀로 서는
+ * 완결 서술로 강제하는 이유가 바로 이 자리다.
+ */
 function composeLifework(aspects: ReadingAspect[]): Reading["lifework"] {
   const friction = aspects.find((a) => a.aspect.type.harmony < 0);
   if (!friction) return null;
   return {
-    text: `${friction.theme}${iga(friction.theme)} 계속 부딪힙니다. 편한 배치는 아니지만, 당신을 실제로 움직여 온 것도 이 마찰입니다.`,
+    text: `${firstSentence(friction.body)} 편한 배치는 아니지만, 당신을 실제로 움직여 온 것도 이 마찰입니다.`,
     basis: `${friction.a.ko} ${friction.aspect.type.ko} ${friction.b.ko} · 태어난 순간부터 평생 가는 각도`,
   };
 }

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { ASPECT_MEANINGS, PLANET_PAIR_THEMES, pairKey, pairTheme, modeOf } from "@/content/atoms/aspects";
+import {
+  ASPECT_MEANINGS,
+  PAIR_READINGS,
+  PLANET_PAIR_THEMES,
+  pairKey,
+  pairTheme,
+  modeOf,
+  type AspectMode,
+} from "@/content/atoms/aspects";
 import { ASCENDANT_ATOMS, MIDHEAVEN_ATOMS } from "@/content/atoms/ascendant";
 import { CONCERN_LENSES, lensFor } from "@/content/atoms/concerns";
 import { HOUSES } from "@/content/atoms/houses";
@@ -7,6 +15,7 @@ import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
 import { ASPECT_TYPES, computeChart, type BirthMoment } from "@/lib/chart";
 import { PLANETS, TIER_RANK } from "@/lib/planets";
+import { firstSentence } from "@/lib/text";
 import { assembleReading, describeElements, strengthLabel, tierWeight } from "@/lib/reading";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
@@ -82,6 +91,53 @@ describe("아톰 DB — 빈칸이 없어야 한다", () => {
     expect(modeOf("trine")).toBe("flowing");
     expect(modeOf("square")).toBe("friction");
     expect(modeOf("opposition")).toBe("friction");
+  });
+
+  /**
+   * 본문의 주인인 쌍 × 모드 표. 한 칸이라도 비면 그 조합을 가진 사람의 화면에
+   * undefined가 뜬다. 길이 하한은 라벨을 되읽는 한 줄짜리가 본문 행세를 하는
+   * 것을 막는다.
+   */
+  it("PAIR_READINGS가 45쌍 × 3모드 = 135칸 모두 차 있다", () => {
+    const modes: AspectMode[] = ["conjunction", "flowing", "friction"];
+    let filled = 0;
+    for (const key of Object.keys(PLANET_PAIR_THEMES)) {
+      const entry = PAIR_READINGS[key];
+      expect(entry, key).toBeTruthy();
+      for (const mode of modes) {
+        expect(entry[mode], `${key}/${mode}`).toBeTruthy();
+        expect(entry[mode].length, `${key}/${mode}`).toBeGreaterThan(50);
+        filled += 1;
+      }
+    }
+    expect(filled).toBe(135);
+  });
+
+  /**
+   * 기하 어휘 금지(스펙 §7-2). 기하는 headline과 심볼이 이미 말하므로, 본문에
+   * 다시 나오면 커뮤니티가 지적한 "용어 설명" 느낌으로 되돌아간다.
+   */
+  it("PAIR_READINGS 본문에 기하 어휘가 없다", () => {
+    const forbidden = ["마주 보", "밀어내", "밀어냅", "반대편", "각도", "어스펙트", "배치", "자리입니다"];
+    for (const [key, entry] of Object.entries(PAIR_READINGS)) {
+      for (const [mode, paragraph] of Object.entries(entry)) {
+        for (const word of forbidden) {
+          expect(paragraph.includes(word), `${key}/${mode}: "${word}"`).toBe(false);
+        }
+      }
+    }
+  });
+
+  /**
+   * 첫 문장은 "다."로 끝나는 완결 서술(스펙 §7-1). 평생의 과제가 firstSentence로
+   * 이 문장만 떼어 쓰므로, 어기면 그 화면의 문장이 중간에서 끊긴다.
+   */
+  it("PAIR_READINGS의 모든 문단이 완결 문장으로 시작한다", () => {
+    for (const [key, entry] of Object.entries(PAIR_READINGS)) {
+      for (const [mode, paragraph] of Object.entries(entry)) {
+        expect(paragraph.indexOf("다."), `${key}/${mode}`).toBeGreaterThan(0);
+      }
+    }
   });
 
   /**
@@ -258,6 +314,37 @@ describe("조립", () => {
     const six = assembleReading(chart, null, 6).aspects.map(key);
     const ten = assembleReading(chart, null, 10).aspects.map(key);
     expect(six).toEqual(ten.slice(0, 6));
+  });
+
+  it("어스펙트 본문은 쌍의 문단으로 시작하고 각도의 nuance를 품는다", () => {
+    const chart = computeChart({
+      date: "1995-07-14", time: "09:30",
+      latitude: 37.5, longitude: 127.0, timezoneOffsetHours: 9,
+    });
+    const reading = assembleReading(chart, null, 10);
+    for (const item of reading.aspects) {
+      const paragraph = PAIR_READINGS[pairKey(item.a.key, item.b.key)][modeOf(item.aspect.type.key)];
+      expect(item.body.startsWith(paragraph), `${item.a.ko}-${item.b.ko}`).toBe(true);
+      expect(
+        item.body.includes(ASPECT_MEANINGS[item.aspect.type.key].nuance),
+        `${item.a.ko}-${item.b.ko}`,
+      ).toBe(true);
+    }
+  });
+
+  it("평생의 과제는 마찰 문단의 첫 문장으로 시작한다", () => {
+    // 1995-07-14 차트에는 화성 대립 토성 마찰이 확실히 있다(astronomy.test.ts와 같은 근거).
+    const chart = computeChart({
+      date: "1995-07-14", time: "09:30",
+      latitude: 37.5, longitude: 127.0, timezoneOffsetHours: 9,
+    });
+    const reading = assembleReading(chart, null);
+    const friction = reading.aspects.find((a) => a.aspect.type.harmony < 0);
+    expect(friction).toBeTruthy();
+    expect(reading.lifework).toBeTruthy();
+    expect(reading.lifework!.text.startsWith(firstSentence(friction!.body))).toBe(true);
+    // 라벨 되읽기 시절의 흔적이 남아 있으면 안 된다.
+    expect(reading.lifework!.text.includes("계속 부딪힙니다")).toBe(false);
   });
 
   it("두 행성 모두 개인이 아니면 세대 라벨이 본문에 붙는다", () => {

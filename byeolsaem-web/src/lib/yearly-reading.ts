@@ -17,6 +17,7 @@ import {
   YEAR_FRAMES,
 } from "@/content/atoms/yearly";
 import type { Chart } from "./chart";
+import { firstSentence } from "./text";
 import { PLANET_BY_KEY, type Planet, type PlanetKey } from "./planets";
 import { formatZodiacDegree } from "./retrograde";
 import type { RetrogradePeriod } from "./retrograde-clock";
@@ -205,11 +206,6 @@ function describe(event: YearEvent, natal: Chart, lens: ConcernLens | null): Yea
     headline: theme ? `${theme} — ${meaning.headline}` : meaning.headline,
     body: `${meaning.body} ${frame?.brings ?? ""}`.trim(),
   };
-}
-
-function firstSentence(text: string): string {
-  const end = text.indexOf("다.");
-  return end === -1 ? text : text.slice(0, end + 2);
 }
 
 export function yearReading(natal: Chart, year: number, concern?: string | null): YearReading {
