@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";
+import { CheckItem, Faq, Fact } from "@/components/retrograde/RetroPageBits";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { LineDiamond } from "@/components/ui/LineDiamond";
@@ -108,7 +109,7 @@ function buildFaqs(
     {
       question: "다른 행성도 역행하나요?",
       answer:
-        "합니다. 금성·화성·목성·토성 모두 역행하고, 바깥쪽 행성일수록 역행 기간이 깁니다. 수성이 유독 자주 화제가 되는 것은 주기가 짧아 자주 돌아오고, 맡은 영역이 일상과 가깝기 때문입니다.",
+        "합니다. 금성·화성·목성·토성 모두 역행하고, 바깥쪽 행성일수록 역행 기간이 깁니다. 수성이 유독 자주 화제가 되는 것은 주기가 짧아 자주 돌아오고, 맡은 영역이 일상과 가깝기 때문입니다. 금성과 화성의 역행은 각자의 페이지에서 날짜까지 볼 수 있습니다.",
     },
   ];
 }
@@ -376,48 +377,26 @@ export default function RetrogradePage() {
           </Link>
           를 보세요.
         </p>
+        <p className="mt-3 text-meta text-starlight-dim">
+          <Link
+            href="/retrograde/venus"
+            className="border-b border-gold/40 pb-0.5 text-gold-soft transition-colors hover:text-starlight"
+          >
+            금성 역행
+          </Link>
+          {" · "}
+          <Link
+            href="/retrograde/mars"
+            className="border-b border-gold/40 pb-0.5 text-gold-soft transition-colors hover:text-starlight"
+          >
+            화성 역행
+          </Link>
+          도 각자의 페이지가 있습니다.
+        </p>
       </div>
     </main>
   );
 }
 
 /** 확인 항목 한 줄 — 무엇을, 어떻게. 금지가 아니라 점검이다. */
-function CheckItem({ what, children }: { what: string; children: React.ReactNode }) {
-  return (
-    <li className="border-l border-gold/25 pl-4">
-      <strong className="font-display text-lg text-starlight">{what}</strong>
-      <p className="mt-1 break-keep text-guide text-starlight-dim">{children}</p>
-    </li>
-  );
-}
 
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-gold/10 pb-2">
-      <dt className="shrink-0 text-meta text-starlight-dim">{label}</dt>
-      <dd className="text-right text-starlight">{value}</dd>
-    </div>
-  );
-}
-
-/**
- * 문답 하나 — 네이티브 details라 자바스크립트 없이 접히고, 검색엔진은 답까지
- * 그대로 읽는다. 문답을 전부 펼쳐 두면 본문 아래가 텍스트 벽이 된다는
- * 가시성 점검(2026-08-14)에서 접는 쪽으로 바꿨다.
- */
-function Faq({ question, children }: { question: string; children: React.ReactNode }) {
-  return (
-    <details className="group border-t border-gold/12 pt-4 first:border-t-0 first:pt-0">
-      <summary className="flex cursor-pointer list-none items-baseline gap-3 [&::-webkit-details-marker]:hidden">
-        <span
-          aria-hidden
-          className="flex-none text-meta text-gold transition-transform duration-300 group-open:rotate-90"
-        >
-          ›
-        </span>
-        <span className="break-keep font-display text-lg text-starlight">{question}</span>
-      </summary>
-      <div className="mt-2 pl-6 text-starlight-dim">{children}</div>
-    </details>
-  );
-}

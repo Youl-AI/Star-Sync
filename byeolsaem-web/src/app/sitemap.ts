@@ -25,6 +25,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: BASE, priority: 1 },
     { url: `${BASE}/today`, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/retrograde`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE}/retrograde/venus`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/retrograde/mars`, changeFrequency: "weekly", priority: 0.7 },
     // 계산은 브라우저가 하지만 안내 본문은 배포마다 그대로다.
     { url: `${BASE}/natal`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/synastry`, changeFrequency: "monthly", priority: 0.8 },

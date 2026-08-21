@@ -27,9 +27,12 @@ const PAD = 46;
 export function RetrogradeLoop({
   samples,
   period,
+  subject = "수성",
 }: {
   samples: LoopSample[];
   period: RetrogradePeriod;
+  /** 고리를 그리는 행성 이름. 접근성 설명문에만 쓰인다. */
+  subject?: string;
 }) {
   const base = samples[0].longitude;
   // 황경은 360도에서 한 바퀴 돌기 때문에 그대로 빼면 구간 중간에 값이 튄다.
@@ -74,7 +77,7 @@ export function RetrogradeLoop({
         viewBox={`0 0 ${VIEW_WIDTH} ${viewHeight.toFixed(1)}`}
         className="w-full"
         role="img"
-        aria-label={`수성이 ${formatKstDate(period.start)}부터 ${formatKstDate(
+        aria-label={`${subject}이 ${formatKstDate(period.start)}부터 ${formatKstDate(
           period.end,
         )}까지 하늘에 그리는 역행 고리. 황경 ${period.arc.toFixed(1)}도를 되짚는다.`}
       >
