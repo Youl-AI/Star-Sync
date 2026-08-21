@@ -20,6 +20,7 @@ import { fileURLToPath } from "node:url";
 import React from "react";
 import { ImageResponse } from "next/og.js";
 import { ZODIAC_SIGNS } from "../src/lib/zodiac.ts";
+import { constellation } from "./lib/constellation.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "public", "og");
@@ -102,72 +103,8 @@ function defaultCard() {
  * 다른 그림이 된다.
  */
 function signCard(sign) {
-  /**
-   * 성좌마다 260×200 좌표계에서 실제로 쓰는 자리가 다르다 — 양자리는 오른쪽
-   * 위 한 귀퉁이만 쓰고, 전갈자리는 아래로 길게 늘어진다. 좌표계를 그대로
-   * 쓰면 어떤 자리는 카드 구석에 작게 몰린다. 그래서 그 자리가 실제로 차지하는
-   * 범위를 재서 카드 안에 꽉 차게 맞춘다.
-   */
   const BOX = { w: 430, h: 430 };
-  const xs = sign.stars.map(([x]) => x);
-  const ys = sign.stars.map(([, y]) => y);
-  const span = {
-    x: Math.min(...xs), y: Math.min(...ys),
-    w: Math.max(...xs) - Math.min(...xs) || 1,
-    h: Math.max(...ys) - Math.min(...ys) || 1,
-  };
-  const scale = Math.min(BOX.w / span.w, BOX.h / span.h);
-  const offset = {
-    x: (BOX.w - span.w * scale) / 2 - span.x * scale,
-    y: (BOX.h - span.h * scale) / 2 - span.y * scale,
-  };
-  const place = ([x, y]) => [x * scale + offset.x, y * scale + offset.y];
-
-  const dots = sign.stars.map((star, i) =>
-    (() => {
-      const [px, py] = place(star);
-      const big = i === sign.brightest;
-      const r = big ? 8 : 5;
-      return h("div", {
-        key: `d${i}`,
-        style: {
-          position: "absolute", left: px - r, top: py - r,
-          width: r * 2, height: r * 2, borderRadius: 999,
-          background: big ? "#fff6d8" : GOLD,
-        },
-      });
-    })(),
-  );
-
-  // 별을 잇는 선. path의 M/L 세그먼트를 그대로 따라가며 두 점 사이에 가는 막대를 놓는다
-  // (Satori는 SVG path를 그리지 못한다).
-  const links = [];
-  const segments = sign.path.split(/(?=M)/);
-  for (const seg of segments) {
-    const pts = [...seg.matchAll(/[ML]\s*([\d.]+)\s+([\d.]+)/g)].map((m) =>
-      place([Number(m[1]), Number(m[2])]),
-    );
-    for (let i = 1; i < pts.length; i += 1) {
-      const [x1, y1] = pts[i - 1];
-      const [x2, y2] = pts[i];
-      const len = Math.hypot(x2 - x1, y2 - y1);
-      const angle = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
-      // 중점에 놓고 돌린다. transform-origin을 왼쪽 끝으로 옮기는 방법은 Satori가
-      // 그 속성을 따르지 않아 선이 별에서 떨어져 나갔다(실측) — 중심 기준 회전은
-      // 기본 동작이라 어디서든 같게 나온다.
-      const [cx, cy] = [(x1 + x2) / 2, (y1 + y2) / 2];
-      links.push(
-        h("div", {
-          key: `l${links.length}`,
-          style: {
-            position: "absolute", left: cx - len / 2, top: cy - 0.75,
-            width: len, height: 1.5, background: GOLD, opacity: 0.45,
-            transform: `rotate(${angle}deg)`,
-          },
-        }),
-      );
-    }
-  }
+  const sky = constellation(sign, BOX, { h, gold: GOLD, bright: "#fff6d8" });
 
   return frame([
     ...starLayer(620),
@@ -189,7 +126,7 @@ function signCard(sign) {
         position: "absolute", right: 72, top: (630 - BOX.h) / 2,
         width: BOX.w, height: BOX.h, display: "flex",
       },
-    }, [...links, ...dots]),
+    }, sky),
   ]);
 }
 

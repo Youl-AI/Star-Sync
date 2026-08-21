@@ -21,3 +21,9 @@ env/
 Thumbs.db
 # 7. 브레인스토밍 세션 산출물 (로컬 전용)
 .superpowers/
+
+# 7. Claude Code 세션 산출물 — 대화 기록·로컬 설정, 저장소에 올리지 않는다
+*.jsonl
+.claude/
+.agents/
+skills-lock.json
