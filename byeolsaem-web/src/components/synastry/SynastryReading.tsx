@@ -18,7 +18,8 @@ import {
   type SynastryLine,
   type SynastryReading as SynastryReadingData,
 } from "@/lib/synastry-reading";
-import { ChartLoading, NoProfile, UnknownPlace } from "@/components/chart/NoProfile";
+import { ChartLoading, UnknownPlace } from "@/components/chart/NoProfile";
+import { ExampleMeeting } from "./ExampleMeeting";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { MotionScope } from "@/components/ui/MotionScope";
 import { TalismanChip } from "@/components/ui/TalismanChip";
@@ -77,7 +78,8 @@ export function SynastryReading() {
     });
 
   if (!ready) return <ChartLoading />;
-  if (!profile) return <NoProfile what="궁합" />;
+  // 정보가 없으면 요구부터 하지 않는다 — 예시 궁합을 먼저 보여준다(ExampleMeeting 주석 참고).
+  if (!profile) return <ExampleMeeting />;
   if (!myChart) return <UnknownPlace city={profile.city} />;
 
   return (

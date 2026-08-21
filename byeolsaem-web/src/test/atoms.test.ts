@@ -16,7 +16,7 @@ import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
 import { ASPECT_TYPES, computeChart, type BirthMoment } from "@/lib/chart";
 import { PLANETS, TIER_RANK } from "@/lib/planets";
 import { firstSentence } from "@/lib/text";
-import { EXAMPLE_BIRTH, exampleSky } from "@/lib/example-sky";
+import { EXAMPLE_BIRTH, EXAMPLE_PARTNER_BIRTH, exampleMeeting, exampleSky } from "@/lib/example-sky";
 import { assembleReading, describeElements, strengthLabel, tierWeight } from "@/lib/reading";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
@@ -350,6 +350,22 @@ describe("조립", () => {
     expect(EXAMPLE_BIRTH.label).toContain("9시 30분");
     expect(EXAMPLE_BIRTH.date).toBe("1995-07-14");
     expect(EXAMPLE_BIRTH.time).toBe("09:30");
+  });
+
+  /**
+   * 예시 궁합(/synastry의 정보 없음 화면)도 마찬가지다 — 보여주기로 한 세 조각
+   * (한 줄, 해 볼 것, 이름 붙은 만남)이 이 고정 커플에서 실제로 나와야 한다.
+   * 계산이 바뀌어 어느 하나가 사라지면 화면이 반쪽이 되므로 여기서 잡는다.
+   */
+  it("예시 궁합은 세 조각을 전부 갖춘다", () => {
+    const { reading } = exampleMeeting();
+    expect(reading.oneLiner).not.toBeNull();
+    expect(reading.advice).not.toBeNull();
+    expect(reading.named).toBeGreaterThan(0);
+    expect(reading.lines.some((line) => line.highlight)).toBe(true);
+    expect(reading.empty).toBeNull();
+    expect(EXAMPLE_PARTNER_BIRTH.label).toContain("1997년 4월 19일");
+    expect(EXAMPLE_PARTNER_BIRTH.date).toBe("1997-04-19");
   });
 
   it("평생의 과제는 마찰 문단의 첫 문장으로 시작한다", () => {

@@ -1,5 +1,6 @@
 import { computeChart, type Chart } from "./chart";
 import { assembleReading, type Reading } from "./reading";
+import { synastryReading, type SynastryReading } from "./synastry-reading";
 
 /**
  * 예시 하늘 — 출생 정보를 넣기 전의 /natal이 보여주는 고정 차트.
@@ -37,4 +38,36 @@ export function exampleSky(): { chart: Chart; reading: Reading } {
     cached = { chart, reading: assembleReading(chart, null) };
   }
   return cached;
+}
+
+/**
+ * 예시 궁합의 상대 — /synastry의 정보 없음 화면이 쓰는 두 번째 고정 차트.
+ * 이 짝은 한 줄 요약·해 볼 것·이름 붙은 조합(내 태양 육분 그쪽 달)이 모두
+ * 나오도록 골랐다(테스트가 지킨다). 첫 사람은 EXAMPLE_BIRTH를 그대로 쓴다 —
+ * 예시 인물이 페이지마다 다르면 예시가 아니라 사람처럼 보이기 시작한다.
+ */
+export const EXAMPLE_PARTNER_BIRTH = {
+  label: "1995년 7월 14일 서울에서 태어난 사람과 1997년 4월 19일 부산에서 태어난 사람의 만남",
+  date: "1997-04-19",
+  time: "20:10",
+  latitude: 35.1796,
+  longitude: 129.0756,
+  timezoneOffsetHours: 9,
+} as const;
+
+let cachedMeeting: { mine: Chart; theirs: Chart; reading: SynastryReading } | null = null;
+
+export function exampleMeeting(): { mine: Chart; theirs: Chart; reading: SynastryReading } {
+  if (!cachedMeeting) {
+    const mine = exampleSky().chart;
+    const theirs = computeChart({
+      date: EXAMPLE_PARTNER_BIRTH.date,
+      time: EXAMPLE_PARTNER_BIRTH.time,
+      latitude: EXAMPLE_PARTNER_BIRTH.latitude,
+      longitude: EXAMPLE_PARTNER_BIRTH.longitude,
+      timezoneOffsetHours: EXAMPLE_PARTNER_BIRTH.timezoneOffsetHours,
+    });
+    cachedMeeting = { mine, theirs, reading: synastryReading(mine, theirs, null) };
+  }
+  return cachedMeeting;
 }
