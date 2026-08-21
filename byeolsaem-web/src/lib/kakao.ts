@@ -75,7 +75,10 @@ export async function shareToKakao(share: {
   // 이 사이트의 유일한 바이럴 채널을 좌우한다(정찰 ④, 2026-08-22).
   // 카카오 서버가 이미지를 가져가야 하므로 절대 주소여야 하고, localhost에서는
   // 못 가져가 텍스트로 폴백하는 편이 낫다.
-  if (share.imagePath && location.hostname !== "localhost") {
+  // 배포 도메인에서만 — localhost·127.·LAN IP에서는 카카오 서버가 이미지를
+  // 가져올 수 없어 feed가 깨진 카드로 나간다. 그럴 땐 텍스트가 낫다.
+  const publicHost = location.hostname === "byeolsaem.com" || location.hostname.endsWith(".byeolsaem.com");
+  if (share.imagePath && publicHost) {
     kakao.Share.sendDefault({
       objectType: "feed",
       content: {

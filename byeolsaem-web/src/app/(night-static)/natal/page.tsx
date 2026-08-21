@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
-import { alternatesFor } from "@/lib/metadata";
+import { alternatesFor, ogImage } from "@/lib/metadata";
 import { NatalPrimer } from "@/components/chart/NatalPrimer";
 import { NatalReading } from "@/components/chart/NatalReading";
 import { PlaceBand } from "@/components/place/PlaceBand";
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
    * 답하는 검색어인데 스스로 막아 둘 이유가 없다.
    */
   alternates: alternatesFor("/natal"),
-  openGraph: { images: [{ url: "/og/natal.png", width: 1200, height: 630 }] },
+  openGraph: ogImage("/natal", "/og/natal.png"),
 };
 
 export default function NatalPage() {

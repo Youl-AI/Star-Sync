@@ -1,4 +1,4 @@
-import { fromJulianDay, norm180, sunApparentLongitude, toJulianDay } from "./ephemeris";
+import { fromJulianDay, norm180, sunPosition, toJulianDay } from "./ephemeris";
 import { moonPosition } from "./moon";
 import { signAtLongitude } from "./zodiac";
 
@@ -26,7 +26,7 @@ const PRECISION_DAYS = 0.0002;
 
 /** 태양-달 황경 차에서 target(0=삭, 180=망)까지의 부호 있는 거리. */
 function offsetFrom(jd: number, target: number): number {
-  const gap = moonPosition(jd).longitude - sunApparentLongitude(jd);
+  const gap = moonPosition(jd).longitude - sunPosition(jd).longitude;
   return norm180(gap - target);
 }
 

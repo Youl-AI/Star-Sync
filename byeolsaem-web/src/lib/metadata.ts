@@ -26,3 +26,18 @@ export function alternatesFor(path: string): Metadata["alternates"] {
     types: { "application/rss+xml": "/rss.xml" },
   };
 }
+
+/**
+ * 페이지 전용 공유 카드. Next의 metadata 병합은 얕아서 페이지가 openGraph를
+ * 선언하면 레이아웃의 siteName·locale까지 통째로 사라진다(최종 리뷰
+ * 2026-08-22에서 실측). 그래서 이미지 하나를 얹을 때도 공유 필드를 함께 낸다.
+ */
+export function ogImage(path: string, image: string) {
+  return {
+    type: "website" as const,
+    siteName: "별샘",
+    locale: "ko_KR",
+    url: path,
+    images: [{ url: image, width: 1200, height: 630 }],
+  };
+}

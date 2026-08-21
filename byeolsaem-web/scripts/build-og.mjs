@@ -257,6 +257,7 @@ const PAGE_CARDS = [
   { file: "natal.png", eyebrow: "MY NIGHT SKY", title: "나의 천궁도", sub: "태어난 순간의 하늘을 계산해서 읽어 드립니다", motif: "wheel" },
   { file: "synastry.png", eyebrow: "TWO SKIES", title: "궁합", sub: "두 하늘이 서로의 어디를 건드리는지", motif: "rings" },
   { file: "yearly.png", eyebrow: "THE YEAR", title: "한 해의 하늘", sub: "느린 별들이 당신과 각도를 맺는 날짜들", motif: "wheel" },
+  { file: "sign.png", eyebrow: "TWELVE ROOMS", title: "열두 개의 방", sub: "별자리 열둘, 각자의 방식과 계절", motif: "wheel" },
   { file: "retrograde.png", eyebrow: "MERCURY RETROGRADE", title: "수성 역행", sub: "지금 역행인가요 — 계산이 답합니다", motif: "loop" },
   { file: "retrograde-venus.png", eyebrow: "VENUS RETROGRADE", title: "금성 역행", sub: "사랑과 돈을 맡는 별이 되돌아가는 40일", motif: "loop" },
   { file: "retrograde-mars.png", eyebrow: "MARS RETROGRADE", title: "화성 역행", sub: "추진력을 맡는 별이 되돌아가는 두 달 반", motif: "loop" },

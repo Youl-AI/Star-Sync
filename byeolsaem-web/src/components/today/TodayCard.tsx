@@ -5,7 +5,7 @@ import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart } from "@/lib/chart";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
 import { requestRitual } from "@/lib/ritual";
-import { todaySky } from "@/lib/today";
+import { todaySky, type TodaySky } from "@/lib/today";
 import { moonArt } from "@/lib/share-card";
 import { todayBack, todayFront } from "@/lib/today-reading";
 import { ArchCard } from "@/components/ui/ArchCard";
@@ -28,7 +28,14 @@ import { ComingMoons, PlanetsNow, RetroBand } from "./SkyNow";
  * "오늘"이 배포한 날로 영구히 굳는다. 서버가 만든 첫 렌더와 어긋나지 않도록
  * 그 전까지는 어느 쪽으로도 단정하지 않는다.
  */
-export function TodayCard() {
+export function TodayCard({
+  initialSky,
+  builtAt,
+}: {
+  /** 빌드 시점의 하늘. 서버 HTML과 첫 페인트가 이것을 그린다. */
+  initialSky: TodaySky;
+  builtAt: string;
+}) {
   const { profile, ready } = useBirthProfile();
   const [now, setNow] = useState<Date | null>(null);
   const [flipped, setFlipped] = useState(false);
@@ -37,7 +44,9 @@ export function TodayCard() {
     setNow(new Date());
   }, []);
 
-  const sky = useMemo(() => (now ? todaySky(now) : null), [now]);
+  const sky = useMemo(() => (now ? todaySky(now) : initialSky), [now, initialSky]);
+  /** 띠·삭망이 쓰는 기준 시각 — 마운트 전에는 빌드 시각으로 고정되어 결정론이 유지된다. */
+  const clockNow = useMemo(() => now ?? new Date(builtAt), [now, builtAt]);
   const front = useMemo(() => (sky ? todayFront(sky) : null), [sky]);
 
   const back = useMemo(() => {
@@ -54,13 +63,7 @@ export function TodayCard() {
     return todayBack(sky, natal, profile.concern);
   }, [sky, profile]);
 
-  if (!sky || !front) {
-    return (
-      <p className="py-16 text-center text-guide text-starlight-dim" aria-live="polite">
-        오늘의 하늘을 여는 중입니다.
-      </p>
-    );
-  }
+  if (!front) return null; // sky가 항상 있으므로 사실상 도달하지 않는다.
 
   const canFlip = ready && back !== null;
 
@@ -80,7 +83,7 @@ export function TodayCard() {
   return (
     <>
       {/* 카운트다운 띠 — 이 페이지에 "내일 또 확인할 숫자"를 하나 세운다(정찰 ②). */}
-      {now && <RetroBand now={now} />}
+      <RetroBand now={clockNow} />
       <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
       <aside
         className="border-b border-gold/18 pb-5 md:sticky md:top-24 md:border-b-0 md:border-r md:pb-0 md:pr-5 md:text-right"
@@ -186,7 +189,7 @@ export function TodayCard() {
         {/* 열 행성 자리표 — 계산은 이미 있었고 화면만 없었다(정찰 ①). */}
         <PlanetsNow sky={sky} />
         {/* 다가오는 삭망(정찰 ⑨). 달 카드의 흐름을 이어받는 자리. */}
-        {now && <ComingMoons now={now} />}
+        <ComingMoons now={clockNow} />
       </div>
     </div>
     </>

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
-import { alternatesFor } from "@/lib/metadata";
+import { alternatesFor, ogImage } from "@/lib/metadata";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { MoonPrimer } from "@/components/today/MoonPrimer";
 import { TodayCard } from "@/components/today/TodayCard";
+import { todaySky } from "@/lib/today";
 
 export const metadata: Metadata = {
   title: "오늘의 하늘 | 별샘",
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   // 앞면(달의 위상)은 누구에게나 같으므로 색인해도 얇은 페이지가 아니다.
   // 다만 날짜가 매일 바뀌는 페이지라 정규 주소는 이 하나로 유지한다.
   alternates: alternatesFor("/today"),
-  openGraph: { images: [{ url: "/og/today.png", width: 1200, height: 630 }] },
+  openGraph: ogImage("/today", "/og/today.png"),
 };
 
 export default function TodayPage() {
@@ -48,7 +49,10 @@ export default function TodayPage() {
       </header>
 
       <div className="mt-14">
-        <TodayCard />
+        {/* 빌드 시점의 하늘을 첫 렌더로 내보낸다 — 검색엔진과 첫 페인트가 빈
+          화면 대신 이것을 본다. 마운트 후 오늘 값으로 갈아 끼우는 계약은
+          RetrogradeStatusBand와 같다(최종 리뷰 2026-08-22). */}
+      <TodayCard initialSky={todaySky(new Date())} builtAt={new Date().toISOString()} />
       </div>
 
       {/* 카드는 브라우저가 그날 그리므로 HTML에는 남지 않는다. 날짜와 무관하게

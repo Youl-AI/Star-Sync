@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
-import { alternatesFor } from "@/lib/metadata";
+import { alternatesFor, ogImage } from "@/lib/metadata";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { SynastryPrimer } from "@/components/synastry/SynastryPrimer";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   // /natal과 같은 이유로 noindex를 풀었다(그쪽 주석 참고). SynastryPrimer가
   // 두 사람의 정보 없이도 읽을 것을 깔아 준다.
   alternates: alternatesFor("/synastry"),
-  openGraph: { images: [{ url: "/og/synastry.png", width: 1200, height: 630 }] },
+  openGraph: ogImage("/synastry", "/og/synastry.png"),
 };
 
 export default function SynastryPage() {

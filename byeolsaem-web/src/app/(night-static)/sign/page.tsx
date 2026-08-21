@@ -3,7 +3,7 @@ import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import Link from "next/link";
 import { Astrolabe } from "@/components/sign/Astrolabe";
 import { SignPrimer } from "@/components/sign/SignPrimer";
-import { alternatesFor } from "@/lib/metadata";
+import { alternatesFor, ogImage } from "@/lib/metadata";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 import { SIGN_CONTENT } from "@/lib/sign-content";
 
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   description:
     "양자리부터 물고기자리까지 열두 별자리. 기간, 원소, 지배 행성과 성질을 실제 성좌와 함께 봅니다.",
   alternates: alternatesFor("/sign"),
+  openGraph: ogImage("/sign", "/og/sign.png"),
 };
 
 export default function SignIndexPage() {

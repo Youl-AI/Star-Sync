@@ -7,7 +7,7 @@ import { CheckItem, Faq, Fact } from "@/components/retrograde/RetroPageBits";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { LineDiamond } from "@/components/ui/LineDiamond";
-import { alternatesFor } from "@/lib/metadata";
+import { alternatesFor, ogImage } from "@/lib/metadata";
 import {
   formatZodiacDegree,
   mercuryRetrogrades,
@@ -51,7 +51,7 @@ export function generateMetadata(): Metadata {
       ? `지금 수성 역행 중입니다. ${year}년 ${span} 이어지며, ${formatKstDate(featured.end)}에 끝납니다. 날짜는 궤도 계산으로 직접 구했고, 무엇을 한 번 더 확인하면 되는지도 함께 적었습니다.`
       : `${year}년 수성 역행은 ${span}입니다. 날짜를 어디서 가져오지 않고 궤도 계산으로 직접 구했습니다. 그림자 기간, 되짚는 각도, 무엇을 한 번 더 확인하면 되는지까지.`,
     alternates: alternatesFor("/retrograde"),
-    openGraph: { images: [{ url: "/og/retrograde.png", width: 1200, height: 630 }] },
+    openGraph: ogImage("/retrograde", "/og/retrograde.png"),
   };
 }
 
@@ -399,5 +399,4 @@ export default function RetrogradePage() {
   );
 }
 
-/** 확인 항목 한 줄 — 무엇을, 어떻게. 금지가 아니라 점검이다. */
 

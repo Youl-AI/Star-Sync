@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { toJulianDay } from "@/lib/ephemeris";
 import { nextLunations } from "@/lib/lunation";
 import { moonIllumination, moonPhaseAngle, moonPosition } from "@/lib/moon";
-import { sunApparentLongitude } from "@/lib/ephemeris";
-import { retrogradesOf } from "@/lib/retrograde";
+import { sunPosition, toJulianDay } from "@/lib/ephemeris";
+import { mercuryRetrogrades, retrogradesOf } from "@/lib/retrograde";
 
 /**
  * 표를 베끼지 않고 성립해야 하는 사실로 검증한다(astronomy.test.ts와 같은 방침).
@@ -16,13 +15,13 @@ describe("삭망", () => {
 
   it("신월의 순간에는 달이 사실상 완전히 어둡다", () => {
     const jd = toJulianDay(new Date(newMoon.date));
-    const angle = moonPhaseAngle(sunApparentLongitude(jd), moonPosition(jd).longitude);
+    const angle = moonPhaseAngle(sunPosition(jd).longitude, moonPosition(jd).longitude);
     expect(moonIllumination(angle)).toBeLessThan(0.005);
   });
 
   it("보름의 순간에는 달이 사실상 가득 찬다", () => {
     const jd = toJulianDay(new Date(fullMoon.date));
-    const angle = moonPhaseAngle(sunApparentLongitude(jd), moonPosition(jd).longitude);
+    const angle = moonPhaseAngle(sunPosition(jd).longitude, moonPosition(jd).longitude);
     expect(moonIllumination(angle)).toBeGreaterThan(0.995);
   });
 
@@ -71,7 +70,9 @@ describe("역행 일반화 — 금성·화성", () => {
 
   it("수성 별칭은 일반화 전과 같은 답을 낸다", () => {
     // mercuryRetrogrades가 retrogradesOf("mercury")의 지름길이라는 계약.
-    const a = retrogradesOf("mercury", new Date("2026-01-01"), new Date("2027-01-01"));
-    expect(a.length).toBeGreaterThanOrEqual(3);
+    const from = new Date("2026-01-01");
+    const to = new Date("2027-01-01");
+    expect(mercuryRetrogrades(from, to)).toEqual(retrogradesOf("mercury", from, to));
+    expect(retrogradesOf("mercury", from, to).length).toBeGreaterThanOrEqual(3);
   });
 });

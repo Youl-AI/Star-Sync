@@ -132,7 +132,6 @@ export const ORBITAL_ELEMENTS = {
 /** 케플러 요소로 위치를 구할 수 있는 천체. 태양과 달은 여기 없다. */
 export type OrbitingBody = keyof typeof ORBITAL_ELEMENTS;
 
-const MERCURY = ORBITAL_ELEMENTS.mercury;
 const EARTH_MOON_BARYCENTER = ORBITAL_ELEMENTS.earth;
 
 export type Vector3 = [number, number, number];
@@ -258,11 +257,6 @@ export function planetApparent(body: Exclude<OrbitingBody, "earth">, jd: number)
     latitude: Math.asin(z / Math.hypot(x, y, z)) / DEG,
     distance: Math.hypot(x, y, z),
   };
-}
-
-/** 지구에서 본 수성의 겉보기 위치 — planetApparent("mercury")의 이름 있는 지름길. */
-export function mercuryApparent(jd: number): ApparentPosition {
-  return planetApparent("mercury", jd);
 }
 
 /** 지구에서 본 태양의 겉보기 황경. 계산이 맞는지 확인하는 데 쓴다. */

@@ -4,6 +4,7 @@
  * 서버 컴포넌트 — 자바스크립트 없이 렌더된다.
  */
 
+/** 확인 항목 한 줄 — 무엇을, 어떻게. 금지가 아니라 점검이다. */
 export function CheckItem({ what, children }: { what: string; children: React.ReactNode }) {
   return (
     <li className="border-l border-gold/25 pl-4">

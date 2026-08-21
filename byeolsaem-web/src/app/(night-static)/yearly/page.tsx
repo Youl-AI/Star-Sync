@@ -4,7 +4,7 @@ import { PlaceBand } from "@/components/place/PlaceBand";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { YearScope } from "@/components/yearly/YearScope";
 import { getFortuneYear } from "@/lib/date";
-import { alternatesFor } from "@/lib/metadata";
+import { alternatesFor, ogImage } from "@/lib/metadata";
 import { yearBackdrop } from "@/lib/yearly-reading";
 
 /**
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     `${YEARS[0]}년과 ${YEARS[1]}년 목성과 토성이 머무는 자리, 수성 역행 날짜, ` +
     "그리고 그 별들이 당신의 출생 차트와 정확히 각도를 맺는 날짜까지. 운세가 아니라 계산 결과입니다.",
   alternates: alternatesFor("/yearly"),
-  openGraph: { images: [{ url: "/og/yearly.png", width: 1200, height: 630 }] },
+  openGraph: ogImage("/yearly", "/og/yearly.png"),
 };
 
 export default function YearlyPage() {

@@ -6,7 +6,7 @@ import { PlaceBand } from "@/components/place/PlaceBand";
 import { CheckItem, Faq, Fact } from "@/components/retrograde/RetroPageBits";
 import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
-import { alternatesFor } from "@/lib/metadata";
+import { alternatesFor, ogImage } from "@/lib/metadata";
 import {
   formatZodiacDegree,
   retrogradeLoop,
@@ -60,7 +60,7 @@ export function generateMetadata(): Metadata {
       ? `지금 화성이 역행 중입니다. ${span}. 추진력과 욕구를 맡는 별이 되돌아가는 두 달 반 동안 무엇을 점검하면 되는지, 날짜와 함께 정리했습니다.`
       : `${year}년 화성 역행은 ${span}입니다. 약 26개월마다 한 번, 두 달 반 — 추진력과 욕구를 맡는 별이 되돌아가는 시기의 뜻과 점검 목록.`,
     alternates: alternatesFor("/retrograde/mars"),
-    openGraph: { images: [{ url: "/og/retrograde-mars.png", width: 1200, height: 630 }] },
+    openGraph: ogImage("/retrograde/mars", "/og/retrograde-mars.png"),
   };
 }
 
