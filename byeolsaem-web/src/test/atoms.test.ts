@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ASPECT_MEANINGS, PLANET_PAIR_THEMES, pairKey, pairTheme } from "@/content/atoms/aspects";
+import { ASPECT_MEANINGS, PLANET_PAIR_THEMES, pairKey, pairTheme, modeOf } from "@/content/atoms/aspects";
 import { ASCENDANT_ATOMS, MIDHEAVEN_ATOMS } from "@/content/atoms/ascendant";
 import { CONCERN_LENSES, lensFor } from "@/content/atoms/concerns";
 import { HOUSES } from "@/content/atoms/houses";
@@ -65,6 +65,23 @@ describe("아톰 DB — 빈칸이 없어야 한다", () => {
       expect(ASPECT_MEANINGS[type.key], type.ko).toBeTruthy();
       expect(ASPECT_MEANINGS[type.key].body.length).toBeGreaterThan(40);
     }
+  });
+
+  it("각도마다 nuance 꼬리 한 줄이 있다", () => {
+    for (const type of ASPECT_TYPES) {
+      const { nuance } = ASPECT_MEANINGS[type.key];
+      expect(nuance, type.ko).toBeTruthy();
+      expect(nuance.length, type.ko).toBeGreaterThan(15);
+      expect(nuance.endsWith("."), type.ko).toBe(true);
+    }
+  });
+
+  it("modeOf가 다섯 각도를 세 모드로 접는다", () => {
+    expect(modeOf("conjunction")).toBe("conjunction");
+    expect(modeOf("sextile")).toBe("flowing");
+    expect(modeOf("trine")).toBe("flowing");
+    expect(modeOf("square")).toBe("friction");
+    expect(modeOf("opposition")).toBe("friction");
   });
 
   /**

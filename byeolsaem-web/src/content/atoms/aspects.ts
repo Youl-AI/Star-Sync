@@ -13,31 +13,36 @@ import type { PlanetKey } from "@/lib/planets";
  */
 
 /** 각도가 정하는 것 — 두 힘의 사이. */
-export const ASPECT_MEANINGS: Record<AspectKey, { headline: string; body: string }> = {
+export const ASPECT_MEANINGS: Record<AspectKey, { headline: string; body: string; nuance: string }> = {
   conjunction: {
     headline: "한자리에 겹쳐 있습니다",
     body:
       "두 힘이 같은 지점에 놓여 따로 떼어 보기 어렵습니다. 하나가 움직이면 다른 하나도 반드시 함께 움직입니다. 강하게 작용하는 대신, 본인은 그것이 두 가지라는 것을 잘 알아차리지 못합니다.",
+    nuance: "두 힘이 한 몸처럼 붙어 있어, 본인은 이것이 두 가지라는 것을 잘 알아차리지 못합니다.",
   },
   sextile: {
     headline: "서로 도울 수 있습니다",
     body:
       "부딪히지 않고 손을 빌려줄 수 있는 사이입니다. 다만 저절로 작동하지는 않습니다. 의식해서 한쪽을 쓸 때 다른 쪽이 따라오는 구조라, 알아차리지 못하면 그냥 지나갑니다.",
+    nuance: "저절로 작동하지는 않습니다. 의식해서 쓸 때만 열리는 통로입니다.",
   },
   square: {
     headline: "서로 밀어냅니다",
     body:
       "한쪽을 세우면 다른 쪽이 눌립니다. 이 마찰은 불편하지만 실제로 사람을 움직이게 하는 힘이기도 합니다. 편한 배치가 아무것도 시키지 않는 반면, 이 배치는 계속 결단을 요구합니다.",
+    nuance: "이 마찰은 혼자 있을 때도 안에서 계속 돌아갑니다.",
   },
   trine: {
     headline: "힘들이지 않고 흐릅니다",
     body:
       "둘이 같은 방향을 보고 있어 애쓰지 않아도 이어집니다. 재능이 되는 자리입니다. 다만 너무 쉬워서 당연하게 여기고 끝까지 쓰지 않는 경우가 많습니다.",
+    nuance: "너무 자연스러워서 본인만 이것이 재능인 줄 모르기 쉽습니다.",
   },
   opposition: {
     headline: "정면으로 마주 봅니다",
     body:
       "두 힘이 하늘의 반대편에서 서로를 바라봅니다. 한쪽을 고르면 다른 쪽이 반드시 불만을 냅니다. 어느 하나를 버리는 것이 아니라 둘 사이를 오가는 법을 익히는 것이 이 배치의 과제입니다.",
+    nuance: "이 마찰은 주로 사람이나 상황을 통해 밖에서 옵니다.",
   },
 };
 
@@ -117,4 +122,16 @@ export function pairKey(a: PlanetKey, b: PlanetKey): string {
 
 export function pairTheme(a: PlanetKey, b: PlanetKey): string | undefined {
   return PLANET_PAIR_THEMES[pairKey(a, b)];
+}
+
+/**
+ * 본문 기준으로는 각도가 세 모드로 접힌다 — 겹침 / 순풍(육분·삼각) /
+ * 마찰(사각·대립). 5방의 구분은 nuance 한 줄이 유지한다(스펙 §2).
+ */
+export type AspectMode = "conjunction" | "flowing" | "friction";
+
+export function modeOf(key: AspectKey): AspectMode {
+  if (key === "conjunction") return "conjunction";
+  if (key === "sextile" || key === "trine") return "flowing";
+  return "friction";
 }
