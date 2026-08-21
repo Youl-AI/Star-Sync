@@ -215,7 +215,7 @@ export function NatalReading() {
                       <span className="astro-symbol">{item.b.symbol}</span> {item.b.ko}
                     </span>
                     <span className="text-meta text-starlight-dim">
-                      {item.aspect.type.ko} · <Term name="오브" /> {item.aspect.orb.toFixed(1)}도
+                      {item.aspect.type.ko} · <Term name="오브" /> {item.aspect.orb.toFixed(1)}도 · {item.strengthKo}
                     </span>
                     <ToneBadge harmony={item.aspect.type.harmony} />
                   </p>
