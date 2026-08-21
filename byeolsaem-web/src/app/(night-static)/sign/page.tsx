@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import Link from "next/link";
 import { Astrolabe } from "@/components/sign/Astrolabe";
 import { SignPrimer } from "@/components/sign/SignPrimer";
@@ -16,6 +17,21 @@ export const metadata: Metadata = {
 export default function SignIndexPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 화면에 있는 문답만 스키마로 낸다(자체 원칙) — 아래 답변은 프라이머 원문이다. */}
+      <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "별자리", path: "/sign" }])} />
+      <JsonLd
+        data={faqSchema([
+          { question: "흔히 말하는 별자리는 무엇인가요?",
+            answer:
+              "흔히 '별자리'라고 부르는 것은 태어난 날 태양이 있던 자리입니다. 태양은 한 해에 걸쳐 황도를 한 바퀴 돌고, 한 자리에 약 한 달 머뭅니다. 그래서 날짜만 알면 정해지고, 같은 기간에 태어난 사람은 모두 같은 값을 갖습니다." },
+          { question: "별자리 날짜 경계는 왜 해마다 다른가요?",
+            answer:
+              "기간은 해마다 하루쯤 움직입니다. 태양이 자리를 옮기는 순간이 날짜 경계와 정확히 맞아떨어지지 않기 때문이라, 경계에 태어났다면 태어난 해의 실제 위치를 계산해 보는 편이 정확합니다." },
+          { question: "열두 자리의 순서에는 이유가 있나요?",
+            answer:
+              "양자리가 첫 자리인 것은 춘분에서 시작하기 때문입니다. 낮이 밤을 넘어서는 지점이라, 아무것도 정해지지 않은 상태에서 먼저 움직이는 성질이 여기 놓입니다." },
+        ])}
+      />
       {/* data-morph-fade: 성좌가 카드로 날아가는 동안 진(Astrolabe)이 이 요소들을
           완전히 지운다. 전환 프레임에 배경과 성좌 말고 아무것도 남지 않아야
           라우트가 바뀌는 순간이 눈에 보이지 않는다(Astrolabe 타이밍 주석). */}

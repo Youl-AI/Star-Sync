@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart } from "@/lib/chart";
@@ -16,6 +15,7 @@ import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { MoonDisc } from "./MoonDisc";
+import { ComingMoons, PlanetsNow, RetroBand } from "./SkyNow";
 
 /**
  * 오늘의 카드.
@@ -39,8 +39,6 @@ export function TodayCard() {
 
   const sky = useMemo(() => (now ? todaySky(now) : null), [now]);
   const front = useMemo(() => (sky ? todayFront(sky) : null), [sky]);
-  const mercuryRetrograde =
-    sky?.placements.find((p) => p.planet === "mercury")?.retrograde ?? false;
 
   const back = useMemo(() => {
     if (!sky || !profile) return null;
@@ -80,7 +78,10 @@ export function TodayCard() {
   };
 
   return (
-    <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
+    <>
+      {/* 카운트다운 띠 — 이 페이지에 "내일 또 확인할 숫자"를 하나 세운다(정찰 ②). */}
+      {now && <RetroBand now={now} />}
+      <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
       <aside
         className="border-b border-gold/18 pb-5 md:sticky md:top-24 md:border-b-0 md:border-r md:pb-0 md:pr-5 md:text-right"
         aria-label="오늘 날짜와 하늘"
@@ -91,19 +92,8 @@ export function TodayCard() {
           {front.phaseName} · {front.illumination}%
         </p>
         <p className="text-meta text-starlight-dim">달 {front.moonSign}</p>
-        {/* 역행 중일 때만 나온다. 이 사이트에서 검색량이 가장 크게 뛰는 주제인데,
-            정작 "지금 역행인가"를 묻는 사람에게는 머리글 메뉴 말고 길이 없었다.
-            오늘 하늘의 계산 결과에 이미 행성별 역행 여부가 들어 있어(lib/today.ts)
-            따로 구하지 않는다. */}
-        {mercuryRetrograde && (
-          <Link
-            href="/retrograde"
-            className="mt-3 inline-block border-b border-gold/40 pb-0.5 text-meta text-gold-soft transition-colors hover:border-gold-soft hover:text-starlight"
-          >
-            지금 수성 역행 중
-            <span aria-hidden> →</span>
-          </Link>
-        )}
+        {/* "지금 수성 역행 중" 링크가 여기 있었는데, 상단의 카운트다운 띠(RetroBand)가
+            역행 여부와 남은 날을 항상 말하게 되어 물러났다(정찰 ②). */}
         {profile ? (
           <>
             <p className="mt-3 text-meta text-gold-soft">{formatBirthDate(profile.date)}</p>
@@ -191,8 +181,14 @@ export function TodayCard() {
         </div>
 
         {flipped && back && <TransitList back={back} />}
+
+        {/* 열 행성 자리표 — 계산은 이미 있었고 화면만 없었다(정찰 ①). */}
+        <PlanetsNow sky={sky} />
+        {/* 다가오는 삭망(정찰 ⑨). 달 카드의 흐름을 이어받는 자리. */}
+        {now && <ComingMoons now={now} />}
       </div>
     </div>
+    </>
   );
 }
 

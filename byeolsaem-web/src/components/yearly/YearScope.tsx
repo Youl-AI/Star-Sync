@@ -8,6 +8,8 @@ import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
 import { getFortuneYear } from "@/lib/date";
 import { pinCapable } from "@/lib/pin";
 import { requestRitual } from "@/lib/ritual";
+import { signArt } from "@/lib/share-card";
+import { getSunSign } from "@/lib/zodiac";
 import {
   formatYearDate,
   yearReading,
@@ -17,6 +19,8 @@ import {
 } from "@/lib/yearly-reading";
 import { UnknownPlace } from "@/components/chart/NoProfile";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
+import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { YearEventRows } from "./YearEventRows";
 import { YearFlow } from "./YearFlow";
@@ -442,6 +446,27 @@ function PersonalYear({ year }: { year: number }) {
             openId={openId}
             onToggle={setOpenId}
           />
+
+          {/* 한 해의 결과도 밖으로 나갈 통로가 있어야 한다(정찰 ⑧). */}
+          {reading.headline && (
+            <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-gold/15 pt-8">
+              <SaveCardButton
+                filename={`byeolsaem-year-${year}.png`}
+                spec={() => ({
+                  name: `${year}년의 하늘`,
+                  latin: `YEAR ${year}`,
+                  range: profile ? formatBirthDate(profile.date) : undefined,
+                  tagline: reading.headline!,
+                  // 그 사람의 태양 별자리 성좌 — 한 해 카드에도 '누구의 해'인지가 그림에 남는다.
+                  art: signArt(getSunSign(profile!.date)),
+                })}
+              />
+              <KakaoShareButton
+                text={`${year}년 나의 하늘 — ${reading.headline}`}
+                path="/yearly"
+              />
+            </div>
+          )}
 
           <ClosingNote />
         </>

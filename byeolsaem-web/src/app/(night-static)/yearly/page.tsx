@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { YearScope } from "@/components/yearly/YearScope";
@@ -30,6 +31,18 @@ export const metadata: Metadata = {
 export default function YearlyPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 화면에 있는 문답만 스키마로 낸다(자체 원칙) — 아래 답변은 프라이머 원문이다. */}
+      <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "한 해", path: "/yearly" }])} />
+      <JsonLd
+        data={faqSchema([
+          { question: "이 페이지는 무엇을 보여주나요?",
+            answer:
+              "느린 별들이 한 해 동안 어디에 머무는지, 그리고 당신의 자리와 언제 정확히 각도를 맺는지. 뽑는 것이 아니라 구하는 것이라 날짜가 나옵니다." },
+          { question: "모두에게 같은 부분이란 무엇인가요?",
+            answer:
+              "목성은 한 자리에 약 1년, 토성은 약 2년 반 머뭅니다. 이 두 별이 어디에 있는지가 그 해가 어떤 해인가를 정하고, 그 부분은 태어난 순간과 무관하게 모두에게 같습니다." },
+        ])}
+      />
       {/* 한 해의 장소: 별을 싣고 흐르는 밤의 강 — YearFlow의 강 은유가 여기서 시작된다 */}
       <PlaceBand src="/world/place-yearly.webp" />
       <header className="mx-auto max-w-xl text-center">

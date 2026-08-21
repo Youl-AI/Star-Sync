@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { alternatesFor } from "@/lib/metadata";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { NextSteps } from "@/components/nav/NextSteps";
@@ -17,6 +18,21 @@ export const metadata: Metadata = {
 export default function SynastryPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 화면에 있는 문답만 스키마로 낸다(자체 원칙) — 아래 답변은 프라이머 원문이다. */}
+      <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "궁합", path: "/synastry" }])} />
+      <JsonLd
+        data={faqSchema([
+          { question: "두 하늘을 겹쳐 본다는 것은 무엇인가요?",
+            answer:
+              "궁합(시나스트리)은 두 사람의 천궁도를 나란히 놓고, 한쪽의 별이 다른 쪽의 별과 어떤 각도를 이루는지 보는 방법입니다. 내 금성이 상대의 화성과 120도를 맺는다면, 내가 좋아하는 방식과 상대가 밀어붙이는 방식이 서로 통한다는 뜻으로 읽습니다." },
+          { question: "왜 궁합 점수를 내지 않나요?",
+            answer:
+              "낼 수 없기 때문입니다. 두 사람이 잘 지낼지는 하늘이 정하지 않습니다. 하늘이 말해 주는 것은 두 사람이 서로의 어디를 건드리는가까지이고, 그 다음은 두 사람의 몫입니다." },
+          { question: "상대의 정보는 저장되나요?",
+            answer:
+              "내 출생 정보는 이 브라우저에 저장되지만 상대의 것은 저장하지 않습니다. 이 화면을 떠나거나 새로고침하면 사라집니다 — 남의 생년월일을 내 브라우저에 남길 이유가 없습니다." },
+        ])}
+      />
       {/* 궁합의 장소: 물결이 서로 겹치는 두 개의 샘 */}
       <PlaceBand src="/world/place-synastry.webp" />
       <header className="mx-auto max-w-xl text-center">

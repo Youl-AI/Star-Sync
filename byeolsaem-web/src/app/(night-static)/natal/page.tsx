@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { alternatesFor } from "@/lib/metadata";
 import { NatalPrimer } from "@/components/chart/NatalPrimer";
 import { NatalReading } from "@/components/chart/NatalReading";
@@ -26,6 +27,21 @@ export default function NatalPage() {
     // 시안 B는 왼쪽에 출생 정보 기둥을 세우므로 그만큼 폭이 더 필요하다.
     // 본문 자체는 52자에서 끊기니 넓혀도 줄이 길어지지 않는다(§11.4).
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 화면에 있는 문답만 스키마로 낸다(자체 원칙) — 아래 답변은 프라이머 원문이다. */}
+      <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "천궁도", path: "/natal" }])} />
+      <JsonLd
+        data={faqSchema([
+          { question: "천궁도는 무엇으로 되어 있나요?",
+            answer:
+              "천궁도는 태어난 순간, 태어난 장소에서 올려다본 하늘의 지도입니다. 세 가지가 겹쳐 한 장을 이룹니다 — 열 개의 별이 어느 별자리에 있었는지, 그 별들이 삶의 어느 방에 놓였는지, 그리고 별끼리 어떤 각도로 마주 보는지." },
+          { question: "태어난 시각이 왜 필요한가요?",
+            answer:
+              "별자리는 날짜만 알면 정해지지만 상승궁과 하우스는 그렇지 않습니다. 지구가 하루에 한 바퀴 자전하므로 상승궁은 약 2시간마다 한 자리씩 옮겨 가고, 그에 따라 열두 방의 경계가 통째로 돌아갑니다." },
+          { question: "이 계산은 어디서 이루어지나요?",
+            answer:
+              "이 브라우저 안에서입니다. 태어난 날짜와 시각, 장소의 좌표로 그 순간의 행성 위치를 천문력으로 구하고, 거기에 미리 작성해 둔 해석을 붙여 조립합니다. 출생 정보는 어디로도 전송되지 않고, 같은 정보를 넣으면 언제 다시 열어도 같은 글이 나옵니다." },
+        ])}
+      />
       {/* 천궁도를 읽는 장소: 촛불 하나 켜진 해석의 서재. 촛불은 천천히 숨쉰다. */}
       <PlaceBand src="/world/place-natal.webp">
         <div className="natal-candle" />

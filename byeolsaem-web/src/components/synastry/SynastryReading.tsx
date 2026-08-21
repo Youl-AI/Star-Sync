@@ -11,6 +11,8 @@ import { computeChart, type Chart } from "@/lib/chart";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
 import Link from "next/link";
 import { getSunSign } from "@/lib/zodiac";
+import { signArt } from "@/lib/share-card";
+import { firstSentence } from "@/lib/text";
 import { openBirthPanel, requestRitual } from "@/lib/ritual";
 import {
   synastryReading,
@@ -21,6 +23,8 @@ import {
 import { ChartLoading, UnknownPlace } from "@/components/chart/NoProfile";
 import { ExampleMeeting } from "./ExampleMeeting";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
+import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { MotionScope } from "@/components/ui/MotionScope";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { ToneBadge } from "@/components/ui/ToneBadge";
@@ -216,6 +220,27 @@ export function SynastryReading() {
                   </ul>
                 </section>
               </>
+            )}
+
+            {/* 궁합 결과도 밖으로 나갈 통로가 있어야 한다(정찰 ⑧). 그림은 내
+                태양 별자리 성좌 — 상대의 정보는 카드에도 남기지 않는다. */}
+            {reading.oneLiner && (
+              <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-gold/15 pt-8">
+                <SaveCardButton
+                  filename={`byeolsaem-synastry-${profile.date.replaceAll("-", "")}.png`}
+                  spec={() => ({
+                    name: "두 사람의 하늘",
+                    latin: "TWO SKIES",
+                    range: formatBirthDate(profile.date),
+                    tagline: firstSentence(reading.oneLiner!),
+                    art: signArt(getSunSign(profile.date)),
+                  })}
+                />
+                <KakaoShareButton
+                  text={`두 사람의 하늘 — ${firstSentence(reading.oneLiner)}`}
+                  path="/synastry"
+                />
+              </div>
             )}
 
             {/* 상대의 생년월일을 방금 받았으니 그 사람의 태양궁을 이미 안다.

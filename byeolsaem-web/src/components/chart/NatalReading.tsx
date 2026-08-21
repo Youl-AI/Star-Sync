@@ -5,8 +5,12 @@ import { formatBirthDate } from "@/lib/birth-profile";
 import { formatPlacement } from "@/lib/chart";
 import type { PlanetKey } from "@/lib/planets";
 import { describeElements, type ReadingPlacement } from "@/lib/reading";
+import { signArt } from "@/lib/share-card";
+import { firstSentence } from "@/lib/text";
 import { requestRitual } from "@/lib/ritual";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
+import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 import { ExampleSky } from "./ExampleSky";
 import { ChartLoading, UnknownPlace } from "./NoProfile";
@@ -230,6 +234,25 @@ export function NatalReading() {
             </ul>
           </Section>
         )}
+
+        {/* 계산이 가장 무거운 결과인데 밖으로 나가는 통로가 없었다(정찰 ⑧).
+            카드에는 한 줄 요약의 첫 문장만 — 부적 크기의 글자에는 그게 전부 들어간다. */}
+        <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-gold/15 pt-8">
+          <SaveCardButton
+            filename={`byeolsaem-natal-${profile.date.replaceAll("-", "")}.png`}
+            spec={() => ({
+              name: core.sun.placement.sign.ko,
+              latin: "MY NIGHT SKY",
+              range: formatBirthDate(profile.date),
+              tagline: firstSentence(reading.oneLiner),
+              art: signArt(core.sun.placement.sign),
+            })}
+          />
+          <KakaoShareButton
+            text={`나의 천궁도 — ${firstSentence(reading.oneLiner)}`}
+            path="/natal"
+          />
+        </div>
 
         {reading.timeUnknown && (
           <div className="mt-16 border-t border-gold/15 pt-8">

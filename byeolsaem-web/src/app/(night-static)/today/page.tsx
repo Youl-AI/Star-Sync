@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { alternatesFor } from "@/lib/metadata";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { NextSteps } from "@/components/nav/NextSteps";
@@ -17,6 +18,21 @@ export const metadata: Metadata = {
 export default function TodayPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+      {/* 화면에 있는 문답만 스키마로 낸다(자체 원칙) — 아래 답변은 프라이머 원문이다. */}
+      <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "오늘", path: "/today" }])} />
+      <JsonLd
+        data={faqSchema([
+          { question: "달은 왜 매일 다른가요?",
+            answer:
+              "달은 지구를 한 바퀴 도는 데 약 29.5일이 걸립니다. 그동안 태양·지구·달이 이루는 각도가 계속 달라지고, 우리 눈에는 그 각도가 달의 밝은 면 크기로 보입니다." },
+          { question: "오늘 하늘이 나를 건드린다는 말은 무슨 뜻인가요?",
+            answer:
+              "점성술에서 트랜짓은 지금 하늘에 있는 별이 태어난 순간의 내 별과 특정한 각도를 이루는 일을 말합니다. 태어난 순간의 배치는 평생 그 자리에 있고, 그 위를 오늘의 별들이 지나갑니다." },
+          { question: "이 페이지의 숫자는 어디서 오나요?",
+            answer:
+              "태양과 달, 행성의 위치를 궤도 요소에서 직접 계산하고, 그 값으로 위상과 각도를 구합니다. 어느 단계에서도 무작위로 고르거나 뽑는 과정이 없어서, 같은 날 같은 출생 정보라면 몇 번을 열어도 같은 글이 나옵니다." },
+        ])}
+      />
       {/* 오늘의 하늘이 열리는 장소: 별이 비치는 샘의 수면 */}
       <PlaceBand src="/world/place-today.webp" />
       <header className="mx-auto max-w-xl text-center">
