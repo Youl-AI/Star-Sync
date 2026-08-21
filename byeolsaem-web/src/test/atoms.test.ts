@@ -16,6 +16,7 @@ import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
 import { ASPECT_TYPES, computeChart, type BirthMoment } from "@/lib/chart";
 import { PLANETS, TIER_RANK } from "@/lib/planets";
 import { firstSentence } from "@/lib/text";
+import { EXAMPLE_BIRTH, exampleSky } from "@/lib/example-sky";
 import { assembleReading, describeElements, strengthLabel, tierWeight } from "@/lib/reading";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
@@ -330,6 +331,25 @@ describe("조립", () => {
         `${item.a.ko}-${item.b.ko}`,
       ).toBe(true);
     }
+  });
+
+  /**
+   * 예시 하늘(/natal의 정보 없음 화면)이 반쪽으로 렌더되면 안 된다 — 예시가
+   * 결과물의 미리보기 역할이므로, 보여주기로 한 네 조각이 전부 있어야 한다.
+   * 라벨 문구와 계산 입력이 어긋나는 것도 여기서 잡는다.
+   */
+  it("예시 하늘은 네 조각을 전부 갖춘다", () => {
+    const { reading } = exampleSky();
+    expect(reading.oneLiner).toBeTruthy();
+    expect(reading.lifework).not.toBeNull();
+    expect(reading.core.ascendant).not.toBeNull();
+    expect(reading.aspects.length).toBeGreaterThan(0);
+    expect(reading.timeUnknown).toBe(false);
+    // 화면이 밝히는 문구 ↔ 실제 계산 입력
+    expect(EXAMPLE_BIRTH.label).toContain("1995년 7월 14일");
+    expect(EXAMPLE_BIRTH.label).toContain("9시 30분");
+    expect(EXAMPLE_BIRTH.date).toBe("1995-07-14");
+    expect(EXAMPLE_BIRTH.time).toBe("09:30");
   });
 
   it("평생의 과제는 마찰 문단의 첫 문장으로 시작한다", () => {

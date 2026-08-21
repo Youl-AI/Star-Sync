@@ -8,7 +8,8 @@ import { describeElements, type ReadingPlacement } from "@/lib/reading";
 import { requestRitual } from "@/lib/ritual";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { ChartLoading, NoProfile, UnknownPlace } from "./NoProfile";
+import { ExampleSky } from "./ExampleSky";
+import { ChartLoading, UnknownPlace } from "./NoProfile";
 import { Term } from "./Term";
 import { useChart } from "./useChart";
 import { WheelFigure } from "./WheelFigure";
@@ -35,7 +36,8 @@ export function NatalReading() {
   const [openPlanet, setOpenPlanet] = useState<PlanetKey | null>(null);
 
   if (!ready) return <ChartLoading />;
-  if (!profile) return <NoProfile what="천궁도" />;
+  // 정보가 없으면 요구부터 하지 않는다 — 예시 하늘을 먼저 보여준다(ExampleSky 주석 참고).
+  if (!profile) return <ExampleSky />;
   if (state?.status === "unknown-place") return <UnknownPlace city={profile.city} />;
   if (state?.status !== "ready") return <ChartLoading />;
 
