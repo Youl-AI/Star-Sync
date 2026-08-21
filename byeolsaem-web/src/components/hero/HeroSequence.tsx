@@ -141,7 +141,7 @@ export function HeroSequence() {
             y: -24,
             filter: "blur(6px)",
             duration: 0.5,
-            ease: "power2.in",
+            ease: "power2.out",
           },
           0
         );

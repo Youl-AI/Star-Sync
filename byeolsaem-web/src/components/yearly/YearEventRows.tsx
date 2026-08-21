@@ -51,7 +51,7 @@ export function YearEventRows({
             >
               <span
                 aria-hidden
-                className={`flex-none text-meta text-gold transition-transform duration-300 ${
+                className={`flex-none text-meta text-gold transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   open ? "rotate-90" : ""
                 }`}
               >
@@ -80,7 +80,7 @@ export function YearEventRows({
             </button>
 
             <div
-              className={`grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              className={`grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}
             >

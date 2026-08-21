@@ -169,7 +169,7 @@ export function ChartWheel({
                   stroke={horizonLit ? "var(--color-gold-soft)" : axis ? "var(--color-gold)" : "var(--color-starlight)"}
                   strokeWidth={horizonLit ? 2 : axis ? 1.3 : 0.5}
                   opacity={horizonLit ? 1 : axis ? 0.75 : 0.18}
-                  className="transition-all duration-300"
+                  className="transition-[stroke-width,opacity,stroke,fill,font-size] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 />
                 <text
                   x={number.x}
@@ -208,7 +208,7 @@ export function ChartWheel({
             stroke={harmonious ? "var(--color-gold-soft)" : "var(--color-starlight-dim)"}
             strokeWidth={aspect.type.key === "conjunction" ? 0 : touched ? 1.6 : 0.9}
             opacity={focus ? (touched ? 0.95 : base * 0.25) : base}
-            className="transition-all duration-300"
+            className="transition-[stroke-width,opacity,stroke,fill,font-size] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
           />
         );
       })}
@@ -314,7 +314,7 @@ export function ChartWheel({
             fontSize={ascLit ? 12 : 10}
             fill={ascLit ? "var(--color-gold-soft)" : "var(--color-gold)"}
             letterSpacing="1"
-            className="transition-all duration-300"
+            className="transition-[stroke-width,opacity,stroke,fill,font-size] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
           >
             ASC
           </text>

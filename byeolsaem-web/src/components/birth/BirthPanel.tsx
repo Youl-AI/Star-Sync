@@ -34,6 +34,32 @@ export function BirthPanel() {
     pushedRef.current = false;
   }, []);
 
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const leavingRef = useRef(false);
+  /**
+   * 들어올 때만 연출하고 나갈 때 뚝 끊기던 것을 고친다(모션 감사 2026-08-22).
+   * 짧은 페이드 뒤에 실제로 닫는다 — exit는 enter(300ms)보다 빠르게. 뒤로가기
+   * 경로는 브라우저가 이미 떠난 뒤라 즉시 닫는 close(true)를 그대로 쓴다.
+   */
+  const leave = useCallback(() => {
+    if (leavingRef.current) return;
+    leavingRef.current = true;
+    const node = overlayRef.current;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const done = () => {
+      leavingRef.current = false;
+      close();
+    };
+    if (!node || reduced) {
+      done();
+      return;
+    }
+    node.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: "ease" })
+      .finished.then(done, done);
+  }, [close]);
+  const leaveRef = useRef(leave);
+  leaveRef.current = leave;
+
   useEffect(() => {
     const onOpen = (event: Event) => {
       openerRef.current = document.activeElement as HTMLElement | null;
@@ -59,7 +85,7 @@ export function BirthPanel() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        close();
+        leaveRef.current();
         return;
       }
       if (event.key !== "Tab") return;
@@ -110,7 +136,7 @@ export function BirthPanel() {
     // onComplete와 함께 오므로 이 갈래로 오지 않지만, 조용히 깨진 프로필을
     // 저장하는 것보다 아무것도 하지 않는 편이 낫다.
     else if (data.concern !== null) saveBirthProfile({ ...data, concern: data.concern });
-    close();
+    leave();
   };
 
   return (
@@ -118,11 +144,12 @@ export function BirthPanel() {
       // 덮개는 짙은 어둠 그대로. 바깥은 깊게 가라앉고, 그 어둠이 유리 카드
       // 너머로 비쳐 카드만 은은하게 떠 보인다(유리판, 2026-08-13 사용자 확정 —
       // 덮개까지 옅게 한 시안은 화면 전체가 밝아져서 버렸다).
+      ref={overlayRef}
       className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-ink/85 p-6 backdrop-blur-md motion-safe:animate-panel-in"
       // 이 층이 화면 전체를 덮으므로 그 아래에 따로 스크림을 깔아 봐야 클릭이
       // 닿지 않는다. 격자의 빈 칸(= 카드 바깥)을 눌렀는지 여기서 직접 가린다.
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) close();
+        if (e.target === e.currentTarget) leave();
       }}
     >
       <div
@@ -137,7 +164,7 @@ export function BirthPanel() {
       >
         <button
           type="button"
-          onClick={() => close()}
+          onClick={leave}
           aria-label="닫기"
           className="absolute right-4 top-4 grid size-10 place-items-center rounded-full border border-gold/50 text-gold-soft transition-colors hover:border-gold hover:text-starlight"
         >

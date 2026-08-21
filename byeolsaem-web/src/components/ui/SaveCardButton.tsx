@@ -37,7 +37,7 @@ export function SaveCardButton({
       type="button"
       onClick={save}
       aria-live="polite"
-      className={`text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight ${className}`}
+      className={`text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-[color,transform] duration-150 hover:text-starlight active:scale-[0.97] ${className}`}
     >
       {/* 네 말이 같은 칸에 겹쳐 있다(globals.css의 .label-swap 주석 참고). */}
       <span className="label-swap">

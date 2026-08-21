@@ -6,7 +6,7 @@ export const UNDERLINE_INPUT =
   "w-full border-0 border-b border-gold/60 bg-transparent px-1 py-2 text-center font-display text-2xl tracking-[0.02em] text-starlight caret-gold outline-none placeholder:text-starlight-dim/40 focus:border-gold-soft md:text-3xl";
 
 export const SKIP_LINK =
-  "text-[11px] tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight";
+  "text-[11px] tracking-wide text-starlight-dim underline underline-offset-4 transition-[color,transform] duration-150 hover:text-starlight active:scale-[0.97]";
 
 export const NEXT_LINK =
-  "text-xs tracking-[0.08em] text-gold-soft underline-offset-4 transition-colors hover:text-starlight hover:underline";
+  "text-xs tracking-[0.08em] text-gold-soft underline-offset-4 transition-[color,transform] duration-150 hover:text-starlight hover:underline active:scale-[0.97]";

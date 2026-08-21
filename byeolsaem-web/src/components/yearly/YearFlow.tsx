@@ -65,7 +65,9 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             if (fillRef.current) {
-              fillRef.current.style.width = `${(self.progress * 100).toFixed(1)}%`;
+              // width가 아니라 scaleX — 스크롤마다 도는 핫패스에서 width는 매번
+              // 레이아웃을 다시 계산시킨다. ReadingProgress와 같은 이유·같은 방식.
+              fillRef.current.style.transform = `scaleX(${self.progress.toFixed(4)})`;
             }
             // 카드·달 표기는 화면에 실제로 보이는 위치(눅어진 x)를 따른다.
             // 진행률(스크럽 전 값)을 쓰면 강은 아직 안 왔는데 글이 먼저 바뀐다.
@@ -241,10 +243,12 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
         </div>
 
         {/* 중앙선을 지난 사건의 풀이. 높이를 미리 잡아 두어 카드가 갈릴 때
-            강과 진행 막대가 오르내리지 않게 한다. */}
+            강과 진행 막대가 오르내리지 않게 한다. 카드에 진입 연출은 없다 —
+            스크럽이 지나가며 초당 몇 번씩 바뀌는 자리라, 키프레임을 붙이면
+            완주하지 못하고 계속 재시작해 깜빡인다(모션 감사 2026-08-22). */}
         <div className="mt-8 min-h-[240px]" aria-live="polite">
           {current ? (
-            <div key={current.id} className="animate-prompt-in border-l-2 border-gold-soft pl-5">
+            <div key={current.id} className="border-l-2 border-gold-soft pl-5">
               <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="font-display text-lg text-starlight">
                   <span className="astro-symbol">{current.moving.symbol}</span> {current.moving.ko}
@@ -278,7 +282,7 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
         <div className="mt-6 flex items-center gap-4 text-meta text-starlight-dim">
           <span className="w-8">{month}월</span>
           <span className="relative h-px flex-1 bg-gold/20">
-            <span ref={fillRef} className="absolute inset-y-0 left-0 block bg-gold" style={{ width: "0%" }} />
+            <span ref={fillRef} className="absolute inset-0 block origin-left bg-gold" style={{ transform: "scaleX(0)" }} />
           </span>
           <span>12월</span>
         </div>

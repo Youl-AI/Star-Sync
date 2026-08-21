@@ -467,7 +467,10 @@ function scrollToEvent(event: YearReadingEvent): void {
   requestAnimationFrame(() => {
     const target = document.getElementById(event.id);
     if (!target) return;
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    // 이 함수가 도는 경로 자체가 감소 모드 사용자의 폴백이다 — 부드러운
+    // 스크롤을 강제하면 안 된다(lib/scroll.ts와 같은 분기).
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
     target.animate(
       [
         { backgroundColor: "color-mix(in srgb, var(--color-gold) 14%, transparent)" },

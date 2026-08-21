@@ -98,15 +98,22 @@ export function BirthMenu({
         </span>
       </button>
 
-      {open && (
-        <div
-          id={menuId}
-          role="menu"
-          className={
-            "animate-list-open z-50 min-w-[13rem] border border-gold/25 bg-ink-raised/95 py-1.5 backdrop-blur-md " +
-            (variant === "nav" ? "absolute right-0 top-full mt-2" : "relative mt-3")
-          }
-        >
+      {/* 키프레임 대신 transition — 연타해도 진행 중인 지점에서 되돌아가고,
+          닫힐 때도 뚝 끊기는 대신 같은 길로 나간다. inert가 닫힌 메뉴를
+          포커스·보조기술에서 통째로 치운다(조건부 마운트가 하던 일). */}
+      <div
+        id={menuId}
+        role="menu"
+        inert={!open}
+        className={
+          "z-50 min-w-[13rem] border border-gold/25 bg-ink-raised/95 py-1.5 backdrop-blur-md " +
+          "transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 " +
+          (open ? "translate-y-0 opacity-100 " : "pointer-events-none -translate-y-1.5 opacity-0 ") +
+          // sheet는 흐름 안에 서므로 닫혀 있으면 자리도 내주면 안 된다. 오버레이
+          // 전체가 함께 닫히는 맥락이라 sheet 쪽 exit 연출은 잃는 것이 없다.
+          (variant === "nav" ? "absolute right-0 top-full mt-2" : open ? "relative mt-3" : "hidden")
+        }
+      >
           <Link
             href="/natal"
             role="menuitem"
@@ -163,7 +170,6 @@ export function BirthMenu({
             </button>
           )}
         </div>
-      )}
     </div>
   );
 }

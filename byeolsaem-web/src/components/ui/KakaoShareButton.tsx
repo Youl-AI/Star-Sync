@@ -44,7 +44,7 @@ export function KakaoShareButton({
       type="button"
       onClick={share}
       aria-live="polite"
-      className={`text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-colors hover:text-starlight ${className}`}
+      className={`text-meta tracking-wide text-starlight-dim underline underline-offset-4 transition-[color,transform] duration-150 hover:text-starlight active:scale-[0.97] ${className}`}
     >
       <span className="label-swap">
         <span data-on={String(!failed)}>카카오톡으로 공유</span>

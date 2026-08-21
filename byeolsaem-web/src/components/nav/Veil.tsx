@@ -163,7 +163,7 @@ export function Veil() {
               tabIndex={open ? 0 : -1}
               onClick={() => setOpen(false)}
               style={{ transitionDelay: open ? `${i * 60}ms` : "0ms" }}
-              className={`font-display text-2xl text-starlight transition-all duration-300 ${
+              className={`font-display text-2xl text-starlight transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 ${
                 open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
               }`}
             >
@@ -179,7 +179,7 @@ export function Veil() {
             그래서 휴대폰으로 온 사람에게는 저장된 정보를 지울 길이 아예 없었다. */}
         <div
           style={{ transitionDelay: open ? `${LINKS.length * 60}ms` : "0ms" }}
-          className={`mt-2 border-t border-gold/15 pt-8 transition-all duration-300 ${
+          className={`mt-2 border-t border-gold/15 pt-8 transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >

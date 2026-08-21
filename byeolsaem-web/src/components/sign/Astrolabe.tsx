@@ -220,7 +220,7 @@ export function Astrolabe() {
                 r={hovered === i ? 2.6 : 1.4}
                 fill="var(--color-gold-soft)"
                 opacity={hovered === i ? 1 : 0.5}
-                className="transition-all duration-500"
+                className="transition-[r,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
               />
             );
           })}
@@ -327,9 +327,11 @@ export function Astrolabe() {
         ref={captionRef}
         className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center"
       >
+        {/* 진입 연출 없음 — 12개 핫스팟을 커서로 쓸면 호버마다 재마운트되는
+            자리라, 키프레임을 붙이면 이름이 파닥거린다(모션 감사 2026-08-22). */}
         <p
           key={active ? active.key : "idle"}
-          className="motion-safe:animate-prompt-in font-display text-2xl text-starlight md:text-3xl"
+          className="font-display text-2xl text-starlight md:text-3xl"
         >
           {active ? active.ko : "열두 개의 방"}
         </p>

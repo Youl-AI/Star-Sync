@@ -40,6 +40,21 @@ export function RitualCombobox({
   const [query, setQuery] = useState(value ?? "");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  /**
+   * 목록이 방금 열렸는가. 스태거 진입은 열리는 순간에만 어울린다 — 글자를
+   * 칠 때마다 결과가 바뀌며 재생되면 목록이 출렁인다(모션 감사 2026-08-22).
+   * 열리고 잠시 뒤부터는 항목 교체를 무연출로 둔다.
+   */
+  const [settled, setSettled] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setSettled(false);
+      return;
+    }
+    const t = setTimeout(() => setSettled(true), 400);
+    return () => clearTimeout(t);
+  }, [open]);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -193,7 +208,7 @@ export function RitualCombobox({
           // 사방을 두른 테두리 대신 위쪽 금선 하나만 남긴다. 입력 칸의 밑줄이
           // 그대로 이어져 "선이 열리며 목록이 흘러나오는" 모양이 되고, 상자
           // 하나가 새로 얹힌 느낌을 주지 않는다.
-          className="thin-scroll absolute inset-x-0 top-full z-20 max-h-56 overflow-y-auto border-t border-gold/45 bg-ink/95 py-1 text-center shadow-[0_22px_44px_-26px_rgba(0,0,0,0.95)] backdrop-blur-md motion-safe:animate-list-open"
+          className={`${settled ? "list-settled " : ""}thin-scroll absolute inset-x-0 top-full z-20 max-h-56 overflow-y-auto border-t border-gold/45 bg-ink/95 py-1 text-center shadow-[0_22px_44px_-26px_rgba(0,0,0,0.95)] backdrop-blur-md motion-safe:animate-list-open`}
         >
           {results.length === 0 && (
             <li className="px-4 py-3 text-center text-meta text-starlight-dim">{emptyText}</li>
