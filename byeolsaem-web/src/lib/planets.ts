@@ -22,6 +22,15 @@ export type PlanetKey =
   | "neptune"
   | "pluto";
 
+export type PlanetTier = "personal" | "social" | "generational";
+
+/** 정렬용 서열. 개인을 말하는 별이 앞에 선다. */
+export const TIER_RANK: Record<PlanetTier, number> = {
+  personal: 0,
+  social: 1,
+  generational: 2,
+};
+
 export interface Planet {
   key: PlanetKey;
   ko: string;
@@ -32,10 +41,11 @@ export interface Planet {
   /** 한 별자리에 머무는 기간 */
   dwell: string;
   /**
-   * 개인차트에서 개인을 말해 주는 별인가. false면 같은 시기에 태어난 사람이
-   * 모두 같은 값을 가지므로, 별자리보다 하우스와 어스펙트로 읽어야 한다.
+   * 이 별이 말하는 층. personal은 개인, social(목성·토성)은 또래 몇 년,
+   * generational(천왕성~명왕성)은 한 세대가 같은 값을 갖는다. 층이 낮을수록
+   * 별자리로 읽을 수 있고, 낮지 않으면 하우스와 어스펙트로 읽어야 한다.
    */
-  personal: boolean;
+  tier: PlanetTier;
 }
 
 export const PLANETS: Planet[] = [
@@ -45,7 +55,7 @@ export const PLANETS: Planet[] = [
     symbol: "☉",
     governs: "무엇을 향해 가는 사람인가",
     dwell: "약 한 달",
-    personal: true,
+    tier: "personal",
   },
   {
     key: "moon",
@@ -53,7 +63,7 @@ export const PLANETS: Planet[] = [
     symbol: "☽",
     governs: "무엇에 안심하고 무엇에 흔들리는가",
     dwell: "약 2일 반",
-    personal: true,
+    tier: "personal",
   },
   {
     key: "mercury",
@@ -61,7 +71,7 @@ export const PLANETS: Planet[] = [
     symbol: "☿",
     governs: "생각하고 말하고 배우는 방식",
     dwell: "약 3주",
-    personal: true,
+    tier: "personal",
   },
   {
     key: "venus",
@@ -69,7 +79,7 @@ export const PLANETS: Planet[] = [
     symbol: "♀",
     governs: "무엇을 좋아하고 어떻게 사랑하는가",
     dwell: "약 한 달",
-    personal: true,
+    tier: "personal",
   },
   {
     key: "mars",
@@ -77,7 +87,7 @@ export const PLANETS: Planet[] = [
     symbol: "♂",
     governs: "원하는 것을 어떻게 밀어붙이는가",
     dwell: "약 두 달",
-    personal: true,
+    tier: "personal",
   },
   {
     key: "jupiter",
@@ -85,7 +95,7 @@ export const PLANETS: Planet[] = [
     symbol: "♃",
     governs: "어디서 넓어지고 무엇을 믿는가",
     dwell: "약 1년",
-    personal: true,
+    tier: "social",
   },
   {
     key: "saturn",
@@ -93,7 +103,7 @@ export const PLANETS: Planet[] = [
     symbol: "♄",
     governs: "어디서 막히고 무엇을 쌓는가",
     dwell: "약 2년 반",
-    personal: true,
+    tier: "social",
   },
   {
     key: "uranus",
@@ -101,7 +111,7 @@ export const PLANETS: Planet[] = [
     symbol: "♅",
     governs: "어디서 틀을 깨는가",
     dwell: "약 7년",
-    personal: false,
+    tier: "generational",
   },
   {
     key: "neptune",
@@ -109,7 +119,7 @@ export const PLANETS: Planet[] = [
     symbol: "♆",
     governs: "어디서 경계가 흐려지는가",
     dwell: "약 14년",
-    personal: false,
+    tier: "generational",
   },
   {
     key: "pluto",
@@ -117,7 +127,7 @@ export const PLANETS: Planet[] = [
     symbol: "♇",
     governs: "어디서 무너지고 다시 세워지는가",
     dwell: "약 20년",
-    personal: false,
+    tier: "generational",
   },
 ];
 

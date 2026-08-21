@@ -6,7 +6,7 @@ import { HOUSES } from "@/content/atoms/houses";
 import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
 import { ASPECT_TYPES, computeChart, type BirthMoment } from "@/lib/chart";
-import { PLANETS } from "@/lib/planets";
+import { PLANETS, TIER_RANK } from "@/lib/planets";
 import { assembleReading, describeElements } from "@/lib/reading";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
@@ -137,10 +137,23 @@ describe("조립", () => {
     expect(lastHighlighted).toBeLessThan(firstUnhighlighted);
   });
 
-  it("세대를 말하는 별은 개인을 말하는 별보다 뒤에 온다", () => {
+  it("행성 목록은 개인 → 사회 → 세대 순으로 선다", () => {
+    // 렌즈 없이 조립하면 highlighted가 전부 false라 tier만이 순서를 정한다.
     const reading = assembleReading(computeChart(moment), null);
-    const order = reading.placements.map((p) => p.planet.personal);
-    expect(order.lastIndexOf(true)).toBeLessThan(order.indexOf(false));
+    const ranks = reading.placements.map((p) => TIER_RANK[p.planet.tier]);
+    for (let i = 1; i < ranks.length; i++) {
+      expect(ranks[i], `${reading.placements[i].planet.ko}의 자리`).toBeGreaterThanOrEqual(
+        ranks[i - 1],
+      );
+    }
+  });
+
+  it("tier 배정이 스펙 §3과 같다", () => {
+    const byTier = (tier: string) =>
+      PLANETS.filter((p) => p.tier === tier).map((p) => p.key);
+    expect(byTier("personal")).toEqual(["sun", "moon", "mercury", "venus", "mars"]);
+    expect(byTier("social")).toEqual(["jupiter", "saturn"]);
+    expect(byTier("generational")).toEqual(["uranus", "neptune", "pluto"]);
   });
 
   it("시각을 모르면 하우스 문장을 붙이지 않는다", () => {

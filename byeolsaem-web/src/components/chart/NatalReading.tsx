@@ -469,7 +469,7 @@ function PlacementBody({ item }: { item: ReadingPlacement }) {
           {item.inHouse}
         </p>
       )}
-      {!item.planet.personal && (
+      {item.planet.tier === "generational" && (
         <p className="mt-2 max-w-[52ch] break-keep text-meta text-starlight-dim">
           {item.planet.ko}은 한 별자리에 {item.planet.dwell} 머뭅니다. 같은 무렵에
           태어난 사람이 모두 같은 자리를 가지므로, 이 별은 개인보다 세대를 말합니다.

@@ -7,7 +7,7 @@ import { HOUSE_BY_NUMBER, type House } from "@/content/atoms/houses";
 import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
 import type { Aspect, Chart, Placement } from "./chart";
-import { PLANET_BY_KEY, type Planet } from "./planets";
+import { PLANET_BY_KEY, TIER_RANK, type Planet } from "./planets";
 import { ZODIAC_SIGNS, type ZodiacSign } from "./zodiac";
 
 /**
@@ -126,8 +126,7 @@ export function assembleReading(
   // 관심사에 걸린 것 → 개인을 말하는 별 → 세대를 말하는 별 순서.
   const ordered = [...placements].sort((a, b) => {
     if (a.highlighted !== b.highlighted) return a.highlighted ? -1 : 1;
-    if (a.planet.personal !== b.planet.personal) return a.planet.personal ? -1 : 1;
-    return 0;
+    return TIER_RANK[a.planet.tier] - TIER_RANK[b.planet.tier];
   });
 
   const aspects = chart.aspects
