@@ -7,7 +7,7 @@ import { HOUSE_BY_NUMBER, type House } from "@/content/atoms/houses";
 import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
 import type { Aspect, Chart, Placement } from "./chart";
-import { PLANET_BY_KEY, TIER_RANK, type Planet } from "./planets";
+import { PLANET_BY_KEY, TIER_RANK, type Planet, type PlanetTier } from "./planets";
 import { ZODIAC_SIGNS, type ZodiacSign } from "./zodiac";
 
 /**
@@ -41,6 +41,8 @@ export interface ReadingAspect {
   theme: string;
   headline: string;
   body: string;
+  /** "거의 정확" — 오브 세기를 말로. */
+  strengthKo: string;
 }
 
 export interface Reading {
@@ -92,6 +94,35 @@ function toReadingPlacement(placement: Placement, lens: ConcernLens | null): Rea
 }
 
 /**
+ * 개인성 가중치 (스펙 §3). 오브가 아무리 정확해도 세대끼리의 각도는 이 사람
+ * 고유의 이야기가 아니다 — 순위는 세기 × 이 가중치로 정한다. chart.ts는 기하만
+ * 알므로 여기(해석)에서 곱한다.
+ */
+const TIER_WEIGHTS: Record<string, number> = {
+  "personal-personal": 1.0,
+  "personal-social": 0.85,
+  "personal-generational": 0.7,
+  "social-social": 0.5,
+  "social-generational": 0.35,
+  "generational-generational": 0.15,
+};
+
+export function tierWeight(a: PlanetTier, b: PlanetTier): number {
+  const [x, y] = TIER_RANK[a] <= TIER_RANK[b] ? [a, b] : [b, a];
+  return TIER_WEIGHTS[`${x}-${y}`];
+}
+
+/** 오브 세기를 말로 (스펙 §4). 화면 메타 줄이 쓴다. */
+export function strengthLabel(strength: number): string {
+  if (strength >= 0.8) return "거의 정확";
+  if (strength >= 0.55) return "뚜렷";
+  return "넓게 걸침";
+}
+
+/** 세대 각도임을 밝히는 고정 문장 (스펙 §3). 지어내지 않고 사실을 말한다. */
+const GENERATIONAL_NOTE = "비슷한 시기에 태어난 사람들이 함께 가지는 각도입니다.";
+
+/**
  * 어스펙트를 문장으로. 각도가 사이를 정하고 행성 쌍이 무엇의 사이인지를 정한다
  * (content/atoms/aspects.ts 참고).
  */
@@ -99,13 +130,17 @@ function toReadingAspect(aspect: Aspect): ReadingAspect | null {
   const theme = pairTheme(aspect.a, aspect.b);
   if (!theme) return null;
   const meaning = ASPECT_MEANINGS[aspect.type.key];
+  const a = PLANET_BY_KEY[aspect.a];
+  const b = PLANET_BY_KEY[aspect.b];
+  const bothNonPersonal = a.tier !== "personal" && b.tier !== "personal";
   return {
     aspect,
-    a: PLANET_BY_KEY[aspect.a],
-    b: PLANET_BY_KEY[aspect.b],
+    a,
+    b,
     theme,
     headline: meaning.headline,
-    body: meaning.body,
+    body: bothNonPersonal ? `${meaning.body} ${GENERATIONAL_NOTE}` : meaning.body,
+    strengthKo: strengthLabel(aspect.strength),
   };
 }
 
@@ -129,9 +164,15 @@ export function assembleReading(
     return TIER_RANK[a.planet.tier] - TIER_RANK[b.planet.tier];
   });
 
+  // chart.ts의 순수 세기 순서 위에 개인성 가중치를 곱해 다시 세운다
   const aspects = chart.aspects
     .map(toReadingAspect)
     .filter((a): a is ReadingAspect => a !== null)
+    .sort(
+      (x, y) =>
+        y.aspect.strength * tierWeight(y.a.tier, y.b.tier) -
+        x.aspect.strength * tierWeight(x.a.tier, x.b.tier),
+    )
     .slice(0, aspectLimit);
 
   const counts = new Map<string, number>();

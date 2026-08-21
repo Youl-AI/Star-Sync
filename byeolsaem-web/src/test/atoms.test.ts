@@ -7,7 +7,7 @@ import { PLANET_IN_HOUSE } from "@/content/atoms/planet-in-house";
 import { PLANET_IN_SIGN } from "@/content/atoms/planet-in-sign";
 import { ASPECT_TYPES, computeChart, type BirthMoment } from "@/lib/chart";
 import { PLANETS, TIER_RANK } from "@/lib/planets";
-import { assembleReading, describeElements } from "@/lib/reading";
+import { assembleReading, describeElements, strengthLabel, tierWeight } from "@/lib/reading";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
 const SIGN_KEYS = ZODIAC_SIGNS.map((s) => s.key);
@@ -211,5 +211,54 @@ describe("조립", () => {
         { element: "물", count: 2 },
       ]),
     ).toContain("네 원소가 모두 채워져");
+  });
+
+  it("세기 구간이 스펙 §4의 경계에서 갈린다", () => {
+    expect(strengthLabel(0.95)).toBe("거의 정확");
+    expect(strengthLabel(0.8)).toBe("거의 정확");
+    expect(strengthLabel(0.79)).toBe("뚜렷");
+    expect(strengthLabel(0.55)).toBe("뚜렷");
+    expect(strengthLabel(0.54)).toBe("넓게 걸침");
+  });
+
+  it("tierWeight는 순서에 대칭이고 스펙 §3의 값을 낸다", () => {
+    expect(tierWeight("personal", "personal")).toBe(1.0);
+    expect(tierWeight("personal", "social")).toBe(0.85);
+    expect(tierWeight("social", "personal")).toBe(0.85);
+    expect(tierWeight("personal", "generational")).toBe(0.7);
+    expect(tierWeight("social", "social")).toBe(0.5);
+    expect(tierWeight("generational", "social")).toBe(0.35);
+    expect(tierWeight("generational", "generational")).toBe(0.15);
+  });
+
+  it("개인이 낀 각도가 세대끼리의 각도보다 앞에 선다", () => {
+    // 1995-07-14 09:30 서울 — 세대 각도(토성 육분 해왕성, 오브 0.3)가
+    // 오브로는 1등이지만 가중치가 끌어내려야 한다.
+    const chart = computeChart({
+      date: "1995-07-14", time: "09:30",
+      latitude: 37.5, longitude: 127.0, timezoneOffsetHours: 9,
+    });
+    const reading = assembleReading(chart, null);
+    const isPersonalPair = reading.aspects.map(
+      (x) => x.a.tier === "personal" || x.b.tier === "personal",
+    );
+    expect(isPersonalPair[0]).toBe(true);
+    const firstNonPersonal = isPersonalPair.indexOf(false);
+    if (firstNonPersonal !== -1) {
+      expect(isPersonalPair.lastIndexOf(true)).toBeLessThan(firstNonPersonal);
+    }
+  });
+
+  it("두 행성 모두 개인이 아니면 세대 라벨이 본문에 붙는다", () => {
+    const chart = computeChart({
+      date: "1995-07-14", time: "09:30",
+      latitude: 37.5, longitude: 127.0, timezoneOffsetHours: 9,
+    });
+    const reading = assembleReading(chart, null, 10);
+    const label = "비슷한 시기에 태어난 사람들이 함께 가지는 각도입니다.";
+    for (const item of reading.aspects) {
+      const bothNonPersonal = item.a.tier !== "personal" && item.b.tier !== "personal";
+      expect(item.body.endsWith(label), `${item.a.ko}-${item.b.ko}`).toBe(bothNonPersonal);
+    }
   });
 });
