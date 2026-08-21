@@ -1,0 +1,23 @@
+# Workers Assets의 기본 캐시는 max-age=0, must-revalidate — 모든 파일이 매번
+# 재검증 왕복을 문다. 페이지 전환이 느리던 진범이다(2026-08-22 실측: prefetch로
+# 받아 둔 청크조차 클릭 시 304 왕복 150ms를 다시 돌았다).
+#
+# /_next/static/* 은 파일명에 내용 해시가 박혀 있어 내용이 바뀌면 이름이 바뀐다.
+# 그래서 영원히 캐시해도 안전하다 — Next가 직접 서빙할 때 쓰는 표준 정책 그대로.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 폰트도 배포에서 서브셋이 바뀌면 재빌드로만 바뀐다. 하루면 충분히 안전하고
+# 재방문의 재검증 왕복을 없앤다.
+/fonts/*
+  Cache-Control: public, max-age=86400
+
+# 공유 카드 — 디자인이 바뀌는 날만 갱신되므로 하루 캐시.
+/og/*
+  Cache-Control: public, max-age=86400
+
+# 페이지 데이터(RSC payload). 배포마다 내용이 바뀌지만 URL이 같아서 immutable은
+# 못 준다. 5분이면 한 세션의 재방문은 왕복 없이 캐시에서 돌고, 배포 직후의
+# 어긋남은 Next가 버전 불일치를 감지해 전체 리로드로 스스로 복구한다.
+/*.txt
+  Cache-Control: public, max-age=300

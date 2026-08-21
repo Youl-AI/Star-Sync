@@ -717,3 +717,11 @@ body {
     }
   }
 }
+
+/* 페이지 전환 크로스페이드 — 브라우저 기본 250ms는 왕복이 사라진 지금 체감의
+   절반을 차지한다. 진입 연출 기준(150~250ms)의 가운데로 줄인다. 감소 모드에서는
+   TransitionStage가 전환 자체를 걸지 않으므로 여기 올 일이 없다. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+}
