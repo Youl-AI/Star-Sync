@@ -17,8 +17,8 @@ import { ZODIAC_SIGNS, type ZodiacSign } from "./zodiac";
  * 나온다 — 점술 서비스에서 이것은 취향이 아니라 신뢰의 조건이다
  * (RENEWAL_PLAN §2.3).
  *
- * 조립 순서도 규칙이다. 관심사에 해당하는 것을 먼저, 그다음 개인을 말해 주는
- * 별을, 세대를 말하는 별은 맨 뒤에 둔다.
+ * 조립 순서도 규칙이다. 관심사에 해당하는 것을 먼저, 그다음 별은 개인 → 사회(목성·토성) →
+ * 세대 순으로 둔다.
  */
 
 export interface ReadingPlacement {
@@ -49,7 +49,7 @@ export interface Reading {
   /** 당신을 한 줄로 — 태양(겉)과 달(안)의 결을 붙인 요약. B안(2026-08-14 승인). */
   oneLiner: string;
   /**
-   * 평생의 과제 하나 — 가장 정확한 마찰 각도. 마찰이 없는 하늘이면 null.
+   * 평생의 과제 하나 — 가중 세기가 가장 높은 마찰 각도. 마찰이 없는 하늘이면 null.
    * 생활 문장과, 그것이 어느 별 이야기인지 근거 줄.
    */
   lifework: { text: string; basis: string } | null;
@@ -98,7 +98,15 @@ function toReadingPlacement(placement: Placement, lens: ConcernLens | null): Rea
  * 고유의 이야기가 아니다 — 순위는 세기 × 이 가중치로 정한다. chart.ts는 기하만
  * 알므로 여기(해석)에서 곱한다.
  */
-const TIER_WEIGHTS: Record<string, number> = {
+type TierPairKey =
+  | "personal-personal"
+  | "personal-social"
+  | "personal-generational"
+  | "social-social"
+  | "social-generational"
+  | "generational-generational";
+
+const TIER_WEIGHTS: Record<TierPairKey, number> = {
   "personal-personal": 1.0,
   "personal-social": 0.85,
   "personal-generational": 0.7,
@@ -109,7 +117,7 @@ const TIER_WEIGHTS: Record<string, number> = {
 
 export function tierWeight(a: PlanetTier, b: PlanetTier): number {
   const [x, y] = TIER_RANK[a] <= TIER_RANK[b] ? [a, b] : [b, a];
-  return TIER_WEIGHTS[`${x}-${y}`];
+  return TIER_WEIGHTS[`${x}-${y}` as TierPairKey];
 }
 
 /** 오브 세기를 말로 (스펙 §4). 화면 메타 줄이 쓴다. */
@@ -139,6 +147,8 @@ function toReadingAspect(aspect: Aspect): ReadingAspect | null {
     b,
     theme,
     headline: meaning.headline,
+    // nuance는 PAIR_READINGS(2단계)와 짝이다. ASPECT_MEANINGS.body와는 문장이
+    // 겹치므로 폴백에 붙이지 않는다.
     body: bothNonPersonal ? `${meaning.body} ${GENERATIONAL_NOTE}` : meaning.body,
     strengthKo: strengthLabel(aspect.strength),
   };
@@ -158,7 +168,7 @@ export function assembleReading(
   const placements = chart.placements.map((p) => toReadingPlacement(p, lens));
   const byKey = new Map(placements.map((p) => [p.planet.key, p]));
 
-  // 관심사에 걸린 것 → 개인을 말하는 별 → 세대를 말하는 별 순서.
+  // 관심사에 걸린 것 → 개인 → 사회 → 세대 순서.
   const ordered = [...placements].sort((a, b) => {
     if (a.highlighted !== b.highlighted) return a.highlighted ? -1 : 1;
     return TIER_RANK[a.planet.tier] - TIER_RANK[b.planet.tier];
@@ -229,7 +239,7 @@ function composeOneLiner(sun: ReadingPlacement, moon: ReadingPlacement): string 
   return `겉은 ${out} 사람, 혼자일 때는 ${inner} 사람입니다. 이 간격이 당신을 움직이는 힘입니다.`;
 }
 
-/** 평생의 과제 하나 — 목록에서 가장 정확한 마찰 각도. */
+/** 평생의 과제 하나 — 목록에서 가중 세기가 가장 높은 마찰 각도. */
 function composeLifework(aspects: ReadingAspect[]): Reading["lifework"] {
   const friction = aspects.find((a) => a.aspect.type.harmony < 0);
   if (!friction) return null;

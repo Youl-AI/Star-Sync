@@ -249,6 +249,17 @@ describe("조립", () => {
     }
   });
 
+  it("aspectLimit은 정렬된 전체 목록의 앞부분을 자른다 — slice가 sort보다 먼저 오면 깨진다", () => {
+    const chart = computeChart({
+      date: "1995-07-14", time: "09:30",
+      latitude: 37.5, longitude: 127.0, timezoneOffsetHours: 9,
+    });
+    const key = (x: { a: { key: string }; b: { key: string } }) => `${x.a.key}-${x.b.key}`;
+    const six = assembleReading(chart, null, 6).aspects.map(key);
+    const ten = assembleReading(chart, null, 10).aspects.map(key);
+    expect(six).toEqual(ten.slice(0, 6));
+  });
+
   it("두 행성 모두 개인이 아니면 세대 라벨이 본문에 붙는다", () => {
     const chart = computeChart({
       date: "1995-07-14", time: "09:30",

@@ -202,7 +202,7 @@ export function NatalReading() {
           <Section title="별과 별 사이">
             <p className="max-w-[52ch] break-keep text-guide text-starlight">
               두 별이 특정한 각도로 만나면 서로의 작용이 섞입니다. 이것을{" "}
-              <Term name="어스펙트" />라고 합니다. 정확한 각도에 가까운 것부터{" "}
+              <Term name="어스펙트" />라고 합니다. 당신 고유의 이야기가 진하게 걸린 것부터{" "}
               {reading.aspects.length}개를 골랐습니다.
             </p>
             <ul className="mt-8 space-y-8">
