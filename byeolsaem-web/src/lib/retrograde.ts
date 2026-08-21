@@ -1,5 +1,5 @@
 import { signAtLongitude } from "./zodiac";
-import { fromJulianDay, mercuryApparent, norm180, toJulianDay } from "./ephemeris";
+import { fromJulianDay, planetApparent, norm180, toJulianDay } from "./ephemeris";
 import type { RetrogradePeriod } from "./retrograde-clock";
 
 export type { RetrogradePeriod } from "./retrograde-clock";
@@ -26,21 +26,27 @@ const STATION_PRECISION_DAYS = 0.0002;
  */
 const RATE_WINDOW_DAYS = 0.5;
 
+/**
+ * 역행을 다루는 행성들. 목성 바깥도 역행하지만 해마다 넉 달씩이라 "지금
+ * 역행인가"가 뉴스가 되지 않는다 — 페이지를 만드는 것은 이 셋까지다.
+ */
+export type RetroPlanet = "mercury" | "venus" | "mars";
+
 /** 하루에 몇 도씩 겉보기 황경이 움직이는가. 음수면 역행 중. */
-export function longitudeRate(jd: number): number {
-  const before = mercuryApparent(jd - RATE_WINDOW_DAYS / 2).longitude;
-  const after = mercuryApparent(jd + RATE_WINDOW_DAYS / 2).longitude;
+export function longitudeRate(jd: number, planet: RetroPlanet = "mercury"): number {
+  const before = planetApparent(planet, jd - RATE_WINDOW_DAYS / 2).longitude;
+  const after = planetApparent(planet, jd + RATE_WINDOW_DAYS / 2).longitude;
   return norm180(after - before) / RATE_WINDOW_DAYS;
 }
 
 /** 변화율이 0을 지나는 지점을 이분법으로 좁힌다. */
-function refineStation(lowJd: number, highJd: number): number {
+function refineStation(lowJd: number, highJd: number, planet: RetroPlanet): number {
   let low = lowJd;
   let high = highJd;
-  const lowRate = longitudeRate(low);
+  const lowRate = longitudeRate(low, planet);
   while (high - low > STATION_PRECISION_DAYS) {
     const mid = (low + high) / 2;
-    if (Math.sign(longitudeRate(mid)) === Math.sign(lowRate)) low = mid;
+    if (Math.sign(longitudeRate(mid, planet)) === Math.sign(lowRate)) low = mid;
     else high = mid;
   }
   return (low + high) / 2;
@@ -53,18 +59,18 @@ function refineStation(lowJd: number, highJd: number): number {
  * 올리면 종료일이 비거나 틀린 값이 들어가기 때문이다. 대신 범위를 넉넉히
  * 잡아 부르는 쪽에서 손해가 없게 한다.
  */
-export function mercuryRetrogrades(from: Date, to: Date): RetrogradePeriod[] {
+export function retrogradesOf(planet: RetroPlanet, from: Date, to: Date): RetrogradePeriod[] {
   const fromJd = toJulianDay(from);
   const toJd = toJulianDay(to);
 
   // 부호가 바뀌는 지점을 모두 모은다.
   const stations: { jd: number; entering: boolean }[] = [];
   let previousJd = fromJd;
-  let previousRate = longitudeRate(previousJd);
+  let previousRate = longitudeRate(previousJd, planet);
   for (let jd = fromJd + 1; jd <= toJd; jd += 1) {
-    const rate = longitudeRate(jd);
+    const rate = longitudeRate(jd, planet);
     if (Math.sign(rate) !== Math.sign(previousRate)) {
-      stations.push({ jd: refineStation(previousJd, jd), entering: rate < 0 });
+      stations.push({ jd: refineStation(previousJd, jd, planet), entering: rate < 0 });
     }
     previousJd = jd;
     previousRate = rate;
@@ -75,8 +81,8 @@ export function mercuryRetrogrades(from: Date, to: Date): RetrogradePeriod[] {
     if (!stations[i].entering || stations[i + 1].entering) continue;
     const startJd = stations[i].jd;
     const endJd = stations[i + 1].jd;
-    const startLongitude = mercuryApparent(startJd).longitude;
-    const endLongitude = mercuryApparent(endJd).longitude;
+    const startLongitude = planetApparent(planet, startJd).longitude;
+    const endLongitude = planetApparent(planet, endJd).longitude;
     periods.push({
       start: fromJulianDay(startJd).toISOString(),
       end: fromJulianDay(endJd).toISOString(),
@@ -87,6 +93,11 @@ export function mercuryRetrogrades(from: Date, to: Date): RetrogradePeriod[] {
     });
   }
   return periods;
+}
+
+/** 수성 구간 — retrogradesOf("mercury")의 이름 있는 지름길. 기존 소비자용. */
+export function mercuryRetrogrades(from: Date, to: Date): RetrogradePeriod[] {
+  return retrogradesOf("mercury", from, to);
 }
 
 /**
@@ -100,13 +111,13 @@ export function mercuryRetrogrades(from: Date, to: Date): RetrogradePeriod[] {
  * 처음 닿는 순간이고, 후 그림자의 끝은 **역행이 시작된 도수**로 되돌아오는
  * 순간이다.
  */
-export function shadowPeriod(period: RetrogradePeriod): { start: string; end: string } {
+export function shadowPeriod(period: RetrogradePeriod, planet: RetroPlanet = "mercury"): { start: string; end: string } {
   const startJd = toJulianDay(new Date(period.start));
   const endJd = toJulianDay(new Date(period.end));
 
   const crossing = (fromJd: number, target: number, direction: -1 | 1): number => {
     // 하루씩 옮겨 가며 부호가 바뀌는 날을 찾고, 그 하루 안에서 이분법으로 좁힌다.
-    const offset = (jd: number) => norm180(mercuryApparent(jd).longitude - target);
+    const offset = (jd: number) => norm180(planetApparent(planet, jd).longitude - target);
     let previous = fromJd;
     let previousOffset = offset(previous);
     for (let step = 1; step <= 90; step += 1) {
@@ -169,12 +180,12 @@ export interface LoopSample {
  *
  * @param margin 역행 구간 앞뒤로 며칠씩 더 그릴지
  */
-export function retrogradeLoop(period: RetrogradePeriod, margin = 14): LoopSample[] {
+export function retrogradeLoop(period: RetrogradePeriod, margin = 14, planet: RetroPlanet = "mercury"): LoopSample[] {
   const startJd = toJulianDay(new Date(period.start));
   const endJd = toJulianDay(new Date(period.end));
   const samples: LoopSample[] = [];
   for (let jd = startJd - margin; jd <= endJd + margin; jd += 1) {
-    const position = mercuryApparent(jd);
+    const position = planetApparent(planet, jd);
     samples.push({
       longitude: position.longitude,
       latitude: position.latitude,

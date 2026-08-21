@@ -226,19 +226,26 @@ export interface ApparentPosition {
   distance: number;
 }
 
-/** 지구에서 본 수성의 겉보기 위치. */
-export function mercuryApparent(jd: number): ApparentPosition {
+/**
+ * 지구에서 본 행성의 겉보기 위치.
+ *
+ * 처음에는 수성 전용이었는데(역행 페이지가 첫 소비자), 금성·화성 역행
+ * 페이지가 생기며 몸통을 행성 인자로 일반화했다. 계산은 동일하다 — 궤도
+ * 요소만 갈아 끼운다.
+ */
+export function planetApparent(body: Exclude<OrbitingBody, "earth">, jd: number): ApparentPosition {
+  const elements = ORBITAL_ELEMENTS[body];
   const centuries = (jd - JD_J2000) / 36525;
   const earth = heliocentric(EARTH_MOON_BARYCENTER, centuries);
 
-  // 우리가 보는 것은 지금의 수성이 아니라 빛이 출발하던 때의 수성이다. 거리를
-  // 먼저 재고, 그만큼 과거의 위치로 다시 계산한다. 수성은 최대 0.9AU까지
-  // 멀어지므로 이 보정이 8분(약 0.1도)에 달한다 — 무시할 수 없다.
-  let position = heliocentric(MERCURY, centuries);
+  // 우리가 보는 것은 지금의 행성이 아니라 빛이 출발하던 때의 행성이다. 거리를
+  // 먼저 재고, 그만큼 과거의 위치로 다시 계산한다. 수성만 해도 최대 0.9AU까지
+  // 멀어져 이 보정이 8분(약 0.1도)에 달한다 — 무시할 수 없다.
+  let position = heliocentric(elements, centuries);
   let distance = separation(position, earth);
   for (let i = 0; i < 3; i += 1) {
     const lightTime = distance / LIGHT_SPEED_AU_PER_DAY;
-    position = heliocentric(MERCURY, (jd - lightTime - JD_J2000) / 36525);
+    position = heliocentric(elements, (jd - lightTime - JD_J2000) / 36525);
     distance = separation(position, earth);
   }
 
@@ -251,6 +258,11 @@ export function mercuryApparent(jd: number): ApparentPosition {
     latitude: Math.asin(z / Math.hypot(x, y, z)) / DEG,
     distance: Math.hypot(x, y, z),
   };
+}
+
+/** 지구에서 본 수성의 겉보기 위치 — planetApparent("mercury")의 이름 있는 지름길. */
+export function mercuryApparent(jd: number): ApparentPosition {
+  return planetApparent("mercury", jd);
 }
 
 /** 지구에서 본 태양의 겉보기 황경. 계산이 맞는지 확인하는 데 쓴다. */
