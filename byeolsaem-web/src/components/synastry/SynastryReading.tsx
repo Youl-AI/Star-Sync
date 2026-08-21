@@ -239,6 +239,7 @@ export function SynastryReading() {
                 <KakaoShareButton
                   text={`두 사람의 하늘 — ${firstSentence(reading.oneLiner)}`}
                   path="/synastry"
+                  imagePath="/og/synastry.png"
                 />
               </div>
             )}

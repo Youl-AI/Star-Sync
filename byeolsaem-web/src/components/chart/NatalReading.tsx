@@ -251,6 +251,7 @@ export function NatalReading() {
           <KakaoShareButton
             text={`나의 천궁도 — ${firstSentence(reading.oneLiner)}`}
             path="/natal"
+            imagePath={`/og/sign/${core.sun.placement.sign.key}.png`}
           />
         </div>
 

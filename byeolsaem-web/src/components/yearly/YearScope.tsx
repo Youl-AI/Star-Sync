@@ -464,6 +464,7 @@ function PersonalYear({ year }: { year: number }) {
               <KakaoShareButton
                 text={`${year}년 나의 하늘 — ${reading.headline}`}
                 path="/yearly"
+                imagePath="/og/yearly.png"
               />
             </div>
           )}

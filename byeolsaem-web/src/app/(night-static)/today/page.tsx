@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   // 앞면(달의 위상)은 누구에게나 같으므로 색인해도 얇은 페이지가 아니다.
   // 다만 날짜가 매일 바뀌는 페이지라 정규 주소는 이 하나로 유지한다.
   alternates: alternatesFor("/today"),
+  openGraph: { images: [{ url: "/og/today.png", width: 1200, height: 630 }] },
 };
 
 export default function TodayPage() {

@@ -390,6 +390,7 @@ export function HeroSequence() {
                   <KakaoShareButton
                     text={`나의 태양은 ${sign.ko} — ${sign.tagline}`}
                     path={`/sign/${sign.key}`}
+                    imagePath={`/og/sign/${sign.key}.png`}
                   />
                 </div>
                 {/* 저장된 정보를 버리고 처음부터 다시 입력하는 유일한 출구.

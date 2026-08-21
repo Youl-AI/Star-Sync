@@ -20,6 +20,7 @@ export const metadata: Metadata = {
    * 답하는 검색어인데 스스로 막아 둘 이유가 없다.
    */
   alternates: alternatesFor("/natal"),
+  openGraph: { images: [{ url: "/og/natal.png", width: 1200, height: 630 }] },
 };
 
 export default function NatalPage() {

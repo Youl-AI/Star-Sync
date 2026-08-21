@@ -25,6 +25,8 @@ export interface Post {
   published: string;
   /** 읽는 데 걸리는 대략의 시간(분). */
   readingMinutes: number;
+  /** 공유 카드. scripts/build-og.mjs가 굽는 /og/blog/ 아래의 파일. */
+  image: string;
   /** 본문. 정적 import라 번들러가 빌드 시점에 모두 찾아낸다. */
   load: () => Promise<{ default: ComponentType }>;
 }
@@ -38,6 +40,7 @@ export const POSTS: Post[] = [
     category: "실전 점성학",
     published: "2026-03-15",
     readingMinutes: 4,
+    image: "/og/blog/moon-phase.png",
     load: () => import("./moon-phase.mdx"),
   },
   {
@@ -48,6 +51,7 @@ export const POSTS: Post[] = [
     category: "생존 가이드",
     published: "2026-03-14",
     readingMinutes: 5,
+    image: "/og/blog/mercury-retrograde.png",
     load: () => import("./mercury-retrograde.mdx"),
   },
   {
@@ -58,6 +62,7 @@ export const POSTS: Post[] = [
     category: "나를 아는 법",
     published: "2026-03-13",
     readingMinutes: 4,
+    image: "/og/blog/ascendant.png",
     load: () => import("./ascendant.mdx"),
   },
   {
@@ -68,6 +73,7 @@ export const POSTS: Post[] = [
     category: "2026 흐름",
     published: "2026-03-12",
     readingMinutes: 5,
+    image: "/og/blog/pluto-aquarius.png",
     load: () => import("./pluto-aquarius.mdx"),
   },
   {
@@ -78,6 +84,7 @@ export const POSTS: Post[] = [
     category: "점성학 기초",
     published: "2026-03-11",
     readingMinutes: 4,
+    image: "/og/blog/houses.png",
     load: () => import("./houses.mdx"),
   },
 ];

@@ -130,6 +130,143 @@ function signCard(sign) {
   ]);
 }
 
+/**
+ * 페이지·칼럼 카드의 오른쪽 모티프들 — 전부 원과 선(div)만으로 그린다.
+ * Satori는 SVG path를 못 그리고, MaruBuri에 행성 기호 글리프가 있다는 보장도
+ * 없다. 원·선·글자는 어디서나 그려진다.
+ */
+const MOTIFS = {
+  /** 달 — 큰 원 위에 잉크 원을 겹쳐 이지러진 면을 만든다. */
+  moon(box) {
+    return [
+      h("div", { key: "m1", style: {
+        position: "absolute", left: 0, top: 0, width: box, height: box,
+        borderRadius: box / 2, background: STARLIGHT, opacity: 0.92,
+      } }),
+      h("div", { key: "m2", style: {
+        position: "absolute", left: -box * 0.28, top: -box * 0.06, width: box, height: box,
+        borderRadius: box / 2, background: "#0b1026", opacity: 0.96,
+      } }),
+      h("div", { key: "m3", style: {
+        position: "absolute", left: box * 0.14, top: box * 0.3, width: 7, height: 7,
+        borderRadius: 4, background: GOLD, opacity: 0.9,
+      } }),
+    ];
+  },
+  /** 역행 고리 — 하루 점들이 타원 궤적을 돌고, 되짚는 구간만 골드로 밝다. */
+  loop(box) {
+    const dots = [];
+    const N = 26;
+    for (let i = 0; i < N; i += 1) {
+      const t = (i / N) * Math.PI * 2 + Math.PI / 7;
+      const x = box / 2 + Math.cos(t) * (box / 2 - 18);
+      const y = box / 2 + Math.sin(t) * (box / 2.9);
+      const retro = i >= 8 && i <= 15;
+      const r = retro ? 7 : 4.5;
+      dots.push(h("div", { key: `d${i}`, style: {
+        position: "absolute", left: x - r, top: y - r, width: r * 2, height: r * 2,
+        borderRadius: r, background: retro ? GOLD : STARLIGHT,
+        opacity: retro ? 0.95 : 0.45,
+      } }));
+    }
+    return dots;
+  },
+  /** 천궁 원반 — 링 둘과 지평선·자오선. */
+  wheel(box) {
+    const ring = (inset, opacity) => h("div", { key: `r${inset}`, style: {
+      position: "absolute", left: inset, top: inset,
+      width: box - inset * 2, height: box - inset * 2,
+      borderRadius: (box - inset * 2) / 2, border: `2px solid ${GOLD}`, opacity,
+    } });
+    return [
+      ring(0, 0.8), ring(54, 0.45),
+      h("div", { key: "hz", style: {
+        position: "absolute", left: 0, top: box / 2 - 1, width: box, height: 2,
+        background: GOLD, opacity: 0.5,
+      } }),
+      h("div", { key: "md", style: {
+        position: "absolute", left: box / 2 - 1, top: 0, width: 2, height: box,
+        background: GOLD, opacity: 0.3,
+      } }),
+    ];
+  },
+  /** 두 하늘 — 링 두 개가 겹치는 자리. */
+  rings(box) {
+    const d = box * 0.62;
+    const ring = (key, left, top, color, opacity) => h("div", { key, style: {
+      position: "absolute", left, top, width: d, height: d, borderRadius: d / 2,
+      border: `2.5px solid ${color}`, opacity,
+    } });
+    return [
+      ring("a", 0, box * 0.19, GOLD, 0.85),
+      ring("b", box - d, box * 0.19, STARLIGHT, 0.6),
+    ];
+  },
+  /** 지평선과 떠오르는 반원 — 상승궁. */
+  horizon(box) {
+    const d = box * 0.56;
+    return [
+      h("div", { key: "sun", style: {
+        position: "absolute", left: (box - d) / 2, top: box / 2 - d / 2,
+        width: d, height: d, borderRadius: d / 2, border: `3px solid ${GOLD}`, opacity: 0.9,
+      } }),
+      h("div", { key: "mask", style: {
+        position: "absolute", left: -10, top: box / 2, width: box + 20, height: box / 2,
+        background: "#0b1026", opacity: 0.97,
+      } }),
+      h("div", { key: "line", style: {
+        position: "absolute", left: 0, top: box / 2 - 1, width: box, height: 2,
+        background: STARLIGHT, opacity: 0.7,
+      } }),
+    ];
+  },
+};
+
+/**
+ * 페이지·칼럼 공용 카드 — 왼쪽 글, 오른쪽 모티프. 정찰 ⑤(2026-08-22):
+ * 칼럼 다섯 편과 도구 페이지 전부가 기본 카드 한 장으로 공유되고 있었다.
+ */
+function pageCard({ eyebrow, title, sub, motif }) {
+  const BOX = 360;
+  return frame([
+    ...starLayer(620),
+    h("div", {
+      key: "body",
+      style: {
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        padding: "0 0 0 96px", width: 600,
+      },
+    }, [
+      h("div", { key: "eyebrow", style: { display: "flex", fontSize: 24, letterSpacing: 8, color: GOLD } }, eyebrow),
+      h("div", { key: "title", style: { display: "flex", marginTop: 22, fontSize: title.length > 10 ? 58 : 76, color: STARLIGHT, lineHeight: 1.3, wordBreak: "keep-all" } }, title),
+      h("div", { key: "sub", style: { display: "flex", marginTop: 24, fontSize: 30, color: DIM, lineHeight: 1.5 } }, sub),
+    ]),
+    h("div", {
+      key: "motif",
+      style: {
+        position: "absolute", right: 96, top: (630 - BOX) / 2,
+        width: BOX, height: BOX, display: "flex",
+      },
+    }, MOTIFS[motif](BOX)),
+  ]);
+}
+
+/** 자기 카드를 갖는 경로들. 파일명은 public/og/ 아래 경로다. */
+const PAGE_CARDS = [
+  { file: "today.png", eyebrow: "TONIGHT", title: "오늘의 하늘", sub: "달의 위상과 열 행성의 자리, 매일 새로", motif: "moon" },
+  { file: "natal.png", eyebrow: "MY NIGHT SKY", title: "나의 천궁도", sub: "태어난 순간의 하늘을 계산해서 읽어 드립니다", motif: "wheel" },
+  { file: "synastry.png", eyebrow: "TWO SKIES", title: "궁합", sub: "두 하늘이 서로의 어디를 건드리는지", motif: "rings" },
+  { file: "yearly.png", eyebrow: "THE YEAR", title: "한 해의 하늘", sub: "느린 별들이 당신과 각도를 맺는 날짜들", motif: "wheel" },
+  { file: "retrograde.png", eyebrow: "MERCURY RETROGRADE", title: "수성 역행", sub: "지금 역행인가요 — 계산이 답합니다", motif: "loop" },
+  { file: "retrograde-venus.png", eyebrow: "VENUS RETROGRADE", title: "금성 역행", sub: "사랑과 돈을 맡는 별이 되돌아가는 40일", motif: "loop" },
+  { file: "retrograde-mars.png", eyebrow: "MARS RETROGRADE", title: "화성 역행", sub: "추진력을 맡는 별이 되돌아가는 두 달 반", motif: "loop" },
+  { file: "blog/moon-phase.png", eyebrow: "COLUMN", title: "달의 위상 목표 달성법", sub: "신월에 세우고 만월에 정리하는 법", motif: "moon" },
+  { file: "blog/mercury-retrograde.png", eyebrow: "COLUMN", title: "수성 역행 생존 가이드", sub: "피해야 할 것과 활용하는 법", motif: "loop" },
+  { file: "blog/ascendant.png", eyebrow: "COLUMN", title: "상승궁의 비밀", sub: "남들이 보는 나 vs 진짜 나", motif: "horizon" },
+  { file: "blog/pluto-aquarius.png", eyebrow: "COLUMN", title: "명왕성 물병자리 시대", sub: "2026년의 거대한 변화", motif: "rings" },
+  { file: "blog/houses.png", eyebrow: "COLUMN", title: "12하우스가 말하는 것", sub: "태양궁만으로는 부족한 이유", motif: "wheel" },
+];
+
 async function render(element, file, font) {
   const res = new ImageResponse(element, {
     ...SIZE,
@@ -151,4 +288,10 @@ for (const sign of ZODIAC_SIGNS) {
   total += bytes;
   console.log(`og/sign/${sign.key}.png`.padEnd(24), `${(bytes / 1024).toFixed(0)}KB`);
 }
-console.log(`\n합계 ${(total / 1024).toFixed(0)}KB / ${ZODIAC_SIGNS.length + 1}장`);
+await mkdir(join(OUT, "blog"), { recursive: true });
+for (const card of PAGE_CARDS) {
+  const bytes = await render(pageCard(card), card.file, font);
+  total += bytes;
+  console.log(`og/${card.file}`.padEnd(28), `${(bytes / 1024).toFixed(0)}KB`);
+}
+console.log(`\n합계 ${(total / 1024).toFixed(0)}KB / ${ZODIAC_SIGNS.length + 1 + PAGE_CARDS.length}장`);

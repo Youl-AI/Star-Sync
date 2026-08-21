@@ -58,6 +58,7 @@ export async function generateMetadata({
       title: post.title,
       description: post.summary,
       publishedTime: post.published,
+      images: [{ url: post.image, width: 1200, height: 630 }],
     },
   };
 }
@@ -96,6 +97,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
           datePublished: post.published,
           dateModified: post.published,
           articleSection: post.category,
+          image: SITE_URL + post.image,
           inLanguage: "ko",
           url: `${SITE_URL}/blog/${encodeURIComponent(post.slug)}`,
           mainEntityOfPage: `${SITE_URL}/blog/${encodeURIComponent(post.slug)}`,

@@ -63,6 +63,7 @@ export function generateMetadata(): Metadata {
       ? `지금 금성이 역행 중입니다. ${span}. 사랑·관계·돈을 맡는 별이 되돌아가는 시기에 무엇을 점검하면 되는지, 날짜와 함께 정리했습니다.`
       : `${year}년 금성 역행은 ${span}입니다. 약 19개월마다 한 번, 40일 남짓 — 사랑·관계·돈을 맡는 별이 되돌아가는 시기의 뜻과 점검 목록.`,
     alternates: alternatesFor("/retrograde/venus"),
+    openGraph: { images: [{ url: "/og/retrograde-venus.png", width: 1200, height: 630 }] },
   };
 }
 

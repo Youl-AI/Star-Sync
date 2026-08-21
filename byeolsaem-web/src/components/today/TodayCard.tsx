@@ -143,6 +143,7 @@ export function TodayCard() {
               <KakaoShareButton
                 text={`${front.dateLine}의 달 — ${front.phaseTitle}. ${front.phaseName}, 밝은 면 ${front.illumination}%`}
                 path="/today"
+                imagePath="/og/today.png"
               />
             </div>
           </div>

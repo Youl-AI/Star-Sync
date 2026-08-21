@@ -107,6 +107,7 @@ export function DeepResult() {
           <KakaoShareButton
             text={`나의 태양은 ${sign.ko} — ${sign.tagline}`}
             path={`/sign/${sign.key}`}
+            imagePath={`/og/sign/${sign.key}.png`}
           />
         </div>
         <GoldButton variant="solid" href="/natal">

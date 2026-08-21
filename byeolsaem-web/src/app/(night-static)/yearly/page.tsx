@@ -26,6 +26,7 @@ export const metadata: Metadata = {
     `${YEARS[0]}년과 ${YEARS[1]}년 목성과 토성이 머무는 자리, 수성 역행 날짜, ` +
     "그리고 그 별들이 당신의 출생 차트와 정확히 각도를 맺는 날짜까지. 운세가 아니라 계산 결과입니다.",
   alternates: alternatesFor("/yearly"),
+  openGraph: { images: [{ url: "/og/yearly.png", width: 1200, height: 630 }] },
 };
 
 export default function YearlyPage() {

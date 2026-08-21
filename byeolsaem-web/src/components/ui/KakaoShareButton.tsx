@@ -12,12 +12,15 @@ import { loadKakao, shareToKakao } from "@/lib/kakao";
 export function KakaoShareButton({
   text,
   path,
+  imagePath,
   className = "",
 }: {
   /** 말풍선에 실릴 글. 누르는 시점의 화면 내용과 같아야 한다. */
   text: string;
   /** 링크가 데려갈 이 사이트 안의 경로. 예: "/sign/libra" */
   path: string;
+  /** 카드 이미지 경로(/og/…). 있으면 이미지 카드로, 없으면 글자로 나간다. */
+  imagePath?: string;
   className?: string;
 }) {
   const [failed, setFailed] = useState(false);
@@ -31,7 +34,7 @@ export function KakaoShareButton({
 
   const share = async () => {
     try {
-      await shareToKakao({ text, path });
+      await shareToKakao({ text, path, imagePath });
       setFailed(false);
     } catch {
       setFailed(true);
