@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { CheckItem, Faq, Fact } from "@/components/retrograde/RetroPageBits";
 import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";
+import { RetroRails, RetroTabs } from "@/components/retrograde/RetroSwitcher";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
 import { alternatesFor, ogImage } from "@/lib/metadata";
 import {
@@ -118,6 +118,7 @@ export default function VenusRetrogradePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+      <RetroRails current="venus" />
       <JsonLd
         data={breadcrumbSchema([
           { name: "별샘", path: "/" },
@@ -138,6 +139,7 @@ export default function VenusRetrogradePage() {
         <p className="mt-3 font-display text-lg text-gold-soft">
           {formatKstDate(featured.start)} — {formatKstDate(featured.end)}
         </p>
+        <RetroTabs current="venus" />
       </header>
 
       <div className="mt-10">
@@ -276,14 +278,6 @@ export default function VenusRetrogradePage() {
             수성 역행 보기
           </GoldButton>
         </div>
-        <p className="mt-6 text-meta text-starlight-dim">
-          <Link
-            href="/retrograde/mars"
-            className="border-b border-gold/40 pb-0.5 text-gold-soft transition-colors hover:text-starlight"
-          >
-            화성 역행도 있습니다 →
-          </Link>
-        </p>
       </div>
     </main>
   );

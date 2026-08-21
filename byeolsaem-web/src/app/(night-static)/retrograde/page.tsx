@@ -4,6 +4,7 @@ import { PlaceBand } from "@/components/place/PlaceBand";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";
 import { CheckItem, Faq, Fact } from "@/components/retrograde/RetroPageBits";
+import { RetroRails, RetroTabs } from "@/components/retrograde/RetroSwitcher";
 import { RetrogradeStatusBand } from "@/components/retrograde/RetrogradeStatusBand";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { LineDiamond } from "@/components/ui/LineDiamond";
@@ -145,6 +146,7 @@ export default function RetrogradePage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+      <RetroRails current="mercury" />
       {/* 화면의 문답과 같은 배열에서 나온다(FAQS 주석 참고). */}
       <JsonLd data={faqSchema(faqs)} />
       <JsonLd
@@ -165,6 +167,7 @@ export default function RetrogradePage() {
         <p className="mt-4 break-keep font-display text-lg text-gold-soft md:text-xl">
           {formatKstDate(featured.start)} — {formatKstDate(featured.end)}
         </p>
+        <RetroTabs current="mercury" />
       </header>
 
       <div className="mt-14">
@@ -377,22 +380,6 @@ export default function RetrogradePage() {
             수성 역행 생존 가이드
           </Link>
           를 보세요.
-        </p>
-        <p className="mt-3 text-meta text-starlight-dim">
-          <Link
-            href="/retrograde/venus"
-            className="border-b border-gold/40 pb-0.5 text-gold-soft transition-colors hover:text-starlight"
-          >
-            금성 역행
-          </Link>
-          {" · "}
-          <Link
-            href="/retrograde/mars"
-            className="border-b border-gold/40 pb-0.5 text-gold-soft transition-colors hover:text-starlight"
-          >
-            화성 역행
-          </Link>
-          도 각자의 페이지가 있습니다.
         </p>
       </div>
     </main>
