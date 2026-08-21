@@ -145,6 +145,24 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
             ))}
           </Section>
 
+          <Section title="곁에 서는 자리들">
+            <p className="text-meta text-starlight-dim">
+              잘 맞는지를 점수로 매기지는 않습니다 — 어떤 짝인지만 말합니다.
+              정확한 것은 두 사람의 출생 정보로 보는 궁합입니다.
+            </p>
+            <dl className="mt-5 space-y-6">
+              {content.companions.map((c) => (
+                <div key={c.title}>
+                  <dt className="flex flex-wrap items-baseline gap-x-3">
+                    <span className="font-display text-lg text-starlight">{c.title}</span>
+                    <span className="text-guide text-gold-soft">{c.partners}</span>
+                  </dt>
+                  <dd className="mt-2 text-starlight-dim">{c.body}</dd>
+                </div>
+              ))}
+            </dl>
+          </Section>
+
           <Section title="일과 돈에서">
             {content.inWork.map((p, i) => (
               <p key={i} className="mt-4 first:mt-0">

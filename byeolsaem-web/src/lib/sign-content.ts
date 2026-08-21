@@ -26,6 +26,13 @@ export interface SignContent {
   inWork: string[];
   /** 자주 오해받는 지점 — 이 별자리 이야기에서 가장 많이 검색되는 대목. */
   misread: { question: string; answer: string }[];
+  /**
+   * 곁에 서는 자리들 — "OO자리 궁합" 검색이 이 페이지들로 들어올 문이다
+   * (정찰 ⑦, 2026-08-22). 점수를 매기지 않는 사이트 원칙 그대로, 어떤 짝인지만
+   * 말한다: 같은 원소(설명 없이 통하는 짝) · 마주 보는 자리(끌리고 부딪히는
+   * 짝) · 같은 특질(서로를 단련하는 짝).
+   */
+  companions: { title: string; partners: string; body: string }[];
 }
 
 /**

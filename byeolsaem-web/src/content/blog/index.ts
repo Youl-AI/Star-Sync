@@ -33,6 +33,61 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "별자리-날짜",
+    title: "몇 월 며칠은 무슨 별자리 — 날짜표와 경계의 진실",
+    summary:
+      "열두 별자리의 날짜표, 그리고 표가 경계에서 해마다 틀리는 이유. 경계에 태어난 사람이 자기 자리를 확인하는 법.",
+    category: "점성학 기초",
+    published: "2026-08-22",
+    readingMinutes: 4,
+    image: "/og/blog/sun-sign-dates.png",
+    load: () => import("./sun-sign-dates.mdx"),
+  },
+  {
+    slug: "금성역행-2026",
+    title: "2026 금성 역행 — 수성 역행과 겹치는 가을",
+    summary:
+      "10월 3일부터 11월 14일까지 금성이 역행합니다. 사랑과 돈을 맡는 별이 되돌아가는 40일, 그리고 수성 역행과 겹치는 3주를 지나는 법.",
+    category: "2026 흐름",
+    published: "2026-08-22",
+    readingMinutes: 5,
+    image: "/og/blog/venus-retrograde.png",
+    load: () => import("./venus-retrograde.mdx"),
+  },
+  {
+    slug: "달자리-뜻",
+    title: "달자리(문 사인) — 혼자 있을 때의 나는 어느 자리인가",
+    summary:
+      "겉모습이 태양이라면 문을 닫은 뒤가 달입니다. 아무도 자기 달자리를 모르는 이유와, 확인하는 법.",
+    category: "나를 아는 법",
+    published: "2026-08-22",
+    readingMinutes: 4,
+    image: "/og/blog/moon-sign.png",
+    load: () => import("./moon-sign.mdx"),
+  },
+  {
+    slug: "토성리턴",
+    title: "토성 리턴 — 스물아홉의 흔들림에는 이름이 있다",
+    summary:
+      "토성이 태어난 자리로 돌아오는 29년 주기. 이 시기의 흔들림이 무너짐이 아니라 재건축 통보인 이유.",
+    category: "나를 아는 법",
+    published: "2026-08-22",
+    readingMinutes: 5,
+    image: "/og/blog/saturn-return.png",
+    load: () => import("./saturn-return.mdx"),
+  },
+  {
+    slug: "사주-점성술-차이",
+    title: "사주와 점성술은 무엇이 다른가",
+    summary:
+      "같은 재료를 쓰는 다른 요리. 달력을 읽는 사주와 하늘을 읽는 점성술 — 세 가지 차이와 하나의 공통점.",
+    category: "점성학 기초",
+    published: "2026-08-22",
+    readingMinutes: 5,
+    image: "/og/blog/saju-vs-astrology.png",
+    load: () => import("./saju-vs-astrology.mdx"),
+  },
+  {
     slug: "달의-위상-목표-달성법",
     title: "달의 위상으로 2주마다 목표를 세우는 법",
     summary:

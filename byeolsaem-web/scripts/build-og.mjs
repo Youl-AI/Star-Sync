@@ -264,6 +264,11 @@ const PAGE_CARDS = [
   { file: "blog/mercury-retrograde.png", eyebrow: "COLUMN", title: "수성 역행 생존 가이드", sub: "피해야 할 것과 활용하는 법", motif: "loop" },
   { file: "blog/ascendant.png", eyebrow: "COLUMN", title: "상승궁의 비밀", sub: "남들이 보는 나 vs 진짜 나", motif: "horizon" },
   { file: "blog/pluto-aquarius.png", eyebrow: "COLUMN", title: "명왕성 물병자리 시대", sub: "2026년의 거대한 변화", motif: "rings" },
+  { file: "blog/sun-sign-dates.png", eyebrow: "COLUMN", title: "몇 월 며칠은 무슨 별자리", sub: "날짜표, 그리고 경계의 진실", motif: "wheel" },
+  { file: "blog/venus-retrograde.png", eyebrow: "COLUMN", title: "2026 금성 역행", sub: "수성 역행과 겹치는 가을", motif: "loop" },
+  { file: "blog/moon-sign.png", eyebrow: "COLUMN", title: "달자리라는 것", sub: "혼자 있을 때의 나는 어느 자리인가", motif: "moon" },
+  { file: "blog/saturn-return.png", eyebrow: "COLUMN", title: "토성 리턴", sub: "스물아홉의 흔들림에는 이름이 있다", motif: "horizon" },
+  { file: "blog/saju-vs-astrology.png", eyebrow: "COLUMN", title: "사주와 점성술", sub: "같은 재료를 쓰는 다른 요리", motif: "rings" },
   { file: "blog/houses.png", eyebrow: "COLUMN", title: "12하우스가 말하는 것", sub: "태양궁만으로는 부족한 이유", motif: "wheel" },
 ];
 
