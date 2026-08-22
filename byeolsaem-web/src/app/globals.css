@@ -725,3 +725,22 @@ body {
 ::view-transition-new(root) {
   animation-duration: 180ms;
 }
+
+/* 달력의 월 이동 — 그리드만 방향 있게 미끄러진다. 이름을 분리했으므로 루트
+   크로스페이드(위 180ms)는 페이지의 나머지에 그대로 걸린다. 방향은 CalMonthNav가
+   클릭 순간 html[data-cal-dir]로 심는다. 감소 모드에서는 TransitionStage가 전환
+   자체를 열지 않으므로 여기 올 일이 없다. */
+@keyframes cal-slide-out {
+  to { transform: translateX(calc(var(--cal-dir) * -32px)); opacity: 0; }
+}
+@keyframes cal-slide-in {
+  from { transform: translateX(calc(var(--cal-dir) * 32px)); opacity: 0; }
+}
+html[data-cal-dir="next"] { --cal-dir: 1; }
+html[data-cal-dir="prev"] { --cal-dir: -1; }
+html[data-cal-dir] ::view-transition-old(calendar-grid) {
+  animation: cal-slide-out 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+html[data-cal-dir] ::view-transition-new(calendar-grid) {
+  animation: cal-slide-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
