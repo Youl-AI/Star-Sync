@@ -28,6 +28,11 @@ describe("weeklyData", () => {
     }
     expect(data.headline.endsWith("다.")).toBe(true);
   });
+  it("요약문에 인그레스가 끼어도 문장이 깨지지 않는다", () => {
+    // 2026-09-21 주(KST): 추분(태양 천칭 진입)이 낀 주 — '…로이 있습니다'가 나오면 안 된다.
+    const data = weeklyData(new Date(Date.UTC(2026, 8, 22)));
+    expect(data.summary).not.toContain("로이 있");
+  });
 });
 
 describe("weeklyPersonal", () => {
@@ -40,5 +45,13 @@ describe("weeklyPersonal", () => {
     const keys = touches.map((t) => t.text.split(" — ")[1] ?? t.text);
     expect(new Set(keys).size).toBe(keys.length);
     for (const t of touches) expect(t.text.endsWith("다.")).toBe(true);
+  });
+  it("개인 문장의 조사가 어긋나지 않는다 — 별 이름은 전부 받침이라 '과'", () => {
+    const natal = computeChart({
+      date: "1995-07-14", time: "09:30",
+      latitude: 37.5665, longitude: 126.978, timezoneOffsetHours: 9,
+    });
+    const touches = weeklyPersonal(kstWeekStart(new Date(Date.UTC(2026, 9, 20))), natal);
+    for (const t of touches) expect(t.text).not.toMatch(/와 (합|육분|사각|삼각|대립)/);
   });
 });

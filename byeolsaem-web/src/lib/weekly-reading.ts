@@ -2,7 +2,7 @@ import { eventsBetween, type CalendarEvent } from "./calendar-events";
 import { eventTitle } from "./calendar-copy";
 import { ASPECT_TYPES, angleBetween, longitudeOf, type Chart } from "./chart";
 import { toJulianDay } from "./ephemeris";
-import { PLANETS, type PlanetKey } from "./planets";
+import { PLANETS } from "./planets";
 import { kstParts } from "./retrograde-clock";
 
 /**
@@ -40,6 +40,11 @@ function headlineOf(ev: CalendarEvent): string {
   }
 }
 
+/** 요약문에 끼워 넣는 명사형 이름. 다섯 kind 모두 받침으로 끝나 "이 있습니다"와 항상 맞물린다. */
+function summaryName(ev: CalendarEvent): string {
+  return ev.kind === "ingress" ? `태양의 ${ev.signKo} 진입` : eventTitle(ev);
+}
+
 export function weeklyData(now: Date): WeeklyData {
   const start = kstWeekStart(now);
   const end = new Date(start.getTime() + 7 * DAY_MS);
@@ -58,7 +63,7 @@ export function weeklyData(now: Date): WeeklyData {
   const summary =
     rest.length === 0
       ? "이 주의 하늘은 이 사건 하나로 요약됩니다."
-      : `그 밖에 ${rest.map((e) => `${kstParts(e.date).day}일 ${eventTitle(e)}`).join(", ")}이 있습니다.`;
+      : `그 밖에 ${rest.map((e) => `${kstParts(e.date).day}일 ${summaryName(e)}`).join(", ")}이 있습니다.`;
   return { weekStart: start.toISOString(), events, headline: headlineOf(top), summary };
 }
 
@@ -81,18 +86,20 @@ export function weeklyPersonal(weekStart: Date, natal: Chart): WeeklyTouch[] {
   for (let day = 0; day < 7; day += 1) {
     const at = new Date(weekStart.getTime() + day * DAY_MS + (12 - 9) * 3600000); // 정오 KST
     const jd = toJulianDay(at);
+    const dowKo = DOW_KO[new Date(at.getTime() + 9 * 3600000).getUTCDay()];
     for (const moving of PLANETS) {
-      const movingLon = longitudeOf(moving.key as PlanetKey, jd);
+      const movingLon = longitudeOf(moving.key, jd);
       for (const fixed of natal.placements) {
         for (const type of ASPECT_TYPES) {
           const orb = Math.abs(angleBetween(movingLon, fixed.longitude) - type.angle);
           if (orb > 1) continue;
           const key = `${moving.key}-${fixed.planet}-${type.key}`;
-          const dowKo = DOW_KO[new Date(at.getTime() + 9 * 3600000).getUTCDay()];
           const touch: WeeklyTouch = {
             date: at.toISOString(),
             dowKo,
-            text: `${dowKo}요일 — 하늘의 ${moving.ko}이 내 ${planetKo.get(fixed.planet)}와 ${type.ko}을 이룹니다.`,
+            // natal 별 이름 10개(태양·달·수성·금성·화성·목성·토성·천왕성·해왕성·명왕성)는
+            // 전부 받침으로 끝나므로 "과"가 항상 맞다("와"를 쓰면 어긋난다).
+            text: `${dowKo}요일 — 하늘의 ${moving.ko}이 내 ${planetKo.get(fixed.planet)}과 ${type.ko}을 이룹니다.`,
           };
           const prev = best.get(key);
           if (!prev || orb < prev.orb) best.set(key, { orb, touch });
