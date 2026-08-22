@@ -14,9 +14,9 @@ describe("monthEvents — 2026년 10월 실측 대조", () => {
     const hit = EVENTS.find((e) => e.kind === "retro-start" && "planet" in e && e.planet === "venus");
     expect(hit && kstParts(hit.date).day).toBe(3);
   });
-  it("신월 10/10 (천칭)", () => {
+  it("신월 10/11 (천칭 — UTC 10/10 밤이 KST로 넘어온다)", () => {
     const hit = EVENTS.find((e) => e.kind === "new-moon");
-    expect(hit && kstParts(hit.date).day).toBe(10);
+    expect(hit && kstParts(hit.date).day).toBe(11);
     expect(hit && "signKo" in hit && hit.signKo).toBe("천칭자리");
   });
   it("태양 전갈 진입 10/23", () => expect(day("ingress")).toBe(23));
