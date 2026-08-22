@@ -1,5 +1,6 @@
 import { computeChart, type Chart } from "./chart";
 import { assembleReading, type Reading } from "./reading";
+import { solarReturnChart } from "./solar-return";
 import { synastryReading, type SynastryReading } from "./synastry-reading";
 
 /**
@@ -70,4 +71,22 @@ export function exampleMeeting(): { mine: Chart; theirs: Chart; reading: Synastr
     cachedMeeting = { mine, theirs, reading: synastryReading(mine, theirs, null) };
   }
   return cachedMeeting;
+}
+
+/**
+ * 예시 솔라 리턴 — /solar-return의 정보 없음 화면. EXAMPLE_BIRTH과 같은 사람이다
+ * (예시 인물이 페이지마다 다르면 사람처럼 보이기 시작한다 — exampleMeeting 주석 참고).
+ * now에 따라 유효한 리턴이 달라지므로 캐시하지 않는다.
+ */
+export function exampleSolarReturn(now: Date): { instant: Date; nextInstant: Date; chart: Chart } {
+  return solarReturnChart(
+    {
+      date: EXAMPLE_BIRTH.date,
+      time: EXAMPLE_BIRTH.time,
+      latitude: EXAMPLE_BIRTH.latitude,
+      longitude: EXAMPLE_BIRTH.longitude,
+      timezoneOffsetHours: EXAMPLE_BIRTH.timezoneOffsetHours,
+    },
+    now,
+  );
 }
