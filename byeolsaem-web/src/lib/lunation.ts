@@ -76,3 +76,31 @@ export function nextLunations(now: Date): { newMoon: Lunation; fullMoon: Lunatio
     },
   };
 }
+
+/**
+ * from(포함)부터 to(제외)까지의 모든 신월·보름, 시간순.
+ * 달력·위클리·ics가 같은 목록을 쓰기 위한 기간 스캔이다.
+ */
+export function lunationsBetween(from: Date, to: Date): Lunation[] {
+  const out: Lunation[] = [];
+  const endJd = toJulianDay(to);
+  const targets = [
+    { target: 0, kind: "new" as const },
+    { target: 180, kind: "full" as const },
+  ];
+  for (const { target, kind } of targets) {
+    let jd = toJulianDay(from);
+    // 12개월 스캔이면 삭망 각 13번 — 40이면 3년치까지 안전하다.
+    for (let guard = 0; guard < 40; guard += 1) {
+      const found = nextCrossing(jd, target);
+      if (found <= jd || found >= endJd) break;
+      out.push({
+        kind,
+        date: fromJulianDay(found).toISOString(),
+        signKo: signAtLongitude(moonPosition(found).longitude).ko,
+      });
+      jd = found + 1;
+    }
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date));
+}
