@@ -70,7 +70,7 @@ export function eventsBetween(from: Date, to: Date): CalendarEvent[];
   역행은 `retrogradesOf(planet, from, to)` 그대로. 인그레스는 위 `sunIngresses`.
 - 각 이벤트에 붙는 한 줄 설명문은 여기가 아니라 화면 쪽 상수로 둔다
   (`kind`별 고정 문구 + 자리 이름 삽입). 신규 문장은 사이트 어투(경어체, 단정)로.
-- 검증(실측 고정값): 2026년 10월 = 금성 역행 시작 10/3 · 천칭 신월 10/10 ·
+- 검증(실측 고정값): 2026년 10월 = 금성 역행 시작 10/3 · 천칭 신월 10/11(KST — UTC로는 10/10 밤) ·
   태양 전갈 진입 10/23 · 수성 역행 시작 10/24 · 황소 보름 10/26.
 
 ### `src/lib/solar-return.ts` (신규)

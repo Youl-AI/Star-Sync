@@ -310,9 +310,9 @@ describe("monthEvents — 2026년 10월 실측 대조", () => {
     const hit = EVENTS.find((e) => e.kind === "retro-start" && "planet" in e && e.planet === "venus");
     expect(hit && kstParts(hit.date).day).toBe(3);
   });
-  it("신월 10/10 (천칭)", () => {
+  it("신월 10/11 (천칭 — UTC 10/10 밤이 KST로 넘어온다)", () => {
     const hit = EVENTS.find((e) => e.kind === "new-moon");
-    expect(hit && kstParts(hit.date).day).toBe(10);
+    expect(hit && kstParts(hit.date).day).toBe(11);
     expect(hit && "signKo" in hit && hit.signKo).toBe("천칭자리");
   });
   it("태양 전갈 진입 10/23", () => expect(day("ingress")).toBe(23));
@@ -1194,10 +1194,11 @@ describe("buildIcs", () => {
   });
   it("UID는 내용 기반이라 재생성해도 같다 — 구독자 캘린더에 중복이 쌓이면 안 된다", () => {
     expect(buildIcs(events)).toBe(ics);
-    expect(ics).toMatch(/UID:new-moon-20261010@byeolsaem\.com/);
+    // 2026-10 신월은 UTC 10/10 밤 = KST 10/11 새벽이다 (Task 3에서 실측 확정).
+    expect(ics).toMatch(/UID:new-moon-20261011@byeolsaem\.com/);
   });
   it("종일 이벤트(KST 날짜)로 나간다", () => {
-    expect(ics).toMatch(/DTSTART;VALUE=DATE:20261010/);
+    expect(ics).toMatch(/DTSTART;VALUE=DATE:20261011/);
   });
 });
 ```
