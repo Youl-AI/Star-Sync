@@ -17,15 +17,19 @@ export function CalMonthNav({
   label,
   prevHref,
   nextHref,
+  as = "h1",
 }: {
   label: string;
   prevHref: string | null;
   nextHref: string | null;
+  as?: "h1" | "h2";
 }) {
+  // 허브는 페이지 제목 h1을 따로 가지므로 h2로 내려 앉는다 — 문서에 h1은 하나.
+  const Heading = as;
   const cls = "text-sm text-starlight-dim transition-colors hover:text-gold-soft";
   return (
     <div className="flex items-baseline justify-between border-b border-gold/20 pb-3">
-      <h1 className="break-keep font-display text-2xl text-starlight md:text-3xl">{label}</h1>
+      <Heading className="break-keep font-display text-2xl text-starlight md:text-3xl">{label}</Heading>
       <div className="flex items-baseline gap-5">
         {prevHref ? (
           <Link href={prevHref} className={cls} onClick={() => setDir("prev")}>

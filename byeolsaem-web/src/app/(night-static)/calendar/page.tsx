@@ -41,6 +41,7 @@ export default function CalendarPage() {
         month={CURRENT.month}
         prevHref={href(MONTHS[0])}
         nextHref={href(MONTHS[2])}
+        headingAs="h2"
       />
       <NextSteps
         lead="다가오는 역행이 궁금하다면 — 시작과 끝, 점검 목록까지 정리되어 있습니다."

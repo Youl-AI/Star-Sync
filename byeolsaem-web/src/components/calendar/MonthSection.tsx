@@ -8,17 +8,19 @@ export function MonthSection({
   month,
   prevHref,
   nextHref,
+  headingAs = "h1",
 }: {
   year: number;
   month: number;
   prevHref: string | null;
   nextHref: string | null;
+  headingAs?: "h1" | "h2";
 }) {
   const events = monthEvents(year, month);
   const spans = retroSpans(year, month);
   return (
     <section style={{ viewTransitionName: "calendar-grid" }}>
-      <CalMonthNav label={`${year}년 ${month}월`} prevHref={prevHref} nextHref={nextHref} />
+      <CalMonthNav label={`${year}년 ${month}월`} prevHref={prevHref} nextHref={nextHref} as={headingAs} />
       <div className="flex flex-wrap gap-x-5 gap-y-1 pt-3 text-meta text-starlight-dim">
         <span className="inline-flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-gold" /> 신월</span>
         <span className="inline-flex items-center gap-1.5"><span className="size-1.5 rounded-full border border-gold" /> 보름</span>
