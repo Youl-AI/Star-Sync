@@ -46,7 +46,7 @@ export default function SolarReturnPage() {
           그 순간의 하늘이 다음 생일까지 한 해의 지도가 됩니다.
         </p>
       </header>
-      <SolarScope />
+      <SolarScope builtAt={new Date().toISOString()} />
 
       {/* FAQ — venus 페이지의 Faq 패턴 그대로(RetroPageBits 재사용). */}
       <section className="mt-20 border-t border-gold/15 pt-12">

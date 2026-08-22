@@ -58,12 +58,27 @@ export function solarReturnChart(
 
   // 리턴 순간을 출생지의 지역시로 옮겨 BirthMoment 형태로 만든다.
   const local = new Date(instant.getTime() + natal.timezoneOffsetHours * 3600000);
-  const chart = computeChart({
+  let chart = computeChart({
     date: local.toISOString().slice(0, 10),
     time: local.toISOString().slice(11, 16),
     latitude: natal.latitude,
     longitude: natal.longitude,
     timezoneOffsetHours: natal.timezoneOffsetHours,
   });
+
+  // 출생 시각을 모르면 리턴 차트의 상승궁·하우스도 내지 않는다 — 리턴 '순간'은
+  // 정밀해도, 그 순간을 세울 출생 기준시가 없는 사람에게 시각 의존 층을 보여주는
+  // 것은 지어내는 일이다(planet-in-house.ts의 약속과 동일).
+  if (natal.time === null) {
+    chart = {
+      ...chart,
+      ascendant: null,
+      midheaven: null,
+      houseCusps: null,
+      timeUnknown: true,
+      placements: chart.placements.map((p) => ({ ...p, house: null })),
+    };
+  }
+
   return { instant, nextInstant, chart };
 }

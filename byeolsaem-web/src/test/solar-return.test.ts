@@ -43,4 +43,11 @@ describe("solarReturnChart", () => {
     expect(chart.ascendant).not.toBeNull();
     expect(chart.placements.find((p) => p.planet === "sun")?.house).not.toBeNull();
   });
+
+  it("출생 시각을 모르면 리턴 차트도 상승궁·하우스를 내지 않는다", () => {
+    const { chart } = solarReturnChart({ ...NATAL, time: null }, new Date(Date.UTC(2026, 7, 23)));
+    expect(chart.ascendant).toBeNull();
+    expect(chart.timeUnknown).toBe(true);
+    expect(chart.placements.every((p) => p.house === null)).toBe(true);
+  });
 });

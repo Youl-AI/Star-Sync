@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
-import { ChartWheel } from "@/components/chart/ChartWheel";
+import { ChartWheel, ChartWheelLegend } from "@/components/chart/ChartWheel";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
@@ -20,10 +20,11 @@ import { composeSolarReading, type SolarAxis } from "./solar-reading";
  * 전 클라이언트 첫 렌더 — 은 언제나 예시 쪽이다. 크롤러가 보는 것도 이 예시다.
  *
  * `now`도 같은 이유로 useState(null) → useEffect에서 채운다. 마운트 전에는
- * `now`가 없으므로 `exampleSolarReturn(new Date())`를 그대로 쓴다 — 어느 해의
- * 리턴이든 예시라는 사실과 프레임 문장은 같다.
+ * `now`가 없으므로 `builtAt`(빌드 시점)으로 고정한다 — TodayCard/WeeklyCard와
+ * 같은 계약이다. 정적 export라 빌드 시점의 날짜가 그대로 굳으면 안 되므로,
+ * 마운트 뒤 방문자의 "지금"으로 다시 계산한다.
  */
-export function SolarScope() {
+export function SolarScope({ builtAt }: { builtAt: string }) {
   const { profile } = useBirthProfile();
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => setNow(new Date()), []);
@@ -45,10 +46,15 @@ export function SolarScope() {
   }, [profile, now]);
 
   // 서버 HTML과 첫 그림은 언제나 예시 쪽(위 주석 참고).
-  const data = useMemo(() => mine ?? exampleSolarReturn(now ?? new Date()), [mine, now]);
+  const data = useMemo(
+    () => mine ?? exampleSolarReturn(now ?? new Date(builtAt)),
+    [mine, now, builtAt],
+  );
   const reading = useMemo(() => composeSolarReading(data.chart), [data.chart]);
   const isExample = mine === null;
-  const timeUnknown = mine !== null && profile?.time === null;
+  // chart 기준 — solarReturnChart가 출생 시각을 모르면 chart.timeUnknown을 세운다
+  // (profile.time과 어긋나지 않게 한 곳만 본다).
+  const timeUnknown = mine !== null && data.chart.timeUnknown;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -73,9 +79,18 @@ export function SolarScope() {
         </span>
       </p>
 
-      <div className="mt-8">
-        <ChartWheel chart={data.chart} />
-      </div>
+      {/* 원반과 범례 — natal의 WheelFigure와 같은 짝이다. WheelFigure 자체는
+          onSelectPlanet(아래 본문의 그 별 자리로 스크롤)을 필수로 요구하는데,
+          이 페이지는 행성 사전 섹션이 없어 데려갈 자리가 없다. 그래서 원반과
+          범례만 나란히 둔다 — 기준은 "원반의 기호에 범례가 딸려 있을 것". */}
+      <figure className="mt-8 flex flex-wrap items-start gap-x-10 gap-y-6">
+        <div className="w-full max-w-[460px] flex-none">
+          <ChartWheel chart={data.chart} />
+        </div>
+        <figcaption className="min-w-0 flex-1 basis-64">
+          <ChartWheelLegend />
+        </figcaption>
+      </figure>
 
       {reading.ascendant && <AxisSection axis={reading.ascendant} />}
       {reading.sunHouse && <AxisSection axis={reading.sunHouse} />}
