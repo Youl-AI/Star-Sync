@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "postbuild": "node scripts/prefetch-chunks.mjs"
+    "postbuild": "node scripts/prefetch-chunks.mjs && node --experimental-strip-types --import ./scripts/lib/register-ts-ext.mjs scripts/build-ics.mjs"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

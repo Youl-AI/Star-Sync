@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd, breadcrumbSchema } from "@/components/seo/JsonLd";
+import { IcsRow } from "@/components/calendar/IcsRow";
 import { MonthSection } from "@/components/calendar/MonthSection";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { PlaceBand } from "@/components/place/PlaceBand";
@@ -43,6 +44,7 @@ export default function CalendarPage() {
         nextHref={href(MONTHS[2])}
         headingAs="h2"
       />
+      <IcsRow />
       <NextSteps
         lead="다가오는 역행이 궁금하다면 — 시작과 끝, 점검 목록까지 정리되어 있습니다."
         primary={{ href: "/retrograde", label: "수성 역행 보기" }}

@@ -21,3 +21,6 @@
 # 어긋남은 Next가 버전 불일치를 감지해 전체 리로드로 스스로 복구한다.
 /*.txt
   Cache-Control: public, max-age=300
+
+/sky.ics
+  Cache-Control: public, max-age=86400

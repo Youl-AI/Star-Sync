@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
+import { IcsRow } from "@/components/calendar/IcsRow";
 import { MonthSection } from "@/components/calendar/MonthSection";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { PlaceBand } from "@/components/place/PlaceBand";
@@ -82,6 +83,7 @@ export default async function CalendarMonthPage({ params }: { params: Promise<{ 
         prevHref={idx > 0 ? monthHref(MONTHS[idx - 1]) : null}
         nextHref={idx < MONTHS.length - 1 ? monthHref(MONTHS[idx + 1]) : null}
       />
+      <IcsRow />
       <NextSteps
         lead="이 달의 하늘이 당신의 차트에서는 어느 방을 지나는지 — 태어난 순간을 넣으면 바로 나옵니다."
         primary={{ href: "/natal", label: "내 천궁도 보기" }}
