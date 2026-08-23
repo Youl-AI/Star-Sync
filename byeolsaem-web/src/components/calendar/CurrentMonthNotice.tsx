@@ -16,11 +16,14 @@ export function CurrentMonthNotice({
   builtYear,
   builtMonth,
   hrefBase = "/calendar",
+  noun = "달력",
 }: {
   builtYear: number;
   builtMonth: number;
   // 천문력 허브도 같은 어긋남 안내를 쓴다 — 목적지 베이스만 다르다.
   hrefBase?: string;
+  // 천문력 허브도 같은 안내를 쓴다 — 이름까지 달력이라고 하면 거짓말이 된다.
+  noun?: string;
 }) {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => setNow(new Date()), []);
@@ -36,7 +39,7 @@ export function CurrentMonthNotice({
         href={`${hrefBase}/${year}/${String(month).padStart(2, "0")}`}
         className="border-b border-gold/40 pb-px text-gold-soft transition-colors hover:text-starlight"
       >
-        {month}월 달력 보러 가기 →
+        {month}월 {noun} 보러 가기 →
       </Link>
     </p>
   );

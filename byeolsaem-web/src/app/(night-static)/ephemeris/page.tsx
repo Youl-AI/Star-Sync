@@ -40,7 +40,7 @@ export default function EphemerisPage() {
           재료를 그대로 보여줍니다.
         </p>
       </header>
-      <CurrentMonthNotice builtYear={CURRENT.year} builtMonth={CURRENT.month} hrefBase="/ephemeris" />
+      <CurrentMonthNotice builtYear={CURRENT.year} builtMonth={CURRENT.month} hrefBase="/ephemeris" noun="천문력" />
       <div className="border border-gold/15 bg-ink-raised/40 px-4 py-3 text-meta text-starlight-dim">
         <p className="text-starlight-dim">표 읽는 법</p>
         <ul className="mt-1.5 list-disc space-y-1 pl-4">
