@@ -247,11 +247,17 @@ export function VerticalWorld({
             </p>
           </div>
         )}
-        {/* LCP 후보이므로 첫 그림은 eager. 두 번째는 스크롤해야 보인다. */}
+        {/* LCP 후보이므로 첫 그림은 eager. 두 번째는 스크롤해야 보인다.
+            width/height는 원본 픽셀(1536×2752) — CSS가 100vw로 늘려도 비율 계산에
+            쓰여, 바이트가 오기 전에 브라우저가 세로 자리를 예약한다. 이게 없으면
+            로드 순간 그림 높이(모바일 ≈179vw)만큼 아래가 통째로 밀린다 —
+            메인의 CLS 2.07은 전부 이 두 장이었다(Web Analytics 실측 2026-08-24). */}
         <img
           ref={aboveRef}
           src="/world/spring-above.webp"
           alt=""
+          width={1536}
+          height={2752}
           className="vw-art vw-above"
           style={
             topCrop > 0
@@ -260,7 +266,14 @@ export function VerticalWorld({
           }
           fetchPriority="high"
         />
-        <img src="/world/spring-below.webp" alt="" className="vw-art vw-below" loading="lazy" />
+        <img
+          src="/world/spring-below.webp"
+          alt=""
+          width={1536}
+          height={2752}
+          className="vw-art vw-below"
+          loading="lazy"
+        />
       </div>
 
       {/* 물속 첫 문장 — 심연(콘텐츠 구간)으로 넘어가는 숨고르기 */}
