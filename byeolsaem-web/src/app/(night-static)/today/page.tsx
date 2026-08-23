@@ -67,7 +67,7 @@ export default function TodayPage() {
           </>
         }
         primary={{ href: "/natal", label: "내 하늘 전체 보기" }}
-        secondary={{ href: "/yearly", label: "올해는 어떤가" }}
+        secondary={{ href: "/weekly", label: "이번 주 하늘 보기" }}
       />
     </main>
   );

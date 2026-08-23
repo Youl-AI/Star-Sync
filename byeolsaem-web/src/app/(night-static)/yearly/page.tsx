@@ -69,7 +69,7 @@ export default function YearlyPage() {
           </>
         }
         primary={{ href: "/today", label: "그래서 오늘은" }}
-        secondary={{ href: "/natal", label: "이 날짜들이 걸리는 자리" }}
+        secondary={{ href: "/solar-return", label: "솔라 리턴 보기" }}
       />
     </main>
   );

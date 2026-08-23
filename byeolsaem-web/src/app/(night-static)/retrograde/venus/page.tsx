@@ -274,8 +274,8 @@ export default function VenusRetrogradePage() {
           <GoldButton variant="solid" href="/natal">
             내 천궁도 보기
           </GoldButton>
-          <GoldButton variant="outline" href="/retrograde">
-            수성 역행 보기
+          <GoldButton variant="outline" href="/calendar">
+            하늘의 달력 보기
           </GoldButton>
         </div>
       </div>

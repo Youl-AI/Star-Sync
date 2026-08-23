@@ -367,8 +367,8 @@ export default function RetrogradePage() {
           <GoldButton variant="solid" href="/">
             내 하늘에서 보기
           </GoldButton>
-          <GoldButton variant="outline" href="/sign">
-            열두 개의 방으로
+          <GoldButton variant="outline" href="/calendar">
+            하늘의 달력 보기
           </GoldButton>
         </div>
         <p className="mt-10 text-meta text-starlight-dim">
