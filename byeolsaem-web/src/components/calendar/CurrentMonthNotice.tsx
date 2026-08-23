@@ -12,7 +12,16 @@ import Link from "next/link";
  * 11개월 이상 방치) 아래 링크가 404일 수 있다 — 그 시점엔 어차피 전면 재빌드가
  * 필요한 상태이고, 이 링크는 그 전까지 낼 수 있는 최선의 안내다.
  */
-export function CurrentMonthNotice({ builtYear, builtMonth }: { builtYear: number; builtMonth: number }) {
+export function CurrentMonthNotice({
+  builtYear,
+  builtMonth,
+  hrefBase = "/calendar",
+}: {
+  builtYear: number;
+  builtMonth: number;
+  // 천문력 허브도 같은 어긋남 안내를 쓴다 — 목적지 베이스만 다르다.
+  hrefBase?: string;
+}) {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => setNow(new Date()), []);
   if (!now) return null;
@@ -24,7 +33,7 @@ export function CurrentMonthNotice({ builtYear, builtMonth }: { builtYear: numbe
     <p className="mb-6 border border-gold/25 bg-ink-raised/60 px-4 py-3 text-center text-guide text-starlight-dim">
       이 판은 {builtMonth}월에 구워졌습니다 — 지금은 {month}월입니다.{" "}
       <Link
-        href={`/calendar/${year}/${String(month).padStart(2, "0")}`}
+        href={`${hrefBase}/${year}/${String(month).padStart(2, "0")}`}
         className="border-b border-gold/40 pb-px text-gold-soft transition-colors hover:text-starlight"
       >
         {month}월 달력 보러 가기 →
