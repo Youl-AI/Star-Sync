@@ -271,6 +271,9 @@ const PAGE_CARDS = [
   { file: "blog/saturn-return.png", eyebrow: "COLUMN", title: "토성 리턴", sub: "스물아홉의 흔들림에는 이름이 있다", motif: "horizon" },
   { file: "blog/saju-vs-astrology.png", eyebrow: "COLUMN", title: "사주와 점성술", sub: "같은 재료를 쓰는 다른 요리", motif: "rings" },
   { file: "blog/houses.png", eyebrow: "COLUMN", title: "12하우스가 말하는 것", sub: "태양궁만으로는 부족한 이유", motif: "wheel" },
+  { file: "calendar.png", eyebrow: "SKY CALENDAR", title: "하늘의 달력", sub: "신월과 보름, 역행의 시작과 끝", motif: "wheel" },
+  { file: "weekly.png", eyebrow: "THIS WEEK", title: "이번 주 하늘", sub: "이레 동안 하늘에 일어나는 일", motif: "horizon" },
+  { file: "solar-return.png", eyebrow: "SOLAR RETURN", title: "솔라 리턴", sub: "생일마다 새로 그려지는 일 년의 지도", motif: "rings" },
 ];
 
 async function render(element, file, font) {

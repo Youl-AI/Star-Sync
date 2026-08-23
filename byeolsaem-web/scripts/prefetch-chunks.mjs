@@ -29,6 +29,9 @@ const NAV_TARGETS = [
   "synastry.html",
   "sign.html",
   "retrograde.html",
+  "calendar.html",
+  "weekly.html",
+  "solar-return.html",
   "blog.html",
 ];
 

@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { POSTS } from "@/content/blog";
 import { SIGN_CONTENT } from "@/lib/sign-content";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
+import { calendarMonths } from "@/lib/calendar-events";
 
 // 정적 export라 빌드 시점에 sitemap.xml로 구워진다.
 export const dynamic = "force-static";
@@ -32,6 +33,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/synastry`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/yearly`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/sign`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/weekly`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/calendar`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE}/solar-return`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/blog`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE}/about`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE}/privacy`, changeFrequency: "yearly", priority: 0.1 },
@@ -52,5 +56,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...tools, ...signs, ...posts];
+  const months: MetadataRoute.Sitemap = calendarMonths(new Date()).map((m) => ({
+    url: `${BASE}/calendar/${m.year}/${String(m.month).padStart(2, "0")}`,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  return [...tools, ...signs, ...posts, ...months];
 }
