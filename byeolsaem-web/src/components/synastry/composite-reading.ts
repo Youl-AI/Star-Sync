@@ -28,17 +28,17 @@ export function composeCompositeReading(composite: CompositeChart): CompositeRea
   const venus = of("venus");
   return {
     sun: {
-      title: `관계의 태양 — ${sun.sign.ko}자리`,
+      title: `관계의 태양 — ${sun.sign.ko}`,
       frame: "이 관계가 무엇을 향해 가는가입니다.",
       body: PLANET_IN_SIGN.sun[sun.sign.key],
     },
     moon: {
-      title: `관계의 달 — ${moon.sign.ko}자리`,
+      title: `관계의 달 — ${moon.sign.ko}`,
       frame: "둘이 함께 있을 때 흐르는 기류입니다.",
       body: PLANET_IN_SIGN.moon[moon.sign.key],
     },
     venus: {
-      title: `관계의 금성 — ${venus.sign.ko}자리`,
+      title: `관계의 금성 — ${venus.sign.ko}`,
       frame: "이 관계가 애정을 표현하는 방식입니다.",
       body: PLANET_IN_SIGN.venus[venus.sign.key],
     },

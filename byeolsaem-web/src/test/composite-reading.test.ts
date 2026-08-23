@@ -15,6 +15,10 @@ describe("composeCompositeReading", () => {
     expect(reading.moon.title).toContain("관계의 달");
     expect(reading.venus.title).toContain("관계의 금성");
     expect(reading.sun.title).toMatch(/자리/);
+    // sign.ko가 이미 "…자리"라 리터럴을 덧붙이면 "자리자리"가 된다 — 실제 났던 버그.
+    for (const axis of [reading.sun, reading.moon, reading.venus]) {
+      expect(axis.title).not.toContain("자리자리");
+    }
   });
   it("프레임과 본문이 완결 문장이다", () => {
     for (const axis of [reading.sun, reading.moon, reading.venus]) {
