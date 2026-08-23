@@ -1,0 +1,49 @@
+# 정기 재빌드·배포 — 사이트가 "지금"을 다시 배우는 날.
+#
+# 별샘은 순수 정적 사이트라 모든 계산이 빌드 순간에 굳는다. 배포를 60일 넘게
+# 쉬면 내비의 앰비언트 표가 소진되고, 달력의 월 창(이전 1 + 이후 10)과
+# /sky.ics의 12개월치도 함께 낡는다. 이 워크플로가 한 달에 두 번 새로 굽는다.
+#
+# 시각: UTC 20:00 = KST 다음날 05:00. 매월 1일·15일 UTC 저녁이므로 KST로는
+# 2일·16일 새벽 — KST 월 경계(말일 밤)에서 멀찍이 떨어져 있어, 빌드가 경계를
+# 가로지르며 창이 어긋날 여지(최종 리뷰 I-3의 시나리오)가 없다.
+#
+# 필요한 시크릿 (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN  — "Workers 편집" 템플릿 권한이면 충분
+#   CLOUDFLARE_ACCOUNT_ID — 55fb977ed45b54f3ef40abcb1ad807b1
+name: scheduled-deploy
+
+on:
+  schedule:
+    - cron: "0 20 1,15 * *"
+  # 수동 실행 단추 — 급할 때 Actions 탭에서 바로 돌린다.
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # postbuild의 build-ics.mjs가 --experimental-strip-types로 TS를 직접
+      # 물어오므로 로컬과 같은 Node 24가 필요하다.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: byeolsaem-web/package-lock.json
+
+      - name: Install
+        working-directory: byeolsaem-web
+        run: npm ci
+
+      # postbuild(청크 프리페치 주입 + sky.ics 생성)까지 이 한 줄이 돈다.
+      - name: Build
+        working-directory: byeolsaem-web
+        run: npm run build
+
+      - name: Deploy
+        run: npx wrangler@4 deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
