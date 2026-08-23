@@ -2,10 +2,10 @@
  * PWA 아이콘 — build-og와 같은 satori 파이프라인이라 수작업 에셋이 없다.
  * 잉크 바탕에 금색 별 하나 + "별샘". maskable은 안전 영역(중앙 80%) 안에 그린다.
  *
- * 별은 "✦" 글자가 아니라 원+선으로 직접 그린다(build-og.mjs의 MOTIFS 방식과 같은
- * 발상). MaruBuri-OG.ttf는 scripts/subset-maruburi.py의 OG_EXTRA에 있는 글자와
- * 한글 음절만 남기는데 "✦"는 그 목록에 없어 satori가 빈 칸을 그린다(실측 —
- * 512 아이콘을 눈으로 확인해 확정).
+ * 별은 "✦" 글자가 아니라 clip-path 다각형으로 직접 그린다. MaruBuri-OG.ttf는
+ * scripts/subset-maruburi.py의 OG_EXTRA에 있는 글자와 한글 음절만 남기는데 "✦"는
+ * 그 목록에 없어 satori가 빈 칸을 그린다(실측 — 512 아이콘을 눈으로 확인해 확정).
+ * satori(next/og)는 clip-path: polygon()을 지원하므로 네 꼭지 별을 div 하나로 그린다.
  *
  * 아이콘이 바뀔 일이 생기면 이 스크립트를 고치고 다시 돌린다:
  *   node --experimental-strip-types scripts/build-pwa-icons.mjs
@@ -26,37 +26,15 @@ const GOLD = "#e3c568";
 // "별샘"은 subset-maruburi.py의 OG_EXTRA에 이미 있어 이 폰트로 그려진다.
 const font = await readFile(join(ROOT, "src/fonts/MaruBuri-OG.ttf"));
 
-/** 별 자리 — 중심 원 하나 + 십자로 겹치는 막대 둘. build-og MOTIFS와 같은 발상. */
+/** 별 자리 — clip-path 다각형으로 그리는 네 꼭지 별(✦ 형태). */
 function star(size) {
-  const barThick = Math.round(size * 0.16);
-  const dot = Math.round(size * 0.34);
-  return h(
-    "div",
-    { style: { position: "relative", width: size, height: size, display: "flex" } },
-    [
-      h("div", {
-        key: "h",
-        style: {
-          position: "absolute", left: 0, top: (size - barThick) / 2,
-          width: size, height: barThick, borderRadius: barThick / 2, background: GOLD,
-        },
-      }),
-      h("div", {
-        key: "v",
-        style: {
-          position: "absolute", left: (size - barThick) / 2, top: 0,
-          width: barThick, height: size, borderRadius: barThick / 2, background: GOLD,
-        },
-      }),
-      h("div", {
-        key: "dot",
-        style: {
-          position: "absolute", left: (size - dot) / 2, top: (size - dot) / 2,
-          width: dot, height: dot, borderRadius: dot / 2, background: GOLD,
-        },
-      }),
-    ],
-  );
+  return h("div", {
+    key: "star",
+    style: {
+      width: size, height: size, background: GOLD,
+      clipPath: "polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%)",
+    },
+  });
 }
 
 function icon(size, maskable) {
