@@ -20,10 +20,12 @@ export function InviteButton({ profile }: { profile: BirthProfile }) {
           text: "두 하늘이 만나는 자리를 봐요",
           url,
         });
-      } catch {
+        return;
+      } catch (e) {
         // 사용자가 시트를 닫은 것(AbortError) — 아무 일도 아니다.
+        if ((e as DOMException).name === "AbortError") return;
+        // 그 외(NotAllowedError 등, share가 거절된 환경)는 복사로 떨어진다.
       }
-      return;
     }
     navigator.clipboard?.writeText(url).then(() => {
       setCopied(true);

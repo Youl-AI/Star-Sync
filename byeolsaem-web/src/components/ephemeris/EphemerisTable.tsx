@@ -1,6 +1,7 @@
 import { eventTitle } from "@/lib/calendar-copy";
 import { monthEvents } from "@/lib/calendar-events";
 import type { EphemerisRow } from "@/lib/ephemeris-table";
+import { PLANETS } from "@/lib/planets";
 import { kstParts } from "@/lib/retrograde-clock";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
@@ -10,6 +11,12 @@ import { ZODIAC_SIGNS } from "@/lib/zodiac";
  * 페이지 쪽 소개 아래 한 줄로 둔다(표 자체에는 안 싣는다).
  */
 export const SIGN_LEGEND = ZODIAC_SIGNS.map((s) => `${s.ko.slice(0, 2)}=${s.ko}`).join(" · ");
+
+/**
+ * 행성 기호 ↔ 이름 범례. 표 머리는 기호(☉☽☿…)뿐이라 처음 보는 사람에게는
+ * 암호다 — SIGN_LEGEND와 같은 방식으로 나란히 둔다(최종 리뷰 M-2).
+ */
+export const PLANET_LEGEND = PLANETS.map((p) => `${p.symbol}=${p.ko}`).join(" · ");
 
 /**
  * 천문력 표 렌더. 표가 화면보다 넓으므로 반드시 자기 컨테이너 안에서 가로
@@ -33,7 +40,7 @@ export function EphemerisTable({ year, month, rows }: { year: number; month: num
           <tr className="border-b border-gold/25 text-left">
             <th scope="col" className="py-2 pr-3 font-normal text-starlight-dim">날짜</th>
             {rows[0].cells.map((c) => (
-              <th key={c.planet} scope="col" className="astro-symbol px-2 py-2 text-center font-normal text-gold-soft" title={c.planet}>
+              <th key={c.planet} scope="col" className="astro-symbol px-2 py-2 text-center font-normal text-gold-soft">
                 {c.symbol}
               </th>
             ))}
@@ -50,9 +57,13 @@ export function EphemerisTable({ year, month, rows }: { year: number; month: num
                 </th>
                 {row.cells.map((c) => (
                   <td key={c.planet} className="whitespace-nowrap px-2 py-1.5 text-center text-starlight">
-                    <span className="astro-symbol text-gold-soft">{c.signKo.slice(0, 2)}</span>{" "}
+                    <span className="text-gold-soft">{c.signKo.slice(0, 2)}</span>{" "}
                     {c.degree}°{String(c.minute).padStart(2, "0")}′
-                    {c.retrograde && <span className="ml-0.5 text-gold" aria-label="역행">℞</span>}
+                    {c.retrograde && (
+                      <abbr title="역행" className="astro-symbol ml-0.5 text-gold no-underline">
+                        ℞
+                      </abbr>
+                    )}
                   </td>
                 ))}
               </tr>

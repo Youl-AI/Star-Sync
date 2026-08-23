@@ -38,4 +38,13 @@ describe("invite 왕복", () => {
       "링크에는 내 생년월일시와 출생지가 담깁니다. 궁합을 보고 싶은 사람에게만 보내세요.",
     );
   });
+  it("consumeInviteHash — 스크럽이 옮겨 둔 해시를 우선 읽는다", async () => {
+    const { consumeInviteHash } = await import("@/lib/invite");
+    (globalThis as { window?: unknown }).window = {
+      __inviteHash: `#i=${encodeInvite(P)}`,
+      location: { hash: "" },
+    };
+    expect(consumeInviteHash()).toEqual(P);
+    delete (globalThis as { window?: unknown }).window;
+  });
 });

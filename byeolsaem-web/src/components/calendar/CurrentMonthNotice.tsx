@@ -20,9 +20,9 @@ export function CurrentMonthNotice({
 }: {
   builtYear: number;
   builtMonth: number;
-  // 천문력 허브도 같은 어긋남 안내를 쓴다 — 목적지 베이스만 다르다.
+  // 천문력 허브도 같은 어긋남 안내를 쓴다 — 목적지 베이스와, "달력"이라
+  // 부르면 거짓말이 되는 이름만 다르다.
   hrefBase?: string;
-  // 천문력 허브도 같은 안내를 쓴다 — 이름까지 달력이라고 하면 거짓말이 된다.
   noun?: string;
 }) {
   const [now, setNow] = useState<Date | null>(null);

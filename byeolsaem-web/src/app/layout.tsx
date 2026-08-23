@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import { Analytics } from "@/components/analytics/Analytics";
 import { TransitionStage } from "@/components/nav/TransitionStage";
 import "./globals.css";
@@ -94,6 +95,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" className={`${maruburi.variable} ${cinzel.variable}`}>
       <body className="min-h-[100dvh] antialiased">
+        {/* 초대 fragment 스크럽 — GA(afterInteractive)가 로드되기 전에, 동기로 실행되는
+            이 한 줄이 #i=…를 주소에서 걷어 메모리로 옮긴다. gtag의 dl= 파라미터는
+            location.href 전체를 구글로 보내므로, 걷어내지 않으면 초대에 담긴 출생
+            정보가 애널리틱스로 새어 나간다(최종 리뷰 M-1). */}
+        <Script id="invite-hash-scrub" strategy="beforeInteractive">
+          {`(function(){try{var h=location.hash;if(h&&h.indexOf("#i=")===0){window.__inviteHash=h;history.replaceState(null,"",location.pathname+location.search);}}catch(e){}})();`}
+        </Script>
         {children}
         {/* 페이지 전환 크로스페이드(TransitionStage 주석 참고).
             두 세계 모두에 걸쳐야 하므로 여기, 문서 뼈대에 마운트한다. */}

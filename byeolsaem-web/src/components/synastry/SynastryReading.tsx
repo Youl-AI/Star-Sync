@@ -14,7 +14,7 @@ import { getSunSign } from "@/lib/zodiac";
 import { signArt } from "@/lib/share-card";
 import { firstSentence } from "@/lib/text";
 import { openBirthPanel, requestRitual } from "@/lib/ritual";
-import { readInviteFromHash, type InvitePayload } from "@/lib/invite";
+import { consumeInviteHash, type InvitePayload } from "@/lib/invite";
 import {
   synastryReading,
   type LensView,
@@ -74,10 +74,11 @@ export function SynastryReading() {
   );
 
   // 초대 링크로 왔는가 — fragment는 마운트 후에만 읽을 수 있다(SSR엔 없다).
-  // history에서 지우지 않는다: 새로고침해도 초대가 유지되는 쪽이 받는 사람에게
-  // 편하고, 주소창·메시지에 이미 남아 있어 지워도 보안 이득이 없다.
+  // 레이아웃의 스크럽 스크립트가 GA보다 먼저 주소에서 걷어 두므로(invite.ts
+  // M-1 주석 참고) 여기서는 그 결과를 consumeInviteHash로 읽기만 한다.
+  // 그 대가로 새로고침하면 초대가 사라진다 — 받은 링크를 다시 열면 된다.
   useEffect(() => {
-    const payload = readInviteFromHash(window.location.hash);
+    const payload = consumeInviteHash();
     if (payload) {
       setInvited(payload);
       setPartner({ ...payload, concern: null });
@@ -85,14 +86,17 @@ export function SynastryReading() {
   }, []);
 
   const askPartner = () => {
-    // 배너가 초대가 아닌 상대 위에 남으면 거짓말이 된다.
-    setInvited(null);
     openBirthPanel({
       kicker: "THEIR SKY",
       title: "상대의 밤하늘",
       description:
         "상대의 정보는 저장하지 않습니다. 이 화면을 떠나거나 새로고침하면 사라집니다.",
-      onComplete: setPartner,
+      // 배너가 초대가 아닌 상대 위에 남으면 거짓말이 된다 — 단, 취소하면(패널을
+      // 닫기만 하면) 초대 상태는 그대로 둔다. 실제로 입력을 마쳤을 때만 지운다.
+      onComplete: (d) => {
+        setInvited(null);
+        setPartner(d);
+      },
       // 관심사는 묻지 않는다. 그 사람의 운세를 보는 것이 아니라 두 하늘이 만나는
       // 자리를 보는 것이라 상대의 관심사로는 할 일이 없다. 이 관계의 무엇을 볼지는
       // 결과 화면에서 내가 고른다.
@@ -103,9 +107,14 @@ export function SynastryReading() {
   if (!ready) return <ChartLoading />;
   // 정보가 없으면 요구부터 하지 않는다 — 예시 궁합을 먼저 보여준다(ExampleMeeting 주석 참고).
   // 단, 초대를 받아 온 것이라면 예시로 빠지지 않는다 — 상대의 하늘이 이미 와 있다.
-  if (!profile && !invited) return <ExampleMeeting />;
   if (!profile) return invited ? <InvitedIntro invited={invited} /> : <ExampleMeeting />;
-  if (!myChart) return <UnknownPlace city={profile.city} />;
+  if (!myChart)
+    return (
+      <>
+        {invited && <InviteBanner invited={invited} />}
+        <UnknownPlace city={profile.city} />
+      </>
+    );
 
   return (
     <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">

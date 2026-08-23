@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CalMonthNav } from "@/components/calendar/CalMonthNav";
-import { EphemerisTable, SIGN_LEGEND } from "@/components/ephemeris/EphemerisTable";
+import { EphemerisTable, PLANET_LEGEND, SIGN_LEGEND } from "@/components/ephemeris/EphemerisTable";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
@@ -74,7 +74,7 @@ export default async function EphemerisMonthPage({ params }: { params: Promise<{
         prevHref={idx > 0 ? monthHref(MONTHS[idx - 1]) : null}
         nextHref={idx < MONTHS.length - 1 ? monthHref(MONTHS[idx + 1]) : null}
       />
-      <p className="mt-3 text-meta text-starlight-dim">{SIGN_LEGEND}</p>
+      <p className="mt-3 text-meta text-starlight-dim">{SIGN_LEGEND} · {PLANET_LEGEND}</p>
       <EphemerisTable year={year} month={month} rows={monthTable(year, month)} />
       <NextSteps
         lead="이 달의 원자료가 당신의 차트에서는 무엇을 뜻하는지 — 태어난 순간을 넣으면 바로 나옵니다."
