@@ -42,9 +42,10 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: "/sign", label: "열두 별자리", desc: "각 자리의 성격과 곁에 서는 자리들" },
       { href: "/blog", label: "칼럼", desc: "별을 읽는 법에 대한 글" },
+      { href: "/ephemeris", label: "천문력", desc: "날짜별 행성 위치의 원자료" },
     ],
   },
 ];
 
 /** 금색 새 표시(●). 출시 4주 뒤(2026-09-20께) 이 배열을 비운다. */
-export const NAV_NEW: string[] = ["/weekly", "/calendar", "/solar-return"];
+export const NAV_NEW: string[] = ["/weekly", "/calendar", "/solar-return", "/ephemeris"];

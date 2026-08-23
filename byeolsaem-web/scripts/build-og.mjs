@@ -274,6 +274,7 @@ const PAGE_CARDS = [
   { file: "calendar.png", eyebrow: "SKY CALENDAR", title: "하늘의 달력", sub: "신월과 보름, 역행의 시작과 끝", motif: "wheel" },
   { file: "weekly.png", eyebrow: "THIS WEEK", title: "이번 주 하늘", sub: "이레 동안 하늘에 일어나는 일", motif: "horizon" },
   { file: "solar-return.png", eyebrow: "SOLAR RETURN", title: "솔라 리턴", sub: "생일마다 새로 그려지는 일 년의 지도", motif: "rings" },
+  { file: "ephemeris.png", eyebrow: "EPHEMERIS", title: "천문력", sub: "날짜별 행성 위치, 원자료 그대로", motif: "horizon" },
 ];
 
 async function render(element, file, font) {

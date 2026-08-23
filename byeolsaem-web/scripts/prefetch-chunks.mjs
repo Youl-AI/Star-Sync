@@ -33,6 +33,7 @@ const NAV_TARGETS = [
   "weekly.html",
   "solar-return.html",
   "blog.html",
+  "ephemeris.html",
 ];
 
 const CHUNK_RE = /\/_next\/static\/chunks\/[^"']+\.js/g;
