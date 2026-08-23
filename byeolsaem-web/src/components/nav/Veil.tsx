@@ -1,45 +1,24 @@
 "use client";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import type { NavAmbient } from "@/lib/nav-ambient";
 import { Wordmark } from "../brand/Wordmark";
+import { AmbientLine } from "./AmbientLine";
 import { BirthMenu } from "./BirthMenu";
+import { DIRECT_LINKS, NAV_GROUPS, NAV_NEW } from "./nav-map";
 
-// 모바일 오버레이가 md:hidden으로 사라지는 기준(Tailwind md)과 반드시 일치해야 한다.
-const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
+const DAY_MS = 86400000;
 
 /**
- * 머리글의 길. 성격이 다른 두 무리로 나눈다.
+ * 머리글. 헤더에는 직통 셋(오늘·천궁도·궁합)만 두고, 나머지는 전부 전체화면
+ * 오버레이 하나로 모은다(2026-08-23 IA 개편).
  *
- *   도구  — 내 출생 정보가 있어야 말이 되는 곳
- *   읽을거리 — 누가 보든 같은 것이 나오는 곳
- *
- * 전에는 여기서 /natal·/synastry·/today가 빠져 있었다. 만들어지지 않은
- * 페이지였던 시절의 흔적인데, 그 사이 셋 다 생겼고 색인까지 열었다. 그래서
- * 구글에서 "천궁도"로 들어온 사람이 궁합이 있다는 것조차 알 길이 없었다 —
- * 유일한 통로가 메인의 세로 여정을 스크롤해 세 개의 문까지 내려가는 것이었다.
- *
- * 라벨은 줄인다. 페이지 안의 제목은 "오늘의 하늘"·"한 해의 하늘" 그대로 두되
- * 여기서는 "오늘"·"한 해"로 적는다 — 일곱 개가 한 줄에 서려면 글자가 짧아야
- * 하고, 문맥이 있는 자리에서는 짧은 쪽이 오히려 빨리 읽힌다.
- *
- * 소개는 뺐다. 바닥글에 이미 있어서 두 번 걸 이유가 없다.
+ * 이전에는 데스크톱 인라인 목록과 모바일 오버레이가 서로 다른 목록·다른
+ * 마크업을 썼다. 그래서 페이지가 늘 때마다 두 곳을 같이 고쳐야 했고, 실제로
+ * /natal·/synastry·/today가 한쪽에서만 빠진 채 방치된 적이 있었다. 오버레이를
+ * 전 해상도 공용으로 만들면 그 목록은 nav-map.ts 하나뿐이다.
  */
-const TOOLS = [
-  { href: "/natal", label: "천궁도" },
-  { href: "/today", label: "오늘" },
-  { href: "/yearly", label: "한 해" },
-  { href: "/synastry", label: "궁합" },
-];
-
-const READS = [
-  { href: "/sign", label: "별자리" },
-  { href: "/retrograde", label: "수성 역행" },
-  { href: "/blog", label: "칼럼" },
-];
-
-const LINKS = [...TOOLS, ...READS];
-
-export function Veil() {
+export function Veil({ ambient }: { ambient: NavAmbient }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -51,17 +30,6 @@ export function Veil() {
     const io = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting));
     io.observe(el);
     return () => io.disconnect();
-  }, []);
-
-  // 뷰포트가 데스크톱 폭(md)으로 전환되면 오버레이(md:hidden)가 사라지므로
-  // open 상태와 body scroll lock도 함께 정리한다 (기기 회전/창 크기 조절 대응).
-  useEffect(() => {
-    const mql = window.matchMedia(DESKTOP_MEDIA_QUERY);
-    const onChange = (e: MediaQueryListEvent) => {
-      if (e.matches) setOpen(false);
-    };
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
   }, []);
 
   // 오버레이가 열려 있는 동안: Escape로 닫기 + 배경 스크롤 잠금
@@ -97,95 +65,133 @@ export function Veil() {
             <Wordmark size="nav" />
           </Link>
 
-          <div className="hidden items-center gap-5 md:flex lg:gap-7">
-            {TOOLS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-sm text-starlight-dim transition-colors hover:text-starlight"
-              >
-                {l.label}
-              </Link>
-            ))}
-            {/* 두 무리를 가르는 금선. 일곱이 평평하게 늘어서면 무엇이 도구이고
-                무엇이 읽을거리인지 구분이 사라진다. */}
-            <span aria-hidden className="h-3.5 w-px bg-gold/25" />
-            {READS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-sm text-starlight-dim transition-colors hover:text-starlight"
-              >
-                {l.label}
-              </Link>
-            ))}
-            {/* 예전에는 #hero로 가는 앵커였다. 히어로가 있는 메인에서는 맞았지만
-                /sign·/retrograde·/natal에는 그 자리가 없어 눌러도 아무 일도
-                일어나지 않았다. requestRitual이 히어로가 있으면 그리로 데려가고,
-                없으면 패널을 연다(RENEWAL_PLAN §11.4). */}
-            {/* 저장된 정보가 있으면 여기가 메뉴가 된다(BirthMenu 주석 참고). */}
-            <BirthMenu variant="nav" />
-          </div>
+          <div className="flex items-center gap-6">
+            {/* 직통 셋. 나머지 전부는 오버레이 안 nav-map 그룹에 있다. */}
+            <div className="flex items-center gap-5 max-md:hidden lg:gap-7">
+              {DIRECT_LINKS.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="text-sm text-starlight-dim transition-colors hover:text-starlight"
+                >
+                  {l.label}
+                </Link>
+              ))}
+              {/* 저장된 정보가 있으면 여기가 메뉴가 된다(BirthMenu 주석 참고). */}
+              <BirthMenu variant="nav" />
+            </div>
 
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="메뉴"
-            aria-expanded={open}
-            aria-controls="mobile-nav-overlay"
-            className="relative flex size-10 flex-col items-center justify-center gap-1.5 md:hidden"
-          >
-            <span
-              className={`h-px w-5 bg-starlight transition-transform duration-300 ${
-                open ? "translate-y-[3.5px] rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`h-px w-5 bg-starlight transition-transform duration-300 ${
-                open ? "-translate-y-[3.5px] -rotate-45" : ""
-              }`}
-            />
-          </button>
+            {/* 오버레이는 이제 전 해상도 공용이라 이 버튼도 md:hidden이 아니다. */}
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? "닫기" : "메뉴"}
+              aria-expanded={open}
+              aria-controls="fullscreen-nav"
+              className="flex items-center gap-2 text-sm text-starlight-dim transition-colors hover:text-starlight"
+            >
+              <span className="relative flex size-5 flex-col items-center justify-center gap-1.5">
+                <span
+                  className={`h-px w-5 bg-current transition-transform duration-300 ${
+                    open ? "translate-y-[3.5px] rotate-45" : ""
+                  }`}
+                />
+                <span
+                  className={`h-px w-5 bg-current transition-transform duration-300 ${
+                    open ? "-translate-y-[3.5px] -rotate-45" : ""
+                  }`}
+                />
+              </span>
+              {open ? "닫기" : "메뉴"}
+            </button>
+          </div>
         </nav>
       </header>
 
       <div
-        id="mobile-nav-overlay"
-        className={`nebula-bg fixed inset-0 z-30 flex flex-col items-center justify-center gap-8 transition-opacity duration-300 md:hidden ${
+        id="fullscreen-nav"
+        inert={!open}
+        aria-hidden={!open}
+        className={`nebula-bg fixed inset-0 z-30 flex flex-col transition-opacity duration-300 ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
-        aria-hidden={!open}
       >
-        {LINKS.map((l, i) => (
-          <Fragment key={l.href}>
-            <Link
-              href={l.href}
-              tabIndex={open ? 0 : -1}
-              onClick={() => setOpen(false)}
-              style={{ transitionDelay: open ? `${i * 60}ms` : "0ms" }}
-              className={`font-display text-2xl text-starlight transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 ${
-                open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-              }`}
-            >
-              {l.label}
-            </Link>
-            {/* 도구와 읽을거리 사이. 데스크톱의 금선과 같은 자리를 세로로 옮긴 것이다. */}
-            {i === TOOLS.length - 1 && (
-              <span aria-hidden className="h-px w-10 bg-gold/25" />
-            )}
-          </Fragment>
-        ))}
-        {/* 데스크톱의 금색 인장은 md:flex 안에 있어 모바일에서는 보이지 않았다.
-            그래서 휴대폰으로 온 사람에게는 저장된 정보를 지울 길이 아예 없었다. */}
-        <div
-          style={{ transitionDelay: open ? `${LINKS.length * 60}ms` : "0ms" }}
-          className={`mt-2 border-t border-gold/15 pt-8 transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 ${
-            open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-          }`}
-        >
-          <BirthMenu variant="sheet" onNavigate={() => setOpen(false)} />
+        <div className="h-16 flex-none" /> {/* 헤더 높이만큼 비운다 — 헤더는 위에 그대로 떠 있다 */}
+        <div className="flex flex-1 items-center justify-center overflow-y-auto px-6 py-8">
+          <div className="grid w-full max-w-4xl gap-10 md:grid-cols-3 md:gap-14">
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label}>
+                <p className="border-b border-gold/20 pb-2.5 text-meta tracking-[0.28em] text-gold-soft">
+                  {group.label}
+                </p>
+                {group.links.map((link, i) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    tabIndex={open ? 0 : -1}
+                    onClick={() => setOpen(false)}
+                    style={{ transitionDelay: open ? `${60 + i * 60}ms` : "0ms" }}
+                    className={`group mt-5 block transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 ${
+                      open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                    }`}
+                  >
+                    <span className="font-display text-xl text-starlight transition-colors group-hover:text-gold-soft">
+                      {link.label}
+                      {NAV_NEW.includes(link.href) && (
+                        <span aria-hidden className="ml-1.5 align-super text-[0.55em] text-gold">●</span>
+                      )}
+                      {link.href === "/retrograde" && <RetroBadge retro={ambient.retro} />}
+                    </span>
+                    <span className="mt-0.5 block break-keep text-meta text-starlight-dim">{link.desc}</span>
+                  </Link>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex-none pb-7">
+          <AmbientLine ambient={ambient} />
+          <div className="mt-4 flex justify-center md:hidden">
+            <BirthMenu variant="sheet" onNavigate={() => setOpen(false)} />
+          </div>
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * "역행" 링크 옆의 작은 배지 — 지금 역행 중이면 "역행 중", 아니면 가장 가까운
+ * 시작까지 D-n. AmbientLine과 같은 계산이라 헬퍼를 nav-map이 아닌 여기 내부
+ * 함수로 둔다(둘 다 이 파일 트리 안에서만 쓰인다).
+ *
+ * 서버 HTML은 오버레이가 항상 닫혀 있어 이 배지도 그려지지 않는다 — 그래서
+ * AmbientLine과 같은 이유로, "지금"은 마운트 후에만 잰다(SSR 불일치 없음).
+ */
+function RetroBadge({ retro }: { retro: NavAmbient["retro"] }) {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => setNow(new Date()), []);
+  if (!now) return null;
+
+  const t = now.getTime();
+  const active = retro.find((r) => Date.parse(r.start) <= t && t < Date.parse(r.end));
+  if (active) {
+    return (
+      <span className="ml-2 border border-gold/25 px-1.5 py-0.5 align-middle font-sans text-[0.6rem] tracking-[0.08em] text-gold">
+        역행 중
+      </span>
+    );
+  }
+
+  const upcoming = retro
+    .filter((r) => Date.parse(r.start) > t)
+    .sort((a, b) => a.start.localeCompare(b.start))[0];
+  if (!upcoming) return null;
+
+  const dday = Math.ceil((Date.parse(upcoming.start) - t) / DAY_MS);
+  return (
+    <span className="ml-2 border border-gold/25 px-1.5 py-0.5 align-middle font-sans text-[0.6rem] tracking-[0.08em] text-gold">
+      {`D-${dday}`}
+    </span>
   );
 }

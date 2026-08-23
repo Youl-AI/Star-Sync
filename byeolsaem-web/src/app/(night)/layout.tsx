@@ -1,6 +1,6 @@
 import { SkyBackdrop } from "@/components/sky/SkyBackdrop";
 import { BirthPanel } from "@/components/birth/BirthPanel";
-import { Veil } from "@/components/nav/Veil";
+import { NavVeil } from "@/components/nav/NavVeil";
 import { SmoothScroll } from "@/components/SmoothScroll";
 
 /**
@@ -27,7 +27,7 @@ export default function NightLayout({ children }: { children: React.ReactNode })
           그보다 항상 위에 있다. */}
       <SmoothScroll />
       <SkyBackdrop />
-      <Veil />
+      <NavVeil />
       <div className="relative z-10">{children}</div>
 
       {/* 출생 정보를 어느 페이지에서든 받는다. 메인에는 히어로의 의식이 따로 있어
