@@ -8,6 +8,7 @@ import { EXAMPLE_BIRTH, exampleSolarReturn } from "@/lib/example-sky";
 import { formatKstDate } from "@/lib/retrograde-clock";
 import { requestRitual } from "@/lib/ritual";
 import { solarReturnChart } from "@/lib/solar-return";
+import { UnknownPlace } from "@/components/chart/NoProfile";
 import { composeSolarReading, type SolarAxis } from "./solar-reading";
 
 /**
@@ -55,6 +56,15 @@ export function SolarScope({ builtAt }: { builtAt: string }) {
   // chart 기준 — solarReturnChart가 출생 시각을 모르면 chart.timeUnknown을 세운다
   // (profile.time과 어긋나지 않게 한 곳만 본다).
   const timeUnknown = mine !== null && data.chart.timeUnknown;
+
+  // 프로필은 있는데 저장된 지역명의 좌표를 못 찾은 경우 — 예시로 조용히 빠지지
+  // 않는다. YearScope의 "profile && !reading → UnknownPlace" 분기와 같은 자리다
+  // (최종 리뷰 I-2). ready 가드는 없어도 된다: 마운트 전에는 profile이 항상
+  // null이라 이 분기에 들어오지 않고, 서버 HTML과 첫 클라이언트 렌더는 그대로
+  // 예시 경로를 탄다.
+  if (profile && now && !coordinatesFor(profile.city)) {
+    return <UnknownPlace city={profile.city} />;
+  }
 
   return (
     <div className="mx-auto max-w-2xl">

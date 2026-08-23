@@ -4,7 +4,8 @@ import type { CalendarEvent } from "@/lib/calendar-events";
 import type { retroSpans } from "@/lib/calendar-events";
 
 const DOW = ["일", "월", "화", "수", "목", "금", "토"];
-const BAND_COLOR: Record<string, string> = {
+/** 행성별 밴드 색 — 그리드와 MonthSection의 범례가 같은 값을 본다(최종 리뷰 M-2). */
+export const BAND_COLOR: Record<string, string> = {
   mercury: "bg-[#8ca5cd]/85",
   venus: "bg-[#c98f8f]/85",
   mars: "bg-[#cd8f6a]/85",
@@ -47,7 +48,6 @@ export function MonthGrid({
 
   return (
     <div
-      role="table"
       aria-label={`${year}년 ${month}월 하늘의 달력`}
       className="mt-6 grid grid-cols-7 border-l border-t border-gold/10"
     >

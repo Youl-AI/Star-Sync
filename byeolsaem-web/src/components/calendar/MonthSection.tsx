@@ -1,7 +1,7 @@
 import { monthEvents, retroSpans } from "@/lib/calendar-events";
 import { CalMonthNav } from "./CalMonthNav";
 import { MonthEventList } from "./MonthEventList";
-import { MonthGrid } from "./MonthGrid";
+import { BAND_COLOR, MonthGrid } from "./MonthGrid";
 
 export function MonthSection({
   year,
@@ -24,9 +24,9 @@ export function MonthSection({
       <div className="flex flex-wrap gap-x-5 gap-y-1 pt-3 text-meta text-starlight-dim">
         <span className="inline-flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-gold" /> 신월</span>
         <span className="inline-flex items-center gap-1.5"><span className="size-1.5 rounded-full border border-gold" /> 보름</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-3.5 bg-[#8ca5cd]/85" /> 수성 역행</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-3.5 bg-[#c98f8f]/85" /> 금성 역행</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-3.5 bg-[#cd8f6a]/85" /> 화성 역행</span>
+        <span className="inline-flex items-center gap-1.5"><span className={`h-0.5 w-3.5 ${BAND_COLOR.mercury}`} /> 수성 역행</span>
+        <span className="inline-flex items-center gap-1.5"><span className={`h-0.5 w-3.5 ${BAND_COLOR.venus}`} /> 금성 역행</span>
+        <span className="inline-flex items-center gap-1.5"><span className={`h-0.5 w-3.5 ${BAND_COLOR.mars}`} /> 화성 역행</span>
       </div>
       <MonthGrid year={year} month={month} events={events} spans={spans} />
       <MonthEventList events={events} />

@@ -8,9 +8,12 @@ import Link from "next/link";
  */
 function setDir(dir: "prev" | "next") {
   document.documentElement.dataset.calDir = dir;
+  // TransitionStage의 커밋 데드라인은 1200ms — 그보다 짧게 지우면 늦게 커밋된
+  // 전환이 방향 없이 걸려 다음 무관한 이동까지 슬라이드 없이 어긋난다(최종 리뷰
+  // M-7). 1300ms로 여유를 둔다.
   window.setTimeout(() => {
     delete document.documentElement.dataset.calDir;
-  }, 600);
+  }, 1300);
 }
 
 export function CalMonthNav({

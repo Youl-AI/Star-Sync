@@ -11,7 +11,6 @@ import { signAtLongitude } from "./zodiac";
  * 값이 시각의 함수가 아니라 표라서, 배포가 며칠 묵어도 어긋나지 않는다.
  */
 export interface NavAmbient {
-  builtAt: string;
   /** 달이 이 시각(ISO)까지 이 자리에 있다 — 60일치, 시간순. */
   moonSegments: { until: string; signKo: string }[];
   /** 다가오는 삭망 — 60일치. */
@@ -65,7 +64,6 @@ export function navAmbient(now: Date): NavAmbient {
   }
 
   return {
-    builtAt: now.toISOString(),
     moonSegments,
     lunations: lunationsBetween(now, windowEnd),
     retro,

@@ -52,16 +52,30 @@ export function eventsBetween(from: Date, to: Date): CalendarEvent[] {
   return events.sort((a, b) => a.date.localeCompare(b.date));
 }
 
+/** (year,month) → 결과. 순수 함수라 캐시는 안전하고, 같은 달을 여러 페이지가
+ *  반복해 묻는다(허브 + 월별 페이지 + 사이트맵 메타데이터). */
+const monthEventsCache = new Map<string, CalendarEvent[]>();
+
 export function monthEvents(year: number, month: number): CalendarEvent[] {
+  const key = `${year}-${month}`;
+  const cached = monthEventsCache.get(key);
+  if (cached) return cached;
   const { from, to } = kstMonthRange(year, month);
-  return eventsBetween(from, to);
+  const result = eventsBetween(from, to);
+  monthEventsCache.set(key, result);
+  return result;
 }
+
+const retroSpansCache = new Map<string, { planet: RetroPlanet; planetKo: string; start: string; end: string }[]>();
 
 /** 그 달에 걸쳐 있는 역행 기간 — 그리드의 밴드 렌더용. 잘라내지 않고 원 구간을 준다. */
 export function retroSpans(
   year: number,
   month: number,
 ): { planet: RetroPlanet; planetKo: string; start: string; end: string }[] {
+  const key = `${year}-${month}`;
+  const cached = retroSpansCache.get(key);
+  if (cached) return cached;
   const { from, to } = kstMonthRange(year, month);
   const out: { planet: RetroPlanet; planetKo: string; start: string; end: string }[] = [];
   for (const planet of RETRO_PLANETS) {
@@ -76,6 +90,7 @@ export function retroSpans(
       }
     }
   }
+  retroSpansCache.set(key, out);
   return out;
 }
 
@@ -94,3 +109,10 @@ export function calendarMonths(now: Date): { year: number; month: number }[] {
   }
   return months;
 }
+
+/**
+ * 빌드의 월 창 — 라우트 생성·허브 내비·사이트맵이 전부 이 하나를 본다.
+ * 각자 calendarMonths(new Date())를 부르면 빌드가 KST 월 경계를 가로지를 때
+ * 창이 서로 어긋나, 내비가 굽지 않은 달로 링크하는 404를 만든다(최종 리뷰 I-3).
+ */
+export const BUILD_MONTHS = calendarMonths(new Date());

@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import { JsonLd, breadcrumbSchema } from "@/components/seo/JsonLd";
+import { CurrentMonthNotice } from "@/components/calendar/CurrentMonthNotice";
 import { IcsRow } from "@/components/calendar/IcsRow";
 import { MonthSection } from "@/components/calendar/MonthSection";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { PlaceBand } from "@/components/place/PlaceBand";
-import { calendarMonths } from "@/lib/calendar-events";
+import { BUILD_MONTHS } from "@/lib/calendar-events";
 import { alternatesFor, ogImage } from "@/lib/metadata";
 
 /**
  * 하늘의 달력 허브 — 이번 달. /today처럼 내용이 달마다 회전하는 페이지라
  * canonical은 /calendar 자신이다. 월별 상세는 [year]/[month]가 갖는다.
  */
-const MONTHS = calendarMonths(new Date());
+const MONTHS = BUILD_MONTHS;
 const CURRENT = MONTHS[1]; // [0]이 이전 달
 const pad = (n: number) => String(n).padStart(2, "0");
 const href = (m: { year: number; month: number }) => `/calendar/${m.year}/${pad(m.month)}`;
@@ -37,6 +38,7 @@ export default function CalendarPage() {
           한 장에 담았습니다. 날짜와 시각은 전부 실제 천문 계산입니다.
         </p>
       </header>
+      <CurrentMonthNotice builtYear={CURRENT.year} builtMonth={CURRENT.month} />
       <MonthSection
         year={CURRENT.year}
         month={CURRENT.month}

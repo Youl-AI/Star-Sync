@@ -41,6 +41,9 @@ export default function NotFound() {
           <GoldButton variant="outline" href="/today">
             오늘의 하늘
           </GoldButton>
+          <GoldButton variant="outline" href="/calendar">
+            하늘의 달력
+          </GoldButton>
         </div>
 
         <p className="mt-12 text-meta tracking-wide text-starlight-dim">

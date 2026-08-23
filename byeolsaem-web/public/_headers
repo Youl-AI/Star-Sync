@@ -24,3 +24,9 @@
 
 /sky.ics
   Cache-Control: public, max-age=86400
+
+# PWA 아이콘·매니페스트 — 배포에서만 바뀐다. 하루 캐시로 재검증 왕복을 없앤다.
+/pwa/*
+  Cache-Control: public, max-age=86400
+/manifest.webmanifest
+  Cache-Control: public, max-age=86400

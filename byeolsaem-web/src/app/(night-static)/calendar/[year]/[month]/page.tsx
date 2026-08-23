@@ -6,7 +6,7 @@ import { MonthSection } from "@/components/calendar/MonthSection";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { eventTitle } from "@/lib/calendar-copy";
-import { calendarMonths, monthEvents } from "@/lib/calendar-events";
+import { BUILD_MONTHS, monthEvents } from "@/lib/calendar-events";
 import { alternatesFor, ogImage } from "@/lib/metadata";
 import { formatKstDate } from "@/lib/retrograde-clock";
 
@@ -15,7 +15,7 @@ import { formatKstDate } from "@/lib/retrograde-clock";
  * 들어온다. 창은 빌드 시점의 이전 1 + 당월 + 이후 10 = 12장이고, 빌드마다 한 달씩
  * 미끄러진다. 밀려난 과거 주소는 자연히 404가 된다 — 사이트맵도 같은 창만 싣는다.
  */
-const MONTHS = calendarMonths(new Date());
+const MONTHS = BUILD_MONTHS;
 
 const pad = (n: number) => String(n).padStart(2, "0");
 export const monthHref = (m: { year: number; month: number }) => `/calendar/${m.year}/${pad(m.month)}`;

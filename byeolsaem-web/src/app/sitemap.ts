@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { POSTS } from "@/content/blog";
 import { SIGN_CONTENT } from "@/lib/sign-content";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
-import { calendarMonths } from "@/lib/calendar-events";
+import { BUILD_MONTHS } from "@/lib/calendar-events";
 
 // 정적 export라 빌드 시점에 sitemap.xml로 구워진다.
 export const dynamic = "force-static";
@@ -56,7 +56,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  const months: MetadataRoute.Sitemap = calendarMonths(new Date()).map((m) => ({
+  const months: MetadataRoute.Sitemap = BUILD_MONTHS.map((m) => ({
     url: `${BASE}/calendar/${m.year}/${String(m.month).padStart(2, "0")}`,
     changeFrequency: "monthly",
     priority: 0.6,
