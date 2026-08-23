@@ -50,8 +50,10 @@ export function decodeInvite(raw: string): InvitePayload | null;  // 실패·검
   변조된 링크가 계산기까지 내려가면 안 된다. city는 비어 있지 않은 문자열이면
   통과(좌표 실패는 기존 UnknownPlace 경로가 받는다).
 - URL 형식: `https://byeolsaem.com/synastry#i=<encoded>`. **fragment(#)인 이유**:
-  # 뒤는 브라우저 밖으로 나가지 않는다 — 서버 로그·Web Analytics·리퍼러 어디에도
-  출생 정보가 남지 않는다. 이 이유를 invite.ts 머리 주석에 명시한다.
+  # 뒤는 서버 로그·리퍼러에 남지 않는다. 단 **페이지 안의 스크립트(GA4의 gtag)는
+  fragment를 읽어 전송한다** — 최종 리뷰(M-1)에서 확인. 그래서 레이아웃에
+  beforeInteractive 스크럽 스크립트를 두어, GA가 로드되기 전에 `#i=`를 주소에서
+  걷어 `window.__inviteHash`로 옮긴다. 수신은 `consumeInviteHash()`가 담당.
 
 ### 만들기 (보내는 쪽)
 
@@ -90,9 +92,10 @@ export function decodeInvite(raw: string): InvitePayload | null;  // 실패·검
 - 받는 쪽에 내 profile이 없으면: 기존 흐름 그대로 "내 밤하늘 열기" 유도 —
   입력하면 자기 localStorage에 정상 저장되고(신규 방문자 온보딩 겸함) 결과가 뜬다.
   이때 예시(ExampleMeeting)가 아니라 초대 배너 + 유도가 우선한다.
-- "다른 사람으로"를 누르면 초대 데이터는 버려진다(setPartner가 덮어씀). fragment는
-  history.replaceState로 지우지 **않는다** — 새로고침해도 초대가 유지되는 쪽이
-  받는 사람에게 편하고, 지워도 이미 주소창·카톡에 남아 있어 보안 이득이 없다.
+- "다른 사람으로"를 누르면 초대 데이터는 **입력 완료 시점에** 버려진다(취소하면
+  초대 상태 유지 — 최종 리뷰 m-2). fragment는 스크럽 스크립트가 로드 즉시
+  지운다(위 M-1) — 새로고침하면 초대가 사라지지만, 받은 링크를 메시지에서 다시
+  열면 된다. 개인정보가 새로고침 편의보다 무겁다(설계 변경 2026-08-24).
 
 ## 2. 컴포짓 차트
 
