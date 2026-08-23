@@ -117,8 +117,10 @@ export function Veil({ ambient }: { ambient: NavAmbient }) {
         }`}
       >
         <div className="h-16 flex-none" /> {/* 헤더 높이만큼 비운다 — 헤더는 위에 그대로 떠 있다 */}
-        <div className="flex flex-1 items-center justify-center overflow-y-auto px-6 py-8">
-          <div className="grid w-full max-w-4xl gap-10 md:grid-cols-3 md:gap-14">
+        {/* items-center 금지 — 내용이 화면보다 길면 위쪽이 잘려 스크롤로도 못 닿는다.
+            자식의 m-auto는 공간이 남을 때만 가운데로 오고, 넘치면 0으로 접힌다. */}
+        <div className="flex flex-1 justify-center overflow-y-auto px-6 py-8">
+          <div className="m-auto grid w-full max-w-4xl gap-10 md:grid-cols-3 md:gap-14">
             {NAV_GROUPS.map((group) => (
               <div key={group.label}>
                 <p className="border-b border-gold/20 pb-2.5 text-meta tracking-[0.28em] text-gold-soft">
