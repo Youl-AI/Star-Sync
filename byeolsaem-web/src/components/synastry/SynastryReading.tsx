@@ -14,6 +14,7 @@ import { getSunSign } from "@/lib/zodiac";
 import { signArt } from "@/lib/share-card";
 import { firstSentence } from "@/lib/text";
 import { openBirthPanel, requestRitual } from "@/lib/ritual";
+import { readInviteFromHash, type InvitePayload } from "@/lib/invite";
 import {
   synastryReading,
   type LensView,
@@ -24,6 +25,7 @@ import { ChartLoading, UnknownPlace } from "@/components/chart/NoProfile";
 import { CompositeSection } from "./CompositeSection";
 import { ExampleMeeting } from "./ExampleMeeting";
 import { GoldButton } from "@/components/ui/GoldButton";
+import { InviteButton } from "./InviteButton";
 import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { MotionScope } from "@/components/ui/MotionScope";
@@ -60,6 +62,8 @@ export function SynastryReading() {
    */
   const [concern, setConcern] = useState<string | null>(null);
   const chosen = concern ?? profile?.concern ?? null;
+  /** 초대 링크로 왔는가. 화면 상태까지만 간다 — localStorage에는 남기지 않는다. */
+  const [invited, setInvited] = useState<InvitePayload | null>(null);
 
   const myChart = useChartOf(profile);
   const theirChart = useChartOf(partner);
@@ -69,7 +73,20 @@ export function SynastryReading() {
     [myChart, theirChart, chosen],
   );
 
-  const askPartner = () =>
+  // 초대 링크로 왔는가 — fragment는 마운트 후에만 읽을 수 있다(SSR엔 없다).
+  // history에서 지우지 않는다: 새로고침해도 초대가 유지되는 쪽이 받는 사람에게
+  // 편하고, 주소창·메시지에 이미 남아 있어 지워도 보안 이득이 없다.
+  useEffect(() => {
+    const payload = readInviteFromHash(window.location.hash);
+    if (payload) {
+      setInvited(payload);
+      setPartner({ ...payload, concern: null });
+    }
+  }, []);
+
+  const askPartner = () => {
+    // 배너가 초대가 아닌 상대 위에 남으면 거짓말이 된다.
+    setInvited(null);
     openBirthPanel({
       kicker: "THEIR SKY",
       title: "상대의 밤하늘",
@@ -81,10 +98,13 @@ export function SynastryReading() {
       // 결과 화면에서 내가 고른다.
       askConcern: false,
     });
+  };
 
   if (!ready) return <ChartLoading />;
   // 정보가 없으면 요구부터 하지 않는다 — 예시 궁합을 먼저 보여준다(ExampleMeeting 주석 참고).
-  if (!profile) return <ExampleMeeting />;
+  // 단, 초대를 받아 온 것이라면 예시로 빠지지 않는다 — 상대의 하늘이 이미 와 있다.
+  if (!profile && !invited) return <ExampleMeeting />;
+  if (!profile) return invited ? <InvitedIntro invited={invited} /> : <ExampleMeeting />;
   if (!myChart) return <UnknownPlace city={profile.city} />;
 
   return (
@@ -128,7 +148,13 @@ export function SynastryReading() {
       </aside>
 
       <div className="min-w-0">
+        {invited && <InviteBanner invited={invited} />}
         {!partner && <AskPartner onAsk={askPartner} />}
+        {!partner && (
+          <div className="mt-10">
+            <InviteButton profile={profile} />
+          </div>
+        )}
         {partner && !theirChart && (
           <div className="py-8">
             <UnknownPlace city={partner.city} />
@@ -247,6 +273,10 @@ export function SynastryReading() {
               </div>
             )}
 
+            <div className="mt-8">
+              <InviteButton profile={profile} />
+            </div>
+
             {/* 상대의 생년월일을 방금 받았으니 그 사람의 태양궁을 이미 안다.
                 일반 메뉴 대신 그 자리로 보낸다 — 열두 장을 이미 써 두었고,
                 "그 사람은 어떤 사람인가"가 궁합 다음에 오는 물음이다. */}
@@ -297,6 +327,37 @@ function useChartOf(data: RitualData | null): Chart | null {
       timezoneOffsetHours: KOREA_UTC_OFFSET_HOURS,
     });
   }, [data]);
+}
+
+/** 초대 링크로 왔다는 것을 알리는 띠 — 상대가 이미 보내 둔 하늘. */
+function InviteBanner({ invited }: { invited: InvitePayload }) {
+  return (
+    <p className="mb-8 border border-gold/25 bg-ink-raised/60 px-4 py-3 break-keep text-guide text-starlight-dim">
+      누군가 궁합을 청했습니다 · {formatBirthDate(invited.date)}의 하늘이 도착해 있어요.
+    </p>
+  );
+}
+
+/**
+ * 초대 링크로 왔지만 아직 내 하늘을 열지 않은 상태 — ExampleMeeting 대신 이
+ * 화면을 보여준다. 예시로 흘려보내면 이미 도착해 있는 상대의 하늘이 묻힌다.
+ * 내 정보를 넣으면(useBirthProfile 갱신) 다음 렌더에서 곧장 결과로 넘어간다.
+ */
+function InvitedIntro({ invited }: { invited: InvitePayload }) {
+  return (
+    <div className="mx-auto max-w-[52ch] py-16">
+      <InviteBanner invited={invited} />
+      <p className="break-keep leading-relaxed text-starlight">
+        받은 것은 상대의 하늘입니다. 당신의 순간을 넣으면 두 하늘이 만나는 자리가 곧장
+        열립니다.
+      </p>
+      <div className="mt-8">
+        <GoldButton variant="solid" onClick={() => requestRitual()}>
+          내 밤하늘 열기
+        </GoldButton>
+      </div>
+    </div>
+  );
 }
 
 function AskPartner({ onAsk }: { onAsk: () => void }) {
