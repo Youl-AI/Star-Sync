@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Analytics } from "@/components/analytics/Analytics";
 import { TransitionStage } from "@/components/nav/TransitionStage";
@@ -39,6 +39,8 @@ export const metadata: Metadata = {
   title: "별샘 | 당신이 태어난 밤, 하늘은 기억하고 있어요",
   description:
     "태어난 순간의 실제 하늘로 읽는 나의 이야기. 천궁도, 오늘의 하늘, 별자리 궁합.",
+  // PWA — 홈 화면에 설치할 때 이름·아이콘·테마색을 읽어가는 곳(scripts/build-pwa-icons.mjs 참고).
+  manifest: "/manifest.webmanifest",
   verification: {
     // 네이버 서치어드바이저 소유 확인. 한국어 사이트라 네이버 유입이 구글만큼
     // 중요한데 그동안 등록조차 되어 있지 않았다. 확인이 끝난 뒤에도 지우지
@@ -67,6 +69,10 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
 };
+
+// 설치된 상태에서 상태 표시줄·주소창 색을 사이트 잉크색으로 맞춘다(manifest.webmanifest의
+// theme_color와 같은 값 — 브라우저 크롬과 PWA 셸이 어긋나지 않게).
+export const viewport: Viewport = { themeColor: "#0b1026" };
 
 /**
  * 최상위 레이아웃은 문서 뼈대와 폰트만 맡는다.
