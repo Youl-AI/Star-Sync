@@ -1,6 +1,7 @@
 "use client";
 import { EXAMPLE_PARTNER_BIRTH, exampleMeeting } from "@/lib/example-sky";
 import { requestRitual } from "@/lib/ritual";
+import { CompositeSection } from "./CompositeSection";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { ToneBadge } from "@/components/ui/ToneBadge";
 
@@ -13,7 +14,7 @@ import { ToneBadge } from "@/components/ui/ToneBadge";
  * 금실 그림과 나머지 스무 개 남짓의 만남은 내 궁합의 몫이다.
  */
 export function ExampleMeeting() {
-  const { reading } = exampleMeeting();
+  const { mine, theirs, reading } = exampleMeeting();
   const named = reading.lines.find((line) => line.highlight);
 
   return (
@@ -94,6 +95,8 @@ export function ExampleMeeting() {
           </div>
         </section>
       )}
+
+      <CompositeSection mine={mine} theirs={theirs} />
 
       {/* 예시는 여기서 잦아든다. 금실 그림과 나머지 만남들은 내 궁합의 몫. */}
       <div className="mt-14 bg-gradient-to-b from-transparent to-ink pt-14 text-center">

@@ -21,6 +21,7 @@ import {
   type SynastryReading as SynastryReadingData,
 } from "@/lib/synastry-reading";
 import { ChartLoading, UnknownPlace } from "@/components/chart/NoProfile";
+import { CompositeSection } from "./CompositeSection";
 import { ExampleMeeting } from "./ExampleMeeting";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
@@ -221,6 +222,8 @@ export function SynastryReading() {
                 </section>
               </>
             )}
+
+            <CompositeSection mine={myChart} theirs={theirChart} />
 
             {/* 궁합 결과도 밖으로 나갈 통로가 있어야 한다(정찰 ⑧). 그림은 내
                 태양 별자리 성좌 — 상대의 정보는 카드에도 남기지 않는다. */}
