@@ -269,7 +269,9 @@ export function moonArt(illumination: number, phase: MoonPhaseKey): CardSpec["ar
       const k = 1 - 2 * illumination;
       const rx = Math.abs(k) * r;
       const bright = WAXING.has(phase) ? 1 : -1;
-      const inner = (k >= 0 ? bright : -bright) as 1 | -1;
+      // MoonDisc와 같은 부호 규칙 — 초승은 밝은 쪽으로, 보름 쪽은 어두운
+      // 쪽으로 경계가 볼록하다. 뒤집으면 보름이 빈 원이 된다(2026-08-26).
+      const inner = (k >= 0 ? -bright : bright) as 1 | -1;
       const path = new Path2D();
       // 바깥 반원 — 밝은 쪽 가장자리.
       path.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, bright === -1);

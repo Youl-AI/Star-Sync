@@ -31,7 +31,10 @@ export function MoonDisc({
   const rx = Math.abs(k) * r;
   // 스윕 방향: 차오르는 달은 오른쪽이 밝다.
   const outer = WAXING.has(phase) ? 1 : 0;
-  const inner = k >= 0 ? outer : 1 - outer;
+  // 명암 경계 타원의 방향. 초승(k>0)은 밝은 쪽으로 볼록해 실낱이 되고,
+  // 보름 쪽(k<0)은 어두운 쪽으로 볼록해 반원 너머까지 차오른다. 이 부호가
+  // 뒤집혀 있으면 96%가 실낱로, 보름이 빈 원으로 그려진다(2026-08-26 실측).
+  const inner = k >= 0 ? 1 - outer : outer;
 
   return (
     <svg viewBox="0 0 120 120" className="mx-auto mt-4 w-[108px]" aria-hidden>
