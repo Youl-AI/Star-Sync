@@ -84,6 +84,11 @@ export async function shareToKakao(share: {
       content: {
         title: share.text,
         imageUrl: location.origin + share.imagePath,
+        // /og 카드의 실제 치수. 안 넘기면 카카오가 원본 비율을 모른 채
+        // 정사각형에 가깝게 잘라 보여준다(2026-08-26 실사용 보고 — 카드
+        // 왼쪽 글이 통째로 잘림). 넘기면 가로형 비율 그대로 렌더된다.
+        imageWidth: 1200,
+        imageHeight: 630,
         link,
       },
       buttons: [{ title: share.buttonTitle ?? "별샘에서 보기", link }],
