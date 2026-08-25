@@ -9,7 +9,7 @@ import { getFortuneYear } from "@/lib/date";
 import { pinCapable } from "@/lib/pin";
 import { requestRitual } from "@/lib/ritual";
 import { signArt } from "@/lib/share-card";
-import { getSunSign } from "@/lib/zodiac";
+import { SIGN_SYMBOL, getSunSign } from "@/lib/zodiac";
 import {
   formatYearDate,
   yearReading,
@@ -456,6 +456,7 @@ function PersonalYear({ year }: { year: number }) {
                   name: `${year}년의 하늘`,
                   latin: `YEAR ${year}`,
                   range: profile ? formatBirthDate(profile.date) : undefined,
+                  symbol: SIGN_SYMBOL[getSunSign(profile!.date).key],
                   tagline: reading.headline!,
                   // 그 사람의 태양 별자리 성좌 — 한 해 카드에도 '누구의 해'인지가 그림에 남는다.
                   art: signArt(getSunSign(profile!.date)),

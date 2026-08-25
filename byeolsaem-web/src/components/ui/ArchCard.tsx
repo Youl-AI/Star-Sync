@@ -1,6 +1,6 @@
 import { SignGlyph } from "@/components/sign/SignGlyph";
 import { ART_WIDTH, CARD_WIDTH } from "@/components/sign/signMorph";
-import type { ZodiacSign } from "@/lib/zodiac";
+import { SIGN_SYMBOL, type ZodiacSign } from "@/lib/zodiac";
 import { LineDiamond } from "./LineDiamond";
 
 /**
@@ -29,6 +29,8 @@ export function ArchCard({
   tagline,
   /** 라틴 표기 아래 한 줄. `9. 23 - 10. 23`처럼. 없으면 줄 자체가 없다. */
   range,
+  /** 선-다이아-선의 다이아 자리에 앉는 글리프(♌, ☽ 등). 없으면 다이아. */
+  symbol,
   width = DEFAULT_WIDTH,
   children,
 }: {
@@ -36,6 +38,7 @@ export function ArchCard({
   latin: string;
   tagline: string;
   range?: string;
+  symbol?: string;
   width?: number;
   children?: React.ReactNode;
 }) {
@@ -71,7 +74,7 @@ export function ArchCard({
           {range && (
             <div className="mt-1 font-latin text-eyebrow tracking-[0.16em] text-gold/80">{range}</div>
           )}
-          <LineDiamond className="my-2.5" />
+          <LineDiamond className="my-2.5" symbol={symbol} />
           <div className="text-meta italic text-gold-soft">{tagline}</div>
         </div>
       </div>
@@ -102,6 +105,7 @@ export function SignArchCard({
       latin={sign.latin}
       tagline={sign.tagline}
       range={sign.range}
+      symbol={SIGN_SYMBOL[sign.key]}
       width={width}
     >
       <SignGlyph

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { BIRTH_PROFILE_EVENT, loadBirthProfile } from "@/lib/birth-profile";
-import { getSunSign } from "@/lib/zodiac";
+import { SIGN_SYMBOL, getSunSign } from "@/lib/zodiac";
 import { MockChart } from "@/components/hero/MockChart";
 import { SignArchCard } from "@/components/ui/ArchCard";
 import { TalismanChip } from "@/components/ui/TalismanChip";
@@ -100,6 +100,7 @@ export function DeepResult() {
               name: sign.card,
               latin: sign.latin,
               range: sign.range,
+              symbol: SIGN_SYMBOL[sign.key],
               tagline: sign.tagline,
               art: signArt(sign),
             })}

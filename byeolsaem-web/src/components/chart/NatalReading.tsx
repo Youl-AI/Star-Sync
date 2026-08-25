@@ -7,6 +7,7 @@ import type { PlanetKey } from "@/lib/planets";
 import { describeElements, type ReadingPlacement } from "@/lib/reading";
 import { signArt } from "@/lib/share-card";
 import { firstSentence } from "@/lib/text";
+import { SIGN_SYMBOL } from "@/lib/zodiac";
 import { requestRitual } from "@/lib/ritual";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
@@ -244,6 +245,7 @@ export function NatalReading() {
               name: core.sun.placement.sign.ko,
               latin: "MY NIGHT SKY",
               range: formatBirthDate(profile.date),
+              symbol: SIGN_SYMBOL[core.sun.placement.sign.key],
               tagline: firstSentence(reading.oneLiner),
               art: signArt(core.sun.placement.sign),
             })}

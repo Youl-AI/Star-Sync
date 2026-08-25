@@ -10,7 +10,7 @@ import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart, type Chart } from "@/lib/chart";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
 import Link from "next/link";
-import { getSunSign } from "@/lib/zodiac";
+import { SIGN_SYMBOL, getSunSign } from "@/lib/zodiac";
 import { signArt } from "@/lib/share-card";
 import { firstSentence } from "@/lib/text";
 import { openBirthPanel, requestRitual } from "@/lib/ritual";
@@ -270,6 +270,7 @@ export function SynastryReading() {
                     name: "두 사람의 하늘",
                     latin: "TWO SKIES",
                     range: formatBirthDate(profile.date),
+                    symbol: SIGN_SYMBOL[getSunSign(profile.date).key],
                     tagline: firstSentence(reading.oneLiner!),
                     art: signArt(getSunSign(profile.date)),
                   })}

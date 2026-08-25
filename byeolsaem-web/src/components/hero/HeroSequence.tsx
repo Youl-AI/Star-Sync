@@ -10,7 +10,7 @@ import { SignArchCard } from "@/components/ui/ArchCard";
 import { TalismanChip } from "@/components/ui/TalismanChip";
 import { Moon } from "./Moon";
 import { RitualForm, type RitualData } from "./RitualForm";
-import { getSunSign } from "@/lib/zodiac";
+import { SIGN_SYMBOL, getSunSign } from "@/lib/zodiac";
 import { MockChart } from "./MockChart";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { clearBirthProfile, saveBirthProfile } from "@/lib/birth-profile";
@@ -383,6 +383,7 @@ export function HeroSequence() {
                       name: sign.card,
                       latin: sign.latin,
                       range: sign.range,
+                      symbol: SIGN_SYMBOL[sign.key],
                       tagline: sign.tagline,
                       art: signArt(sign),
                     })}

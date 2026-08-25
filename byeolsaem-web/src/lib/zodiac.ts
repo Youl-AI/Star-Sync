@@ -43,6 +43,29 @@ export interface ZodiacSign {
   ruler: string;
 }
 
+/**
+ * 12궁 점성 글리프. 부적 카드의 선-다이아-선 자리에 다이아 대신 앉는다.
+ *
+ * ZodiacSign에 필드로 넣지 않고 별도 표로 둔 이유: 글리프는 key에서 기계적으로
+ * 정해지는 값이라 12개 항목마다 반복해 적으면 데이터가 아니라 소음이 된다.
+ * 렌더링할 때는 뒤에 U+FE0E(text presentation)를 붙여 이모지 폴백을 막는다 —
+ * globals.css의 .astro-symbol 주석 참고.
+ */
+export const SIGN_SYMBOL: Record<string, string> = {
+  aries: "♈",
+  taurus: "♉",
+  gemini: "♊",
+  cancer: "♋",
+  leo: "♌",
+  virgo: "♍",
+  libra: "♎",
+  scorpio: "♏",
+  sagittarius: "♐",
+  capricorn: "♑",
+  aquarius: "♒",
+  pisces: "♓",
+};
+
 export const ZODIAC_SIGNS: ZodiacSign[] = [
   {
     key: "aries",

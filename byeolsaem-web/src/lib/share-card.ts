@@ -1,4 +1,4 @@
-import type { MoonPhaseKey } from "./moon";
+﻿import type { MoonPhaseKey } from "./moon";
 import type { ZodiacSign } from "./zodiac";
 
 /**
@@ -34,6 +34,8 @@ export interface CardSpec {
   latin: string;
   /** 라틴 표기 아래 한 줄. "9. 23 - 10. 23"처럼. */
   range?: string;
+  /** 선-다이아-선의 다이아 자리에 앉는 글리프(♌, ☽ 등). 화면 카드의 LineDiamond와 짝. */
+  symbol?: string;
   tagline: string;
   /** 아치 안 그림. 좌표계는 카드 왼쪽 위 기준의 논리 픽셀. */
   art: (ctx: CanvasRenderingContext2D, card: { w: number; h: number }) => void;
@@ -69,20 +71,36 @@ function drawSeal(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: n
   ctx.restore();
 }
 
-function drawDiamondRule(ctx: CanvasRenderingContext2D, cx: number, y: number) {
+/**
+ * 선-다이아-선. `symbol`이 오면 다이아 대신 글리프가 앉는다 — 화면 카드의
+ * LineDiamond와 같은 규칙이다. 글리프 글꼴은 .astro-symbol의 스택을 그대로
+ * 옮겼고(캔버스는 font-variant-emoji를 모르므로), U+FE0E까지 붙여 컬러
+ * 이모지 폴백을 막는다.
+ */
+function drawDiamondRule(ctx: CanvasRenderingContext2D, cx: number, y: number, symbol?: string) {
+  const gap = symbol ? 12 : 8;
   ctx.save();
   ctx.strokeStyle = "rgba(201, 162, 39, 0.5)";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(cx - 34, y);
-  ctx.lineTo(cx - 8, y);
-  ctx.moveTo(cx + 8, y);
+  ctx.lineTo(cx - gap, y);
+  ctx.moveTo(cx + gap, y);
   ctx.lineTo(cx + 34, y);
   ctx.stroke();
-  ctx.fillStyle = "rgba(227, 197, 104, 0.7)";
-  ctx.translate(cx, y);
-  ctx.rotate(Math.PI / 4);
-  ctx.fillRect(-2, -2, 4, 4);
+  if (symbol) {
+    ctx.fillStyle = "rgba(227, 197, 104, 0.9)";
+    ctx.font = `13px "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols2", "Noto Sans Symbols", sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(symbol + "\uFE0E", cx, y + 1);
+    ctx.textBaseline = "alphabetic";
+  } else {
+    ctx.fillStyle = "rgba(227, 197, 104, 0.7)";
+    ctx.translate(cx, y);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-2, -2, 4, 4);
+  }
   ctx.restore();
 }
 
@@ -172,7 +190,7 @@ async function drawCard(spec: CardSpec): Promise<HTMLCanvasElement> {
   }
 
   y += 22;
-  drawDiamondRule(ctx, cx, y);
+  drawDiamondRule(ctx, cx, y, spec.symbol);
   y += 24;
 
   ctx.fillStyle = GOLD_SOFT;

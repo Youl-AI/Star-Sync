@@ -126,6 +126,7 @@ export function TodayCard({
               name={front.phaseTitle}
               latin={`MOON IN ${front.moonSignLatin}`}
               tagline={`${front.phaseName} · 밝은 면 ${front.illumination}%`}
+              symbol="☽"
               width={240}
             >
               <MoonDisc illumination={sky.moon.illumination} phase={sky.moon.phase.key} />
@@ -139,6 +140,7 @@ export function TodayCard({
                   name: front.phaseTitle,
                   latin: `MOON IN ${front.moonSignLatin}`,
                   range: `${front.dateLine} · ${front.illumination}%`,
+                  symbol: "☽",
                   tagline: front.phaseName,
                   art: moonArt(sky.moon.illumination, sky.moon.phase.key),
                 })}
