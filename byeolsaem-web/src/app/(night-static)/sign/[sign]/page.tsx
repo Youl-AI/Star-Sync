@@ -97,6 +97,15 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
           </div>
         </div>
 
+        {/* 카드 바로 아래의 전환 동선. 공유로 들어온 사람이 남의 카드를 구경만
+            하고 돌아가는 것이 이 페이지의 가장 흔한 이탈이었다 — 맨 아래에도
+            같은 길이 있지만, 긴 풀이를 다 지나야 나와서 못 찾는다(2026-08-26). */}
+        <div data-morph-veil className="mt-8">
+          <GoldButton variant="solid" href="/">
+            나도 내 별자리 확인하기
+          </GoldButton>
+        </div>
+
         <LineDiamond className="my-14" />
       </header>
 
