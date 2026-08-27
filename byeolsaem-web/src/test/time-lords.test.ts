@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { computeChart, type BirthMoment } from "../lib/chart";
 import { ZODIAC_SIGNS } from "../lib/zodiac";
 import {
