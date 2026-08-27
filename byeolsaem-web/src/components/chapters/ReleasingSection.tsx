@@ -199,20 +199,24 @@ export function ReleasingSection({
                   지금은 {zr.currentL1.sign.ko}의 장 — {zr.currentL1.sign.tagline}의
                   시간입니다. {chapterFrame(zr.currentL1)}
                 </p>
-                {zr.currentL2 && (
-                  <p className="mt-3 break-keep text-guide text-starlight-dim">
-                    그 안의 작은 장은 {yearMonth(zr.currentL2.from)}에 열린{" "}
-                    {zr.currentL2.sign.ko}
-                    {(() => {
-                      const next = zr.l2OfCurrent[zr.l2OfCurrent.indexOf(zr.currentL2) + 1];
-                      return next
-                        ? ` — 다음 작은 장(${next.sign.ko})은 ${yearMonth(next.from)}에 열립니다.`
-                        : "이고, 이 큰 장의 마지막 작은 장입니다.";
-                    })()}
-                    {zr.currentL2.loosedBond &&
-                      " 지금의 작은 장은 매듭 풀림으로 건너뛰어 시작되었습니다 — 흐름이 한 번 꺾인 자리입니다."}
-                  </p>
-                )}
+                {zr.currentL2 &&
+                  (() => {
+                    const next = zr.l2OfCurrent[zr.l2OfCurrent.indexOf(zr.currentL2) + 1];
+                    const nextL1 = zr.l1[zr.l1.indexOf(zr.currentL1) + 1];
+                    return (
+                      <p className="mt-3 break-keep text-guide text-starlight-dim">
+                        그 안에서 지금 지나는 작은 장은 {yearMonth(zr.currentL2.from)}에
+                        열린 {zr.currentL2.sign.ko}입니다.
+                        {next
+                          ? ` ${yearMonth(next.from)}에 ${next.sign.ko}로 넘어갑니다.`
+                          : nextL1
+                            ? ` 마지막 작은 장이라, ${yearMonth(nextL1.from)}에는 ${zr.currentL1.sign.ko}의 장 전체가 막을 내리고 ${nextL1.sign.ko}의 장이 새로 열립니다.`
+                            : ""}
+                        {zr.currentL2.loosedBond &&
+                          " 이 작은 장은 매듭 풀림으로 건너뛰어 시작되었습니다 — 흐름이 한 번 꺾인 자리입니다."}
+                      </p>
+                    );
+                  })()}
               </div>
             </div>
           )}
