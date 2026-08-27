@@ -4,6 +4,12 @@ import type { BirthMoment, Chart } from "@/lib/chart";
 import { fractionalAge, zodiacalReleasing, type LotKey, type ZrPeriod } from "@/lib/time-lords";
 import { SIGN_SYMBOL } from "@/lib/zodiac";
 
+/** "2028-01-15" -> "2028. 1" — 소수 나이 대신 사람의 달력으로 말한다. */
+const yearMonth = (iso: string): string => {
+  const [y, m] = iso.split("-");
+  return `${y}. ${Number(m)}`;
+};
+
 const LOT_LABEL: Record<LotKey, { name: string; scope: string }> = {
   spirit: { name: "정신의 점", scope: "커리어와 행동의 장" },
   fortune: { name: "행운의 점", scope: "몸과 환경의 장" },
@@ -160,6 +166,9 @@ export function ReleasingSection({
               className="mx-auto w-full max-w-[340px] sm:hidden"
             />
           </div>
+          <p className="mt-3 text-center text-meta text-starlight-dim">
+            선분 하나가 인생의 한 장, 길이는 그 장의 햇수 — 작은 숫자는 장이 열리는 만 나이입니다
+          </p>
 
           {/* 현재 장의 L2 */}
           {zr.currentL1 && (
@@ -182,7 +191,8 @@ export function ReleasingSection({
                 className="mx-auto w-full max-w-[340px] sm:hidden"
               />
               <p className="mt-4 text-center text-meta text-starlight-dim">
-                위 선에서 금색으로 빛나는 지금 장을 확대한 것 — 달이 도는 작은 장(L2), 숫자는 만 나이
+                위 선에서 금색으로 빛나는 지금 장의 확대 — 별 하나가 달이 도는 작은
+                장이고, 날짜는 그 작은 장이 열리는 때입니다
               </p>
               <div className="mx-auto mt-8 max-w-[56ch] text-center">
                 <p className="break-keep leading-relaxed text-starlight">
@@ -191,9 +201,16 @@ export function ReleasingSection({
                 </p>
                 {zr.currentL2 && (
                   <p className="mt-3 break-keep text-guide text-starlight-dim">
-                    그 안의 작은 장은 지금 {zr.currentL2.sign.ko}를 지나고 있습니다.
+                    그 안의 작은 장은 {yearMonth(zr.currentL2.from)}에 열린{" "}
+                    {zr.currentL2.sign.ko}
+                    {(() => {
+                      const next = zr.l2OfCurrent[zr.l2OfCurrent.indexOf(zr.currentL2) + 1];
+                      return next
+                        ? ` — 다음 작은 장(${next.sign.ko})은 ${yearMonth(next.from)}에 열립니다.`
+                        : "이고, 이 큰 장의 마지막 작은 장입니다.";
+                    })()}
                     {zr.currentL2.loosedBond &&
-                      " 이 작은 장은 매듭 풀림으로 건너뛰어 시작되었습니다 — 흐름이 한 번 꺾인 자리입니다."}
+                      " 지금의 작은 장은 매듭 풀림으로 건너뛰어 시작되었습니다 — 흐름이 한 번 꺾인 자리입니다."}
                   </p>
                 )}
               </div>
@@ -295,7 +312,8 @@ function SubPath({
         const cur = i === curIdx;
         const edge = i === 0 || i === n - 1;
         const up = i % 2 === 0;
-        const range = `${p.fromAge.toFixed(1)} – ${p.toAge.toFixed(1)}`;
+        // 소수 나이("28.3")는 사람 말이 아니다 — 그 작은 장이 열리는 달력으로.
+        const opens = yearMonth(p.from);
         return (
           <g key={p.fromAge} textAnchor={vertical ? "start" : "middle"}>
             {cur && (
@@ -314,7 +332,7 @@ function SubPath({
                   {p.sign.ko.replace("자리", "")}
                 </text>
                 <text x={x + 24} y={y + 16} fill="rgba(154,150,168,0.85)" fontSize={11} style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.06em", fontVariantNumeric: "tabular-nums" }}>
-                  {range}
+                  {opens}
                 </text>
                 {cur && (
                   <text x={x - 16} y={y - 10} textAnchor="end" fill="var(--color-gold)" fontSize={10.5} style={{ letterSpacing: "0.08em" }}>
@@ -333,7 +351,7 @@ function SubPath({
                   {p.sign.ko.replace("자리", "")}
                 </text>
                 <text x={x} y={up ? y - 18 : y + 46} fill="rgba(154,150,168,0.85)" fontSize={11.5} style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums" }}>
-                  {range}
+                  {opens}
                 </text>
                 {cur && (
                   <text x={x} y={up ? y + 30 : y - 20} fill="var(--color-gold)" fontSize={11} style={{ letterSpacing: "0.1em" }}>
