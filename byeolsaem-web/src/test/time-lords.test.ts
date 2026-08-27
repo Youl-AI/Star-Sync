@@ -7,6 +7,8 @@ import {
   ageOn,
   currentProfection,
   profectionYears,
+  isDayBirth,
+  lotLongitude,
 } from "../lib/time-lords";
 
 /** 예시 인물과 같은 값 — 시각이 있어 상승궁이 선다. */
@@ -86,5 +88,42 @@ describe("연간 프로펙션", () => {
   it("시각 미상이면 null", () => {
     expect(currentProfection(NATAL_NO_TIME, CHART_NO_TIME, now)).toBeNull();
     expect(profectionYears(NATAL_NO_TIME, CHART_NO_TIME, now)).toBeNull();
+  });
+});
+
+describe("점(Lot) — 주야 판정과 공식", () => {
+  const sun = CHART.placements.find((p) => p.planet === "sun")!.longitude;
+  const moon = CHART.placements.find((p) => p.planet === "moon")!.longitude;
+  const asc = CHART.ascendant!;
+  const norm = (x: number) => ((x % 360) + 360) % 360;
+
+  it("주야 판정 — 태양-상승 각도로 지평선 위아래를 가른다", () => {
+    // 오전 9시 30분 출생 — 태양이 지평선 위(주간)여야 한다.
+    expect(isDayBirth(CHART)).toBe(true);
+  });
+
+  it("행운의 점 — 주간 공식 Asc + 달 − 태양", () => {
+    expect(lotLongitude(CHART, "fortune")).toBeCloseTo(norm(asc + moon - sun), 6);
+  });
+
+  it("정신의 점은 행운과 공식이 반대다", () => {
+    expect(lotLongitude(CHART, "spirit")).toBeCloseTo(norm(asc + sun - moon), 6);
+  });
+
+  it("야간 차트에서는 두 점의 공식이 서로 맞바뀐다", () => {
+    // 같은 날 밤 11시 — 태양이 지평선 아래.
+    const night = computeChart({ ...NATAL, time: "23:00" });
+    expect(isDayBirth(night)).toBe(false);
+    const nSun = night.placements.find((p) => p.planet === "sun")!.longitude;
+    const nMoon = night.placements.find((p) => p.planet === "moon")!.longitude;
+    expect(lotLongitude(night, "fortune")).toBeCloseTo(
+      norm(night.ascendant! + nSun - nMoon), 6);
+    expect(lotLongitude(night, "spirit")).toBeCloseTo(
+      norm(night.ascendant! + nMoon - nSun), 6);
+  });
+
+  it("시각 미상이면 null", () => {
+    expect(isDayBirth(CHART_NO_TIME)).toBeNull();
+    expect(lotLongitude(CHART_NO_TIME, "fortune")).toBeNull();
   });
 });

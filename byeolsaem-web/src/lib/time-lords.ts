@@ -104,3 +104,36 @@ export function profectionYears(natal: BirthMoment, chart: Chart, now: Date): Pr
   }
   return out;
 }
+
+const norm360 = (x: number): number => ((x % 360) + 360) % 360;
+
+export type LotKey = "fortune" | "spirit";
+
+function planetLongitude(chart: Chart, planet: "sun" | "moon"): number {
+  return chart.placements.find((p) => p.planet === planet)!.longitude;
+}
+
+/**
+ * 주간 출생인가. 상승-하강 축 기준 — 상승에서 황도 순서로 180도까지가
+ * 지평선 아래(1~6방 구간)다. 태양이 그 구간에 있으면 야간.
+ */
+export function isDayBirth(chart: Chart): boolean | null {
+  if (chart.ascendant === null) return null;
+  const diff = norm360(planetLongitude(chart, "sun") - chart.ascendant);
+  return diff >= 180;
+}
+
+/**
+ * 행운의 점: 주간 Asc+달−태양, 야간 반전. 정신의 점은 그 반대.
+ * 릴리징의 출발 자리는 이 값의 whole-sign 자리다.
+ */
+export function lotLongitude(chart: Chart, lot: LotKey): number | null {
+  const day = isDayBirth(chart);
+  if (day === null || chart.ascendant === null) return null;
+  const sun = planetLongitude(chart, "sun");
+  const moon = planetLongitude(chart, "moon");
+  const dayFormula = lot === "fortune" ? day : !day;
+  return dayFormula
+    ? norm360(chart.ascendant + moon - sun)
+    : norm360(chart.ascendant + sun - moon);
+}
