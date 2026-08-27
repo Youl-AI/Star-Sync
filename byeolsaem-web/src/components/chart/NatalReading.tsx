@@ -5,7 +5,7 @@ import { formatBirthDate } from "@/lib/birth-profile";
 import { formatPlacement } from "@/lib/chart";
 import { PLANET_BY_KEY, type PlanetKey } from "@/lib/planets";
 import { describeElements, type ReadingPlacement } from "@/lib/reading";
-import { wheelArt } from "@/lib/share-card";
+import { shareWheel, wheelArt } from "@/lib/share-card";
 import { firstSentence } from "@/lib/text";
 import { SIGN_SYMBOL } from "@/lib/zodiac";
 import { requestRitual } from "@/lib/ritual";
@@ -60,6 +60,21 @@ export function NatalReading() {
     if (rest.some((item) => item.planet.key === planet)) setOpenPlanet(planet);
     requestAnimationFrame(() => scrollToPlacement(planet));
   };
+
+  // 카드 원반과 원반 정밀본이 같은 데이터를 쓴다 — 두 저장 버튼의 공통 재료.
+  const wheelData = () => ({
+    placements: chart.placements.map((p) => ({
+      symbol: PLANET_BY_KEY[p.planet].symbol,
+      longitude: p.longitude,
+      retrograde: p.retrograde,
+    })),
+    ascendant: chart.ascendant,
+    aspects: reading.aspects.map((item) => ({
+      a: chart.placements.find((p) => p.planet === item.a.key)!.longitude,
+      b: chart.placements.find((p) => p.planet === item.b.key)!.longitude,
+      harmony: item.aspect.type.harmony,
+    })),
+  });
 
   return (
     <div className="grid items-start gap-10 md:grid-cols-[150px_minmax(0,1fr)] md:gap-12">
@@ -289,20 +304,25 @@ export function NatalReading() {
                 ...(core.ascendant ? [`상승 ${core.ascendant.sign.ko}`] : []),
               ].join(" · "),
               // 천궁도 카드에는 천궁도를 — 태양 자리 성좌는 /sign 카드의 옷이다.
-              art: wheelArt({
-                placements: chart.placements.map((p) => ({
-                  symbol: PLANET_BY_KEY[p.planet].symbol,
-                  longitude: p.longitude,
-                  retrograde: p.retrograde,
-                })),
-                ascendant: chart.ascendant,
-                aspects: reading.aspects.map((item) => ({
-                  a: chart.placements.find((p) => p.planet === item.a.key)!.longitude,
-                  b: chart.placements.find((p) => p.planet === item.b.key)!.longitude,
-                  harmony: item.aspect.type.harmony,
-                })),
-              }),
+              art: wheelArt(wheelData()),
             })}
+          />
+          {/* 위쪽의 그 원반 그대로를 갖고 싶은 사람도 있다(요청 2026-08-28) —
+              하우스 번호·축·ASC까지 실린 정밀본. */}
+          <SaveCardButton
+            filename={`byeolsaem-wheel-${profile.date.replaceAll("-", "")}.png`}
+            idleLabel="원반 이미지로 저장"
+            busyLabel="원반을 그리는 중…"
+            run={() =>
+              shareWheel(
+                {
+                  ...wheelData(),
+                  houseCusps: chart.houseCusps,
+                  caption: formatBirthDate(profile.date),
+                },
+                `byeolsaem-wheel-${profile.date.replaceAll("-", "")}.png`,
+              )
+            }
           />
           <KakaoShareButton
             text={`나의 천궁도 — ${firstSentence(reading.oneLiner)}`}

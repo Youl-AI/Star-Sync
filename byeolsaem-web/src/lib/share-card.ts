@@ -400,6 +400,183 @@ export function wheelArt(data: WheelArtData): CardSpec["art"] {
   };
 }
 
+export interface WheelImageData extends WheelArtData {
+  /** 홀사인 커스프 12개. 시각 미상이면 null — 하우스 층을 통째로 생략한다. */
+  houseCusps: number[] | null;
+  /** 원반 아래 낙관 앞에 붙는 한 줄 — 생년월일 등. */
+  caption?: string;
+}
+
+/**
+ * 화면 원반의 정밀본 — 부적 카드의 축약 원반이 아니라 ChartWheel의 층위
+ * (자리 이름, 하우스 번호, 축, ASC 라벨)를 그대로 옮긴 단독 이미지다.
+ * "원반 자체를 저장하고 싶다"는 요청(2026-08-28)에서 나왔다.
+ */
+async function drawWheelImage(data: WheelImageData): Promise<HTMLCanvasElement> {
+  const display = resolveFont("--font-display");
+  const latin = resolveFont("--font-latin");
+  const body = resolveFont("--font-body");
+  await Promise.all([
+    document.fonts.load(`11px ${display}`),
+    document.fonts.load(`10px ${latin}`),
+    document.fonts.load(`12px ${body}`),
+  ]).catch(() => {});
+
+  const scale = 3;
+  const W = 430;
+  const H = 470;
+  const canvas = document.createElement("canvas");
+  canvas.width = W * scale;
+  canvas.height = H * scale;
+  const ctx = canvas.getContext("2d")!;
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = INK;
+  ctx.fillRect(0, 0, W, H);
+
+  const cx = W / 2;
+  const cy = 214;
+  const OUTER = 180;
+  const BAND = 26;
+  const SIGN_IN = OUTER - BAND;
+  const HOUSE_R = SIGN_IN - 8;
+  const NUM_R = HOUSE_R - 12;
+  const PLANET_R = 112;
+  const PLANET_R_IN = 93;
+  const ASPECT_R = 74;
+  const rotation = data.ascendant ?? 0;
+  const pt = (longitude: number, radius: number): [number, number] => {
+    const angle = ((180 + (longitude - rotation)) * Math.PI) / 180;
+    return [cx + Math.cos(angle) * radius, cy - Math.sin(angle) * radius];
+  };
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // 링들 — ChartWheel과 같은 층위.
+  ctx.strokeStyle = GOLD;
+  for (const [r, alpha, width] of [
+    [OUTER, 0.45, 1],
+    [SIGN_IN, 0.4, 1],
+    [ASPECT_R, 0.25, 0.9],
+  ] as const) {
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  if (data.houseCusps) {
+    ctx.globalAlpha = 0.2;
+    ctx.strokeStyle = STARLIGHT;
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.arc(cx, cy, HOUSE_R, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // 자리 경계 눈금과 이름.
+  ctx.strokeStyle = GOLD;
+  ctx.globalAlpha = 0.4;
+  ctx.lineWidth = 0.8;
+  for (let i = 0; i < 12; i += 1) {
+    const [x0, y0] = pt(i * 30, OUTER);
+    const [x1, y1] = pt(i * 30, SIGN_IN);
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = GOLD_SOFT;
+  ctx.font = `11px ${display}`;
+  ZODIAC_SIGNS.forEach((sign, i) => {
+    const [x, y] = pt(i * 30 + 15, OUTER - BAND / 2);
+    ctx.fillText(sign.ko.replace("자리", ""), x, y);
+  });
+
+  // 하우스 — 커스프 선과 번호. 1·10하우스 경계가 이 차트의 축이다.
+  if (data.houseCusps) {
+    data.houseCusps.forEach((cusp, i) => {
+      const axis = i === 0 || i === 9;
+      const [x0, y0] = pt(cusp, SIGN_IN);
+      const [x1, y1] = pt(cusp, ASPECT_R);
+      ctx.strokeStyle = axis ? GOLD : STARLIGHT;
+      ctx.globalAlpha = axis ? 0.8 : 0.22;
+      ctx.lineWidth = axis ? 1.5 : 0.7;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+
+      const [nx, ny] = pt(cusp + 15, NUM_R);
+      ctx.fillStyle = STARLIGHT_DIM;
+      ctx.globalAlpha = 0.85;
+      ctx.font = `9.5px ${latin}`;
+      ctx.fillText(String(i + 1), nx, ny);
+    });
+    // ASC 라벨 — 지평선 바깥.
+    if (data.ascendant !== null) {
+      const [ax, ay] = pt(data.ascendant, OUTER + 14);
+      ctx.fillStyle = GOLD;
+      ctx.globalAlpha = 0.95;
+      ctx.font = `9px ${latin}`;
+      ctx.fillText("ASC", ax, ay);
+    }
+  }
+
+  // 어스펙트 현 — 금색이 순풍, 흐린 선이 맞바람. 끝점은 작은 점으로 마감.
+  ctx.lineWidth = 0.9;
+  for (const asp of data.aspects) {
+    const [x0, y0] = pt(asp.a, ASPECT_R);
+    const [x1, y1] = pt(asp.b, ASPECT_R);
+    ctx.strokeStyle = asp.harmony >= 0 ? GOLD_SOFT : STARLIGHT;
+    ctx.globalAlpha = asp.harmony >= 0 ? 0.55 : 0.3;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = GOLD_SOFT;
+  for (const asp of data.aspects) {
+    for (const lon of [asp.a, asp.b]) {
+      const [x, y] = pt(lon, ASPECT_R);
+      ctx.beginPath();
+      ctx.arc(x, y, 1.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // 별 글리프 — 카드 원반과 같은 겹침 풀기.
+  const sorted = [...data.placements].sort((a, b) => a.longitude - b.longitude);
+  ctx.globalAlpha = 1;
+  let level = 0;
+  let prev = Number.NEGATIVE_INFINITY;
+  for (const p of sorted) {
+    level = p.longitude - prev < 12 ? (level + 1) % 2 : 0;
+    prev = p.longitude;
+    const [x, y] = pt(p.longitude, level === 0 ? PLANET_R : PLANET_R_IN);
+    ctx.fillStyle = STARLIGHT;
+    ctx.font = `15px ${ASTRO_FONT}`;
+    ctx.fillText(`${p.symbol}\uFE0E`, x, y);
+    if (p.retrograde) {
+      ctx.fillStyle = GOLD_SOFT;
+      ctx.font = `7px ${ASTRO_FONT}`;
+      ctx.fillText("R", x + 9, y - 7);
+    }
+  }
+
+  // 낙관.
+  ctx.fillStyle = STARLIGHT_DIM;
+  ctx.globalAlpha = 1;
+  ctx.font = `12px ${body}`;
+  ctx.fillText(data.caption ? `${data.caption} · ${FOOTER}` : FOOTER, cx, H - 22);
+  ctx.textBaseline = "alphabetic";
+
+  return canvas;
+}
+
 const WAXING = new Set<MoonPhaseKey>(["new", "waxing-crescent", "first-quarter", "waxing-gibbous"]);
 
 /** 달 그림. MoonDisc와 같은 명암 경계식(k = 1 - 2·비율)을 쓴다. */
@@ -458,7 +635,15 @@ export function moonArt(illumination: number, phase: MoonPhaseKey): CardSpec["ar
  * "저장"을 누른 사람이 기대하는 것은 어차피 다운로드다.
  */
 export async function shareCard(spec: CardSpec, filename: string): Promise<void> {
-  const canvas = await drawCard(spec);
+  await deliverCanvas(await drawCard(spec), filename);
+}
+
+/** 화면 원반의 정밀본을 굽고 건네준다 — 전달 경로는 카드와 같다. */
+export async function shareWheel(data: WheelImageData, filename: string): Promise<void> {
+  await deliverCanvas(await drawWheelImage(data), filename);
+}
+
+async function deliverCanvas(canvas: HTMLCanvasElement, filename: string): Promise<void> {
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
   if (!blob) throw new Error("카드를 그리지 못했습니다");
 

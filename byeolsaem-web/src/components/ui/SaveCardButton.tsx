@@ -10,12 +10,19 @@ import { shareCard, type CardSpec } from "@/lib/share-card";
  */
 export function SaveCardButton({
   spec,
+  run,
   filename,
+  idleLabel = "카드 이미지로 저장",
+  busyLabel = "카드를 그리는 중…",
   className = "",
 }: {
   /** 그릴 것을 함수로 받는다 — 누르는 시점의 값으로 그리기 위해서다. */
-  spec: () => CardSpec;
+  spec?: () => CardSpec;
+  /** 부적 카드가 아닌 다른 그림(원반 등)을 굽는 경우 — spec 대신 이것이 돈다. */
+  run?: () => Promise<void>;
   filename: string;
+  idleLabel?: string;
+  busyLabel?: string;
   className?: string;
 }) {
   const [state, setState] = useState<"idle" | "busy" | "done" | "failed">("idle");
@@ -24,7 +31,8 @@ export function SaveCardButton({
     if (state === "busy") return;
     setState("busy");
     try {
-      await shareCard(spec(), filename);
+      if (run) await run();
+      else if (spec) await shareCard(spec(), filename);
       setState("done");
     } catch {
       setState("failed");
@@ -41,8 +49,8 @@ export function SaveCardButton({
     >
       {/* 네 말이 같은 칸에 겹쳐 있다(globals.css의 .label-swap 주석 참고). */}
       <span className="label-swap">
-        <span data-on={String(state === "idle")}>카드 이미지로 저장</span>
-        <span data-on={String(state === "busy")}>카드를 그리는 중…</span>
+        <span data-on={String(state === "idle")}>{idleLabel}</span>
+        <span data-on={String(state === "busy")}>{busyLabel}</span>
         <span data-on={String(state === "done")}>저장했어요</span>
         <span data-on={String(state === "failed")}>저장하지 못했어요</span>
       </span>
