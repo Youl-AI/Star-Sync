@@ -72,6 +72,10 @@ export interface WeeklyTouch {
   date: string;
   dowKo: string;
   text: string;
+  /** 별길 그림의 짧은 라벨 — "금성–화성 육분" 꼴로 조립한다. */
+  movingKo: string;
+  fixedKo: string;
+  aspectKo: string;
 }
 
 /**
@@ -100,6 +104,9 @@ export function weeklyPersonal(weekStart: Date, natal: Chart): WeeklyTouch[] {
             // natal 별 이름 10개(태양·달·수성·금성·화성·목성·토성·천왕성·해왕성·명왕성)는
             // 전부 받침으로 끝나므로 "과"가 항상 맞다("와"를 쓰면 어긋난다).
             text: `${dowKo}요일 — 하늘의 ${moving.ko}이 내 ${planetKo.get(fixed.planet)}과 ${type.ko}을 이룹니다.`,
+            movingKo: moving.ko,
+            fixedKo: planetKo.get(fixed.planet) ?? fixed.planet,
+            aspectKo: type.ko,
           };
           const prev = best.get(key);
           if (!prev || orb < prev.orb) best.set(key, { orb, touch });

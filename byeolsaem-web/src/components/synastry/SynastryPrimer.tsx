@@ -1,5 +1,7 @@
 import { SYNASTRY_ASPECTS, PLANET_TOUCH } from "@/content/atoms/synastry";
+import { ASPECT_TYPES } from "@/lib/chart";
 import { PLANETS } from "@/lib/planets";
+import { AspectBadge } from "@/components/ui/AspectBadge";
 import { LineDiamond } from "@/components/ui/LineDiamond";
 
 /**
@@ -40,12 +42,32 @@ export function SynastryPrimer() {
           나쁨이 아니라 사이의 종류입니다.
         </p>
         <dl className="mt-8 space-y-6">
-          {Object.entries(SYNASTRY_ASPECTS).map(([key, meaning]) => (
-            <div key={key} className="border-t border-gold/12 pt-5">
-              <dt className="font-display text-lg text-starlight">{meaning.headline}</dt>
-              <dd className="mt-2 break-keep text-starlight-dim">{meaning.body}</dd>
-            </div>
-          ))}
+          {Object.entries(SYNASTRY_ASPECTS).map(([key, meaning]) => {
+            // 각의 기하 인장 — 각도는 본질이 기하인데 글로만 적혀 있었다(감사 2026-08-28).
+            const type = ASPECT_TYPES.find((t) => t.key === key);
+            return (
+              <div key={key} className="flex gap-5 border-t border-gold/12 pt-5">
+                {type && (
+                  <AspectBadge
+                    angle={type.angle}
+                    harmony={type.harmony}
+                    className="mt-1 w-16 flex-none max-sm:hidden"
+                  />
+                )}
+                <div>
+                  <dt className="font-display text-lg text-starlight">
+                    {meaning.headline}
+                    {type && (
+                      <span className="ml-3 text-meta font-normal text-starlight-dim">
+                        {type.ko} {type.angle}도
+                      </span>
+                    )}
+                  </dt>
+                  <dd className="mt-2 break-keep text-starlight-dim">{meaning.body}</dd>
+                </div>
+              </div>
+            );
+          })}
         </dl>
 
         <h2 className="mt-14 break-keep font-display text-xl text-starlight">

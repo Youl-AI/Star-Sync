@@ -9,6 +9,7 @@ import { signArt } from "@/lib/share-card";
 import { firstSentence } from "@/lib/text";
 import { SIGN_SYMBOL } from "@/lib/zodiac";
 import { requestRitual } from "@/lib/ritual";
+import { AspectBadge } from "@/components/ui/AspectBadge";
 import { GoldButton } from "@/components/ui/GoldButton";
 import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
@@ -150,12 +151,33 @@ export function NatalReading() {
           <p className="break-keep leading-relaxed text-starlight">
             {describeElements(reading.elements)}
           </p>
-          <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-meta text-starlight-dim">
-            {reading.elements.map((entry) => (
-              <li key={entry.element}>
-                {entry.element} {entry.count}
-              </li>
-            ))}
+          {/* 별 눈금 줄 — 숫자 한 줄로는 "물 0"의 비어 있음이 안 보였다(감사
+              2026-08-28). 빈 눈금이 그대로 보이면 비어 있음이 말이 아니라 그림이 된다. */}
+          <ul className="mt-6 space-y-2.5">
+            {["불", "흙", "공기", "물"].map((element) => {
+              const count = reading.elements.find((e) => e.element === element)?.count ?? 0;
+              return (
+                <li key={element} className="flex items-center gap-4">
+                  <span className="w-8 flex-none text-guide text-starlight">{element}</span>
+                  <span className="flex gap-1.5" aria-hidden>
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <span
+                        key={i}
+                        className={
+                          i < count
+                            ? "size-1.5 rounded-full bg-gold-soft"
+                            : "size-1.5 rounded-full border border-starlight-dim/40"
+                        }
+                      />
+                    ))}
+                  </span>
+                  <span className="text-meta tabular-nums text-starlight-dim">
+                    {count}
+                    {count === 0 && " · 비어 있는 원소"}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </Section>
 
@@ -214,22 +236,32 @@ export function NatalReading() {
             </p>
             <ul className="mt-8 space-y-8">
               {reading.aspects.map((item) => (
-                <li key={`${item.a.key}-${item.b.key}`} className="border-t border-gold/12 pt-6">
-                  <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <span className="font-display text-lg text-starlight">
-                      <span className="astro-symbol">{item.a.symbol}</span> {item.a.ko}
-                      <span className="mx-2 astro-symbol text-gold-soft">{item.aspect.type.symbol}</span>
-                      <span className="astro-symbol">{item.b.symbol}</span> {item.b.ko}
-                    </span>
-                    <span className="text-meta text-starlight-dim">
-                      {item.aspect.type.ko} · <Term name="오브" /> {item.aspect.orb.toFixed(1)}도 · {item.strengthKo}
-                    </span>
-                    <ToneBadge harmony={item.aspect.type.harmony} />
-                  </p>
-                  <p className="mt-3 text-guide text-gold-soft">
-                    {item.theme} — {item.headline}
-                  </p>
-                  <p className="mt-2 break-keep leading-relaxed text-starlight-dim">{item.body}</p>
+                <li key={`${item.a.key}-${item.b.key}`} className="flex gap-5 border-t border-gold/12 pt-6">
+                  {/* 각의 기하 인장 — "삼각 120도"를 읽는 것과 보는 것의 차이(감사 2026-08-28). */}
+                  <AspectBadge
+                    angle={item.aspect.type.angle}
+                    harmony={item.aspect.type.harmony}
+                    aSymbol={item.a.symbol}
+                    bSymbol={item.b.symbol}
+                    className="mt-1 w-16 flex-none max-sm:hidden"
+                  />
+                  <div>
+                    <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <span className="font-display text-lg text-starlight">
+                        <span className="astro-symbol">{item.a.symbol}</span> {item.a.ko}
+                        <span className="mx-2 astro-symbol text-gold-soft">{item.aspect.type.symbol}</span>
+                        <span className="astro-symbol">{item.b.symbol}</span> {item.b.ko}
+                      </span>
+                      <span className="text-meta text-starlight-dim">
+                        {item.aspect.type.ko} · <Term name="오브" /> {item.aspect.orb.toFixed(1)}도 · {item.strengthKo}
+                      </span>
+                      <ToneBadge harmony={item.aspect.type.harmony} />
+                    </p>
+                    <p className="mt-3 text-guide text-gold-soft">
+                      {item.theme} — {item.headline}
+                    </p>
+                    <p className="mt-2 break-keep leading-relaxed text-starlight-dim">{item.body}</p>
+                  </div>
                 </li>
               ))}
             </ul>

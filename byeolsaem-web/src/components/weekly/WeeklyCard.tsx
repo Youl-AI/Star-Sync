@@ -8,6 +8,7 @@ import { kstParts } from "@/lib/retrograde-clock";
 import { requestRitual } from "@/lib/ritual";
 import { kstWeekStart, weeklyData, weeklyPersonal, type WeeklyData } from "@/lib/weekly-reading";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
+import { WeekPath } from "./WeekPath";
 
 const DOW_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -19,6 +20,12 @@ export function WeeklyCard({ initial, builtAt }: { initial: WeeklyData; builtAt:
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => setNow(new Date()), []);
   const { profile, ready } = useBirthProfile();
+  // 별길의 첫 등장 연출 — 마운트 두 프레임 뒤에 페이드인.
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   const data = useMemo(() => (now ? weeklyData(now) : initial), [now, initial]);
 
@@ -46,6 +53,16 @@ export function WeeklyCard({ initial, builtAt }: { initial: WeeklyData; builtAt:
       </p>
       <h2 className="mt-3 break-keep font-display text-2xl text-starlight">{data.headline}</h2>
       <p className="mt-3 max-w-[52ch] break-keep text-guide text-starlight-dim">{data.summary}</p>
+
+      <div className="mt-8">
+        <WeekPath
+          weekStart={data.weekStart}
+          events={data.events}
+          touches={touches}
+          now={now}
+          entered={entered}
+        />
+      </div>
 
       <ul className="mt-8 border-t border-gold/10">
         {data.events.length === 0 && (
