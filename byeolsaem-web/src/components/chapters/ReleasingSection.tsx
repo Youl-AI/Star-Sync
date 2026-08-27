@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { BirthMoment, Chart } from "@/lib/chart";
 import {
   fractionalAge,
+  l2PeriodsOf,
   zodiacalReleasing,
   type LotKey,
   type ZodiacalReleasing,
@@ -60,6 +61,10 @@ export function ReleasingSection({
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
+  // 속살을 보는 장. null = 지금 장을 따라간다. 이전/다음 화살표로 평생치를
+  // 넘겨 볼 수 있다(2026-08-28 — 다른 도구들은 전 생애 L2를 훑을 수 있다).
+  const [selIdx, setSelIdx] = useState<number | null>(null);
+
   // 첫 등장 — 성좌가 왼쪽부터 그려진다(선이 자라고 별이 따라 뜬다).
   const [entered, setEntered] = useState(false);
   useEffect(() => {
@@ -81,9 +86,21 @@ export function ReleasingSection({
   if (!zr) return null;
   const age = fractionalAge(natal.date, now);
 
+  // 속살에 보여줄 장 — 선택이 없으면 지금 장. 순수 산술이라 memo가 필요 없다.
+  const browsedL1 =
+    selIdx !== null ? zr.l1[Math.max(0, Math.min(selIdx, zr.l1.length - 1))] : zr.currentL1;
+  const browsingCurrent = browsedL1 === zr.currentL1;
+  const browsedL2 = !browsedL1
+    ? []
+    : browsingCurrent
+      ? zr.l2OfCurrent
+      : l2PeriodsOf(natal.date, browsedL1, zr.fortuneSignIndex);
+  const browsedIdx = browsedL1 ? zr.l1.indexOf(browsedL1) : -1;
+
   const switchLot = (next: LotKey) => {
     if (next === lot || swap !== "") return;
     setLot(next);
+    setSelIdx(null); // 다른 시간표로 넘어가면 속살도 그쪽의 지금 장부터.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setShownLot(next);
       return;
@@ -183,54 +200,92 @@ export function ReleasingSection({
             선분 하나가 인생의 한 장, 길이는 그 장의 햇수 — 작은 숫자는 장이 열리는 만 나이입니다
           </p>
 
-          {/* 현재 장의 L2 */}
-          {zr.currentL1 && (
+          {/* 장의 속살 — 화살표로 어느 장이든 넘겨 볼 수 있다. */}
+          {browsedL1 && (
             <div className="mt-12">
-              <h3 className="break-keep text-center font-display text-lg text-starlight">
-                지금 장의 속살 — {zr.currentL1.sign.ko.replace("자리", "")}의 {zr.currentL1.toAge - zr.currentL1.fromAge}년
-              </h3>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelIdx(browsedIdx - 1)}
+                  disabled={browsedIdx <= 0}
+                  aria-label="이전 장의 속살 보기"
+                  className="px-2 font-latin text-xl text-starlight-dim transition-[color,transform] duration-150 hover:text-gold-soft active:scale-[0.97] disabled:pointer-events-none disabled:opacity-25"
+                >
+                  ‹
+                </button>
+                <h3 className="break-keep text-center font-display text-lg text-starlight">
+                  {browsingCurrent ? "지금 장" : `${browsedIdx + 1}번째 장`}의 속살 —{" "}
+                  {browsedL1.sign.ko.replace("자리", "")}의 {browsedL1.toAge - browsedL1.fromAge}년
+                  <span className="ml-2 whitespace-nowrap text-meta tabular-nums text-starlight-dim">
+                    {yearMonth(browsedL1.from)} – {yearMonth(browsedL1.to)}
+                  </span>
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setSelIdx(browsedIdx + 1)}
+                  disabled={browsedIdx >= zr.l1.length - 1}
+                  aria-label="다음 장의 속살 보기"
+                  className="px-2 font-latin text-xl text-starlight-dim transition-[color,transform] duration-150 hover:text-gold-soft active:scale-[0.97] disabled:pointer-events-none disabled:opacity-25"
+                >
+                  ›
+                </button>
+              </div>
+              {!browsingCurrent && (
+                <p className="mt-2 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setSelIdx(null)}
+                    className="text-meta text-gold-soft underline underline-offset-4 transition-colors hover:text-starlight"
+                  >
+                    지금 장으로 돌아가기
+                  </button>
+                </p>
+              )}
               <SubPath
-                l2={zr.l2OfCurrent}
-                current={zr.currentL2}
+                l2={browsedL2}
+                current={browsingCurrent ? zr.currentL2 : null}
                 entered={entered}
                 vertical={false}
                 className="hidden w-full sm:block"
               />
               <SubPath
-                l2={zr.l2OfCurrent}
-                current={zr.currentL2}
+                l2={browsedL2}
+                current={browsingCurrent ? zr.currentL2 : null}
                 entered={entered}
                 vertical
                 className="mx-auto w-full max-w-[340px] sm:hidden"
               />
               <p className="mt-4 text-center text-meta text-starlight-dim">
-                위 선에서 금색으로 빛나는 지금 장의 확대 — 별 하나가 달이 도는 작은
-                장이고, 날짜는 그 작은 장이 열리는 때입니다
+                별 하나가 달이 도는 작은 장, 날짜는 그 작은 장이 열리는 때 — 각·절정
+                규칙은 작은 장에도 그대로라, 금테를 두른 별이 절정의 자리입니다
               </p>
-              <div className="mx-auto mt-8 max-w-[56ch] text-center">
-                <p className="break-keep leading-relaxed text-starlight">
-                  지금은 {zr.currentL1.sign.ko}의 장 — {zr.currentL1.sign.tagline}의
-                  시간입니다. {chapterFrame(zr.currentL1)}
-                </p>
-                {zr.currentL2 &&
-                  (() => {
-                    const next = zr.l2OfCurrent[zr.l2OfCurrent.indexOf(zr.currentL2) + 1];
-                    const nextL1 = zr.l1[zr.l1.indexOf(zr.currentL1) + 1];
-                    return (
-                      <p className="mt-3 break-keep text-guide text-starlight-dim">
-                        그 안에서 지금 지나는 작은 장은 {yearMonth(zr.currentL2.from)}에
-                        열린 {zr.currentL2.sign.ko}입니다.
-                        {next
-                          ? ` ${yearMonth(next.from)}에 ${next.sign.ko}로 넘어갑니다.`
-                          : nextL1
-                            ? ` 마지막 작은 장이라, ${yearMonth(nextL1.from)}에는 ${zr.currentL1.sign.ko}의 장 전체가 막을 내리고 ${nextL1.sign.ko}의 장이 새로 열립니다.`
-                            : ""}
-                        {zr.currentL2.loosedBond &&
-                          " 이 작은 장은 매듭 풀림으로 건너뛰어 시작되었습니다 — 흐름이 한 번 꺾인 자리입니다."}
-                      </p>
-                    );
-                  })()}
-              </div>
+              {zr.currentL1 && (
+                <div className="mx-auto mt-8 max-w-[56ch] text-center">
+                  <p className="break-keep leading-relaxed text-starlight">
+                    지금은 {zr.currentL1.sign.ko}의 장 — {zr.currentL1.sign.tagline}의
+                    시간입니다. {chapterFrame(zr.currentL1)}
+                  </p>
+                  {zr.currentL2 &&
+                    (() => {
+                      const nowL1 = zr.currentL1;
+                      const next = zr.l2OfCurrent[zr.l2OfCurrent.indexOf(zr.currentL2) + 1];
+                      const nextL1 = zr.l1[zr.l1.indexOf(nowL1) + 1];
+                      return (
+                        <p className="mt-3 break-keep text-guide text-starlight-dim">
+                          그 안에서 지금 지나는 작은 장은 {yearMonth(zr.currentL2.from)}에
+                          열린 {zr.currentL2.sign.ko}입니다.
+                          {next
+                            ? ` ${yearMonth(next.from)}에 ${next.sign.ko}로 넘어갑니다.`
+                            : nextL1
+                              ? ` 마지막 작은 장이라, ${yearMonth(nextL1.from)}에는 ${nowL1.sign.ko}의 장 전체가 막을 내리고 ${nextL1.sign.ko}의 장이 새로 열립니다.`
+                              : ""}
+                          {zr.currentL2.loosedBond &&
+                            " 이 작은 장은 매듭 풀림으로 건너뛰어 시작되었습니다 — 흐름이 한 번 꺾인 자리입니다."}
+                        </p>
+                      );
+                    })()}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -477,12 +532,22 @@ function SubPath({
             {cur && (
               <circle cx={x} cy={y} r={10.5} fill="none" stroke="var(--color-gold-soft)" strokeWidth={1.1} className="star-breathe" />
             )}
+            {/* 절정의 작은 장 — 정적 금테(숨쉬는 링은 "지금" 전용). */}
+            {p.peak && !cur && (
+              <circle cx={x} cy={y} r={8.5} fill="none" stroke="var(--color-gold)" strokeWidth={1} opacity={0.75} />
+            )}
             <circle
               cx={x}
               cy={y}
               r={cur ? 5.2 : edge ? 4.8 : 3.8}
-              fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"}
-              opacity={cur || edge ? 1 : 0.75}
+              fill={
+                cur
+                  ? "var(--color-gold-soft)"
+                  : p.angular || p.peak
+                    ? "var(--color-gold-soft)"
+                    : "var(--color-starlight)"
+              }
+              opacity={cur || edge || p.angular || p.peak ? 1 : 0.75}
             />
             {vertical ? (
               <>

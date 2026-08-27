@@ -10,6 +10,7 @@ import {
   isDayBirth,
   lotLongitude,
   fractionalAge,
+  l2PeriodsOf,
   zodiacalReleasing,
   zodiacalReleasingL2ForTest,
 } from "../lib/time-lords";
@@ -212,6 +213,11 @@ describe("조디악 릴리징", () => {
   it("짧은 장(천칭 8년)에서는 매듭 풀림이 없다", () => {
     const zrLib = zodiacalReleasingL2ForTest(6, 8 * 12); // 천칭=6
     expect(zrLib.every((p) => !p.loosedBond)).toBe(true);
+  });
+
+  it("l2PeriodsOf - 지금 장에 대해 l2OfCurrent와 같은 결과를 준다", () => {
+    const sub = l2PeriodsOf(NATAL.date, zr.currentL1!, zr.fortuneSignIndex);
+    expect(sub).toEqual(zr.l2OfCurrent);
   });
 
   it("시각 미상이면 null", () => {

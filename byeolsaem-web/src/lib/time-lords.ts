@@ -159,6 +159,8 @@ export interface ZrPeriod {
 export interface ZodiacalReleasing {
   lot: LotKey;
   lotSign: ZodiacSign;
+  /** 행운의 점의 자리 인덱스(0=양) — 각 판정의 기준이고, l2PeriodsOf에 넘긴다. */
+  fortuneSignIndex: number;
   l1: ZrPeriod[];
   currentL1: ZrPeriod | null;
   l2OfCurrent: ZrPeriod[];
@@ -249,6 +251,25 @@ export function zodiacalReleasingL2ForTest(startIdx: number, totalMonths: number
   return l2Periods("2000-01-01", startIdx, 0, totalMonths, 0);
 }
 
+/**
+ * 임의의 L1 장의 속살(L2). UI가 지금 장이 아닌 장의 속살도 넘겨 볼 수 있게
+ * 한다(2026-08-28 — 다른 도구들은 평생치 L2를 훑을 수 있다는 피드백).
+ * fortuneSignIndex는 zodiacalReleasing 결과의 같은 이름 필드를 그대로 넘긴다.
+ */
+export function l2PeriodsOf(
+  natalDate: string,
+  period: ZrPeriod,
+  fortuneSignIndex: number,
+): ZrPeriod[] {
+  return l2Periods(
+    natalDate,
+    ZODIAC_SIGNS.indexOf(period.sign),
+    period.fromAge,
+    Math.round((period.toAge - period.fromAge) * 12),
+    fortuneSignIndex,
+  );
+}
+
 export function zodiacalReleasing(
   natal: BirthMoment,
   chart: Chart,
@@ -284,5 +305,13 @@ export function zodiacalReleasing(
     : [];
   const currentL2 = l2OfCurrent.find((p) => age >= p.fromAge && age < p.toAge) ?? null;
 
-  return { lot, lotSign: ZODIAC_SIGNS[startIdx], l1, currentL1, l2OfCurrent, currentL2 };
+  return {
+    lot,
+    lotSign: ZODIAC_SIGNS[startIdx],
+    fortuneSignIndex: fortuneIdx,
+    l1,
+    currentL1,
+    l2OfCurrent,
+    currentL2,
+  };
 }
