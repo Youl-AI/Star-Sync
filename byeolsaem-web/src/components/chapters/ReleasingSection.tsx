@@ -61,7 +61,7 @@ export function ReleasingSection({
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  // 속살을 보는 장. null = 지금 장을 따라간다. 이전/다음 화살표로 평생치를
+  // 작은 장들을 들여다볼 장. null = 지금 장을 따라간다. 이전/다음 화살표로 평생치를
   // 넘겨 볼 수 있다(2026-08-28 — 다른 도구들은 전 생애 L2를 훑을 수 있다).
   const [selIdx, setSelIdx] = useState<number | null>(null);
 
@@ -86,7 +86,7 @@ export function ReleasingSection({
   if (!zr) return null;
   const age = fractionalAge(natal.date, now);
 
-  // 속살에 보여줄 장 — 선택이 없으면 지금 장. 순수 산술이라 memo가 필요 없다.
+  // 들여다볼 장 — 선택이 없으면 지금 장. 순수 산술이라 memo가 필요 없다.
   const browsedL1 =
     selIdx !== null ? zr.l1[Math.max(0, Math.min(selIdx, zr.l1.length - 1))] : zr.currentL1;
   const browsingCurrent = browsedL1 === zr.currentL1;
@@ -100,7 +100,7 @@ export function ReleasingSection({
   const switchLot = (next: LotKey) => {
     if (next === lot || swap !== "") return;
     setLot(next);
-    setSelIdx(null); // 다른 시간표로 넘어가면 속살도 그쪽의 지금 장부터.
+    setSelIdx(null); // 다른 시간표로 넘어가면 들여다보는 장도 그쪽의 지금 장부터.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setShownLot(next);
       return;
@@ -200,7 +200,7 @@ export function ReleasingSection({
             선분 하나가 인생의 한 장, 길이는 그 장의 햇수 — 작은 숫자는 장이 열리는 만 나이입니다
           </p>
 
-          {/* 장의 속살 — 화살표로 어느 장이든 넘겨 볼 수 있다. */}
+          {/* 장 안의 작은 장들 — 화살표로 어느 장이든 넘겨 볼 수 있다. */}
           {browsedL1 && (
             <div className="mt-12">
               <div className="flex items-center justify-center gap-3">
@@ -208,13 +208,13 @@ export function ReleasingSection({
                   type="button"
                   onClick={() => setSelIdx(browsedIdx - 1)}
                   disabled={browsedIdx <= 0}
-                  aria-label="이전 장의 속살 보기"
+                  aria-label="이전 장의 작은 장들 보기"
                   className="px-2 font-latin text-xl text-starlight-dim transition-[color,transform] duration-150 hover:text-gold-soft active:scale-[0.97] disabled:pointer-events-none disabled:opacity-25"
                 >
                   ‹
                 </button>
                 <h3 className="break-keep text-center font-display text-lg text-starlight">
-                  {browsingCurrent ? "지금 장" : `${browsedIdx + 1}번째 장`}의 속살 —{" "}
+                  {browsingCurrent ? "지금 장" : `${browsedIdx + 1}번째 장`} 안의 작은 장들 —{" "}
                   {browsedL1.sign.ko.replace("자리", "")}의 {browsedL1.toAge - browsedL1.fromAge}년
                   <span className="ml-2 whitespace-nowrap text-meta tabular-nums text-starlight-dim">
                     {yearMonth(browsedL1.from)} – {yearMonth(browsedL1.to)}
@@ -224,22 +224,29 @@ export function ReleasingSection({
                   type="button"
                   onClick={() => setSelIdx(browsedIdx + 1)}
                   disabled={browsedIdx >= zr.l1.length - 1}
-                  aria-label="다음 장의 속살 보기"
+                  aria-label="다음 장의 작은 장들 보기"
                   className="px-2 font-latin text-xl text-starlight-dim transition-[color,transform] duration-150 hover:text-gold-soft active:scale-[0.97] disabled:pointer-events-none disabled:opacity-25"
                 >
                   ›
                 </button>
               </div>
               {!browsingCurrent && (
-                <p className="mt-2 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setSelIdx(null)}
-                    className="text-meta text-gold-soft underline underline-offset-4 transition-colors hover:text-starlight"
-                  >
-                    지금 장으로 돌아가기
-                  </button>
-                </p>
+                <>
+                  {/* 구경 중인 장의 한 줄 요약 — 어느 시절이고 어떤 성격의 장인지. */}
+                  <p className="mx-auto mt-3 max-w-[56ch] break-keep text-center text-guide text-starlight-dim">
+                    만 {browsedL1.fromAge}세부터 {browsedL1.toAge}세까지,{" "}
+                    {browsedL1.sign.tagline}의 시간 — {chapterFrame(browsedL1)}
+                  </p>
+                  <p className="mt-2 text-center">
+                    <button
+                      type="button"
+                      onClick={() => setSelIdx(null)}
+                      className="text-meta text-gold-soft underline underline-offset-4 transition-colors hover:text-starlight"
+                    >
+                      지금 장으로 돌아가기
+                    </button>
+                  </p>
+                </>
               )}
               <SubPath
                 l2={browsedL2}
@@ -459,7 +466,7 @@ function LotStory({ zr, age }: { zr: ZodiacalReleasing; age: number }) {
 const ASTRO_FONT = '"Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols2", "Noto Sans Symbols", sans-serif';
 
 /**
- * 지금 장의 속살 — 위 성좌의 현재 선분을 곧게 펴서 확대한 직선.
+ * 장 안의 작은 장들 — 위 성좌의 현재 선분을 곧게 펴서 확대한 직선.
  *
  * 정거장은 등간격이다: L2에서 정보는 차례이지 비례가 아니고(대체 전의 표도
  * 등폭이었다), 비례로 그리면 8개월짜리 작은 장의 라벨이 설 자리가 없다.
