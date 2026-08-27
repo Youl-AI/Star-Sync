@@ -134,8 +134,10 @@ export function ReleasingSection({
         ))}
       </div>
 
-      {/* 스와이프 무대 — 아래 내용 전체가 한 몸으로 밀리며 교체된다. */}
-      <div className="overflow-x-clip">
+      {/* 스와이프 무대 — 아래 내용 전체가 한 몸으로 밀리며 교체된다.
+          lg에서는 본문 폭(max-w-2xl)을 살짝 벗어나 그림에 숨통을 준다 —
+          글 블록들은 각자 max-w로 스스로 좁힌다. */}
+      <div className="overflow-x-clip lg:-mx-24">
         <div
           className={`transition-[transform,opacity,filter] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none ${swapClass}`}
         >
@@ -180,7 +182,7 @@ export function ReleasingSection({
                 className="mx-auto w-full max-w-[340px] sm:hidden"
               />
               <p className="mt-4 text-center text-meta text-starlight-dim">
-                위 성좌의 빛나는 선분을 곧게 펴서 확대한 것 — 달이 도는 작은 장(L2), 숫자는 만 나이
+                위 선에서 금색으로 빛나는 지금 장을 확대한 것 — 달이 도는 작은 장(L2), 숫자는 만 나이
               </p>
               <div className="mx-auto mt-8 max-w-[56ch] text-center">
                 <p className="break-keep leading-relaxed text-starlight">
@@ -252,8 +254,8 @@ function SubPath({
   const curIdx = current ? l2.indexOf(current) : -1;
 
   const W = vertical ? 320 : 900;
-  const H = vertical ? 40 + n * 42 : 190;
-  const LINE = vertical ? 84 : 96;
+  const H = vertical ? 40 + n * 46 : 230;
+  const LINE = vertical ? 84 : 112;
   const M0 = vertical ? 26 : 44;
   const M1 = vertical ? H - 26 : W - 44;
   const stop = (i: number): [number, number] => {
@@ -297,39 +299,49 @@ function SubPath({
         return (
           <g key={p.fromAge} textAnchor={vertical ? "start" : "middle"}>
             {cur && (
-              <circle cx={x} cy={y} r={9} fill="none" stroke="var(--color-gold-soft)" strokeWidth={1.1} className="star-breathe" />
+              <circle cx={x} cy={y} r={10.5} fill="none" stroke="var(--color-gold-soft)" strokeWidth={1.1} className="star-breathe" />
             )}
             <circle
               cx={x}
               cy={y}
-              r={cur ? 4.6 : edge ? 4.4 : 3.2}
+              r={cur ? 5.2 : edge ? 4.8 : 3.8}
               fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"}
               opacity={cur || edge ? 1 : 0.75}
             />
             {vertical ? (
               <>
-                <text x={x + 22} y={y - 1} fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"} fontSize={12.5} style={{ fontFamily: "var(--font-display)" }}>
+                <text x={x + 24} y={y} fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"} fontSize={14} style={{ fontFamily: "var(--font-display)" }}>
                   {p.sign.ko.replace("자리", "")}
                 </text>
-                <text x={x + 22} y={y + 13} fill="rgba(154,150,168,0.85)" fontSize={9.5} style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.06em", fontVariantNumeric: "tabular-nums" }}>
+                <text x={x + 24} y={y + 16} fill="rgba(154,150,168,0.85)" fontSize={11} style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.06em", fontVariantNumeric: "tabular-nums" }}>
                   {range}
                 </text>
+                {cur && (
+                  <text x={x - 16} y={y - 10} textAnchor="end" fill="var(--color-gold)" fontSize={10.5} style={{ letterSpacing: "0.08em" }}>
+                    지금
+                  </text>
+                )}
                 {p.loosedBond && (
-                  <text x={x - 14} y={y + 3.5} textAnchor="end" fill="var(--color-gold)" fontSize={9} style={{ letterSpacing: "0.06em" }}>
+                  <text x={x - 16} y={y + 5} textAnchor="end" fill="var(--color-gold)" fontSize={10} style={{ letterSpacing: "0.06em" }}>
                     매듭 풀림
                   </text>
                 )}
               </>
             ) : (
               <>
-                <text x={x} y={up ? y - 30 : y + 27} fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"} fontSize={12} style={{ fontFamily: "var(--font-display)" }}>
+                <text x={x} y={up ? y - 33 : y + 30} fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"} fontSize={14.5} style={{ fontFamily: "var(--font-display)" }}>
                   {p.sign.ko.replace("자리", "")}
                 </text>
-                <text x={x} y={up ? y - 17 : y + 40} fill="rgba(154,150,168,0.85)" fontSize={9.5} style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums" }}>
+                <text x={x} y={up ? y - 18 : y + 46} fill="rgba(154,150,168,0.85)" fontSize={11.5} style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums" }}>
                   {range}
                 </text>
+                {cur && (
+                  <text x={x} y={up ? y + 30 : y - 20} fill="var(--color-gold)" fontSize={11} style={{ letterSpacing: "0.1em" }}>
+                    지금
+                  </text>
+                )}
                 {p.loosedBond && (
-                  <text x={x} y={up ? y - 44 : y + 54} fill="var(--color-gold)" fontSize={9} style={{ letterSpacing: "0.06em" }}>
+                  <text x={x} y={up ? y - 50 : y + 62} fill="var(--color-gold)" fontSize={10.5} style={{ letterSpacing: "0.06em" }}>
                     매듭 풀림
                   </text>
                 )}
@@ -342,13 +354,14 @@ function SubPath({
   );
 }
 
-/** 성좌처럼 살짝 꺾이는 결정론적 오프셋 — 무작위면 렌더마다 그림이 흔들린다. */
-const WOBBLE = [18, -22, 12, -16, 20, -12, 16, -18, 14];
-
 /**
  * 생의 성좌. 장의 경계가 별, 선분이 장이다. 각의 장은 선분이 밝고, "지금"은
  * 현재 장 선분 위 정확한 나이 위치에 이중 링(성좌 그림에서 가장 밝은 별의
  * 문법)으로 찍힌다. 첫 등장 때 선이 왼쪽(위)부터 자라며 별이 따라 뜬다.
+ *
+ * 선은 일직선이다. 처음에는 성좌처럼 위아래로 꺾었는데, 높낮이가 없는
+ * 정보인데도 상승장/하락장처럼 읽혔다(2026-08-28 실사용 보고). 뜻 없는
+ * 높낮이가 뜻으로 오독되면 장식이 아니라 결함이다.
  */
 function ChapterPath({
   l1,
@@ -368,22 +381,15 @@ function ChapterPath({
   const total = l1[l1.length - 1].toAge;
   const n = l1.length;
   const W = vertical ? 320 : 900;
-  const H = vertical ? 90 * n : 250;
+  const H = vertical ? 90 * n : 216;
   const M0 = vertical ? 26 : 34;
   const M1 = vertical ? H - 26 : W - 34;
-  const AXIS = vertical ? 96 : 125;
+  const AXIS = vertical ? 92 : 112;
 
   const pos = (a: number) => M0 + (M1 - M0) * (a / total);
-  const node = (i: number): [number, number] => {
-    const main = pos(l1[i] ? l1[i].fromAge : total);
-    const off = AXIS + WOBBLE[i % WOBBLE.length] * (vertical ? 0.8 : 1);
-    return vertical ? [off, main] : [main, off];
-  };
   const bounds = [...l1.map((p) => p.fromAge), total];
-  const nodes = bounds.map((_, i) =>
-    i < n ? node(i) : (vertical
-      ? [AXIS + WOBBLE[n % WOBBLE.length] * 0.8, pos(total)]
-      : [pos(total), AXIS + WOBBLE[n % WOBBLE.length]]) as [number, number],
+  const nodes = bounds.map(
+    (b): [number, number] => (vertical ? [AXIS, pos(b)] : [pos(b), AXIS]),
   );
 
   const curIdx = current ? l1.indexOf(current) : -1;
@@ -436,10 +442,10 @@ function ChapterPath({
           <circle cx={x} cy={y} r={4.4} fill="var(--color-starlight)" />
           <text
             x={vertical ? x - 16 : x}
-            y={vertical ? y + 4 : y + (WOBBLE[i % WOBBLE.length] > 0 ? 21 : -13)}
+            y={vertical ? y + 4 : y + 23}
             textAnchor={vertical ? "end" : "middle"}
             fill="rgba(154,150,168,0.8)"
-            fontSize={11}
+            fontSize={12}
             style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.08em" }}
           >
             {bounds[i]}
@@ -471,15 +477,15 @@ function ChapterPath({
               className="transition-opacity duration-300 ease-out motion-reduce:opacity-100 motion-reduce:transition-none"
               style={{ transitionDelay: `${i * STEP + 200}ms`, opacity: entered ? 1 : 0 }}
             >
-              <text x={mx + 34} y={my - 4} fill={cur ? "var(--color-gold-soft)" : "rgba(227,197,104,0.7)"} fontSize={13} style={{ fontFamily: ASTRO_FONT }}>
+              <text x={mx + 32} y={my - 4} fill={cur ? "var(--color-gold-soft)" : "rgba(227,197,104,0.7)"} fontSize={15} style={{ fontFamily: ASTRO_FONT }}>
                 {SIGN_SYMBOL[p.sign.key]}
                 {"\uFE0E"}
               </text>
-              <text x={mx + 54} y={my - 4} fill={tone} fontSize={12.5} style={{ fontFamily: "var(--font-display)" }}>
+              <text x={mx + 55} y={my - 4} fill={tone} fontSize={14} style={{ fontFamily: "var(--font-display)" }}>
                 {label}
               </text>
               {badge && (
-                <text x={mx + 34} y={my + 14} fill="var(--color-gold)" fontSize={9.5} style={{ letterSpacing: "0.06em" }}>
+                <text x={mx + 32} y={my + 15} fill="var(--color-gold)" fontSize={10.5} style={{ letterSpacing: "0.06em" }}>
                   {badge}
                 </text>
               )}
@@ -487,7 +493,7 @@ function ChapterPath({
           );
         }
         const up = i % 2 === 0;
-        const ly = my + (up ? -46 : 46);
+        const ly = my + (up ? -52 : 50);
         return (
           <g
             key={p.fromAge}
@@ -499,19 +505,19 @@ function ChapterPath({
               x1={mx}
               y1={my + (up ? -9 : 9)}
               x2={mx}
-              y2={ly + (up ? 6 : -12)}
+              y2={ly + (up ? 8 : -14)}
               stroke="rgba(201,162,39,0.18)"
               strokeWidth={1}
             />
-            <text x={mx} y={ly} fill={cur ? "var(--color-gold-soft)" : "rgba(227,197,104,0.7)"} fontSize={15} style={{ fontFamily: ASTRO_FONT }}>
+            <text x={mx} y={ly} fill={cur ? "var(--color-gold-soft)" : "rgba(227,197,104,0.7)"} fontSize={17} style={{ fontFamily: ASTRO_FONT }}>
               {SIGN_SYMBOL[p.sign.key]}
               {"\uFE0E"}
             </text>
-            <text x={mx} y={ly + 19} fill={tone} fontSize={13.5} style={{ fontFamily: "var(--font-display)" }}>
+            <text x={mx} y={ly + 21} fill={tone} fontSize={15} style={{ fontFamily: "var(--font-display)" }}>
               {label}
             </text>
             {badge && (
-              <text x={mx} y={ly + 35} fill="var(--color-gold)" fontSize={10} style={{ letterSpacing: "0.08em" }}>
+              <text x={mx} y={ly + 38} fill="var(--color-gold)" fontSize={11} style={{ letterSpacing: "0.08em" }}>
                 {badge}
               </text>
             )}
