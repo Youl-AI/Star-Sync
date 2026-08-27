@@ -11,6 +11,16 @@ export function Footer() {
       <Wordmark size="hero" />
 
       <nav className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-starlight-dim">
+        {/* 별길·문에 못 실은 셋 — 읽을거리와 참조 도구는 푸터가 맡는다(안 B). */}
+        <Link href="/blog" className="transition-colors hover:text-starlight">
+          칼럼
+        </Link>
+        <Link href="/ephemeris" className="transition-colors hover:text-starlight">
+          천문력
+        </Link>
+        <Link href="/retrograde" className="transition-colors hover:text-starlight">
+          수성 역행
+        </Link>
         <Link href="/about" className="transition-colors hover:text-starlight">
           소개
         </Link>

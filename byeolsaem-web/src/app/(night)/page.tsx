@@ -2,6 +2,7 @@ import { VerticalWorld } from "@/components/world/VerticalWorld";
 import { DeepResult } from "@/components/world/DeepResult";
 import { TodayTeaser } from "@/components/sections/TodayTeaser";
 import { ThreeDoors } from "@/components/sections/ThreeDoors";
+import { TimePath } from "@/components/sections/TimePath";
 import { TwelveRooms } from "@/components/sections/TwelveRooms";
 import { NightsEndCall } from "@/components/sections/NightsEndCall";
 import { ResultPreview } from "@/components/sections/ResultPreview";
@@ -67,8 +68,12 @@ export default function Home() {
         <Reveal>
           <ThreeDoors />
         </Reveal>
-        {/* 문 바로 아래가 푸터면 여정이 뚝 끊긴다. 문 다음에는 방 — 검색 유입의
-            핵심인 /sign 12페이지로 가는 유일한 메인 내부 링크이기도 하다. */}
+        {/* 문 다음에는 시간의 별길 — 오늘부터 일생까지 다섯 배율의 시간 축이
+            /today·/weekly·/calendar·/yearly·/chapters를 잇는다(홈 재편 안 B).
+            자체 진입 연출(선 긋기)이 있어 Reveal로 감싸지 않는다. */}
+        <TimePath />
+        {/* 길 다음에는 방 — 검색 유입의 핵심인 /sign 12페이지로 가는 유일한
+            메인 내부 링크이기도 하다. */}
         <Reveal>
           <TwelveRooms />
         </Reveal>

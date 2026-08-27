@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import { Door } from "./Door";
 import { DoorsPin } from "./DoorsPin";
-import { YearlyTagline } from "./YearlyTagline";
 
 // 세 개의 문에 쓰이는 미니 비주얼. 가는 금색 선 + 별점 원으로 문마다 다른
 // 형상을 그린다. 서버에서 그려져 Door(클라이언트)에 슬롯으로 넘어간다.
@@ -43,18 +42,25 @@ function SynastryGlyph() {
   );
 }
 
-function YearlyGlyph() {
+// 솔라 리턴: 궤도를 한 바퀴 돌아 제자리의 태양으로 돌아오는 길.
+function SolarReturnGlyph() {
   return (
-    <svg viewBox="0 0 140 52" className="h-20 w-full max-w-[200px]" aria-hidden>
-      <path
-        d="M4 36 Q 22 10 40 30 T 76 26 T 112 16 T 136 30"
+    <svg viewBox="0 0 140 64" className="h-20 w-full max-w-[200px]" aria-hidden>
+      <ellipse
+        cx="70"
+        cy="32"
+        rx="58"
+        ry="17"
+        transform="rotate(-7 70 32)"
         fill="none"
         stroke="var(--color-gold)"
-        strokeWidth=".8"
-        opacity=".7"
+        strokeWidth=".7"
+        opacity=".6"
       />
-      {[22, 58, 94, 128].map((x) => (
-        <circle key={x} cx={x} cy="26" r="1.6" fill="var(--color-gold-soft)" />
+      <circle cx="124" cy="25" r="6.5" fill="none" stroke="var(--color-gold-soft)" strokeWidth=".9" opacity=".9" />
+      <circle cx="124" cy="25" r="2.2" fill="var(--color-starlight)" />
+      {[[36, 45], [70, 49], [16, 30]].map(([x, y]) => (
+        <circle key={`${x}-${y}`} cx={x} cy={y} r="1.6" fill="var(--color-gold-soft)" />
       ))}
     </svg>
   );
@@ -99,19 +105,17 @@ export function ThreeDoors() {
           description="두 하늘이 겹치는 자리"
         />
 
-        {/* 링크는 연도 없는 경로로 둔다: 정적 export라 연도가 붙은 라우트를
-            빌드 시점에 박제하면 해가 바뀌는 순간 죽은 링크가 된다(URL은 재빌드
-            없이는 절대 바뀌지 않으므로 텍스트보다 더 심각한 하드코딩이다).
-            /yearly 페이지가 실제 구현될 때 그 안에서 getFortuneYear로 연도를
-            해석하게 한다. 화면에 보이는 연도 문구만 YearlyTagline에서 클라이언트
-            마운트 시점에 채운다(TodayDate.tsx와 동일 패턴). */}
+        {/* 연간 운세는 시간의 별길("올해" 정거장)로 이사했다(홈 재편 안 B,
+            2026-08-28). 빈 자리에 솔라 리턴이 올라와 문 셋이 나(원형) ·
+            우리(관계) · 나의 해(생일의 지도)로 나뉜다 — 시간은 별길이,
+            사람은 문이 맡는다. */}
         <Door
-          href="/yearly"
+          href="/solar-return"
           numeral="III"
-          hint="yearly"
-          glyph={<YearlyGlyph />}
-          title="연간 운세"
-          description={<YearlyTagline />}
+          hint="solar-return"
+          glyph={<SolarReturnGlyph />}
+          title="솔라 리턴"
+          description="생일마다 새로 그려지는 한 해의 지도"
         />
       </div>
     </DoorsPin>

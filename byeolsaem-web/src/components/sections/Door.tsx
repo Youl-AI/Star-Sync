@@ -32,14 +32,16 @@ interface DoorProps {
    * - synastry: 두 하늘을 겹치는 문 → 내 날짜 하나만 가리키면 틀린 말이 된다.
    *   "한쪽 하늘은 준비됐다"로, 나머지 한쪽이 남아 있음을 알린다.
    * - yearly: 다가올 해를 보는 문 → 태어난 날짜로 "가는" 것이 아니다.
+   * - solar-return: 생일의 하늘을 보는 문 → 날짜가 아니라 "내 생일"이 축이다.
    */
-  hint: "natal" | "synastry" | "yearly";
+  hint: "natal" | "synastry" | "yearly" | "solar-return";
 }
 
 const READY_HINTS = {
   natal: (birth: string) => `${birth}의 하늘로 →`,
   synastry: () => "한쪽 하늘은 준비됐어요 →",
   yearly: () => "나의 한 해 미리 보기 →",
+  "solar-return": () => "내 생일의 하늘 보기 →",
 } as const;
 
 /**
