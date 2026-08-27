@@ -1,4 +1,4 @@
-﻿# 인생의 시간표(/chapters) Implementation Plan
+# 인생의 시간표(/chapters) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -49,7 +49,7 @@
   - `ageOn(natalDate: string, now: Date): number`
   - `interface ProfectionYear { age: number; from: string; to: string; sign: ZodiacSign; house: number; lordKo: string }`
   - `currentProfection(natal: BirthMoment, chart: Chart, now: Date): ProfectionYear | null`
-  - `profectionYears(natal: BirthMoment, chart: Chart, now: Date): ProfectionYear[] | null` (현재−2 ~ 현재+9, 12칸)
+  - `profectionYears(natal: BirthMoment, chart: Chart, now: Date): ProfectionYear[] | null` (현재-2 ~ 현재+9, 12칸)
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
@@ -130,7 +130,7 @@ describe("연간 프로펙션", () => {
     expect(current.to).toBe("2027-07-14");
   });
 
-  it("12년 스트립 — 현재−2부터 12칸, 자리 연속 전진", () => {
+  it("12년 스트립 — 현재-2부터 12칸, 자리 연속 전진", () => {
     const years = profectionYears(NATAL, CHART, now)!;
     expect(years).toHaveLength(12);
     expect(years[0].age).toBe(29);
@@ -254,7 +254,7 @@ export function currentProfection(natal: BirthMoment, chart: Chart, now: Date): 
   return profectionAt(natal, chart, ageOn(natal.date, now));
 }
 
-/** 현재−2부터 12칸 — 프리뷰의 12년 스트립. */
+/** 현재-2부터 12칸 — 프리뷰의 12년 스트립. */
 export function profectionYears(natal: BirthMoment, chart: Chart, now: Date): ProfectionYear[] | null {
   if (chart.ascendant === null) return null;
   const age = ageOn(natal.date, now);
@@ -312,7 +312,7 @@ describe("점(Lot) — 주야 판정과 공식", () => {
     expect(isDayBirth(CHART)).toBe(true);
   });
 
-  it("행운의 점 — 주간 공식 Asc + 달 − 태양", () => {
+  it("행운의 점 — 주간 공식 Asc + 달 - 태양", () => {
     expect(lotLongitude(CHART, "fortune")).toBeCloseTo(norm(asc + moon - sun), 6);
   });
 
@@ -368,7 +368,7 @@ export function isDayBirth(chart: Chart): boolean | null {
 }
 
 /**
- * 행운의 점: 주간 Asc+달−태양, 야간 반전. 정신의 점은 그 반대.
+ * 행운의 점: 주간 Asc+달-태양, 야간 반전. 정신의 점은 그 반대.
  * 릴리징의 출발 자리는 이 값의 whole-sign 자리다.
  */
 export function lotLongitude(chart: Chart, lot: LotKey): number | null {
