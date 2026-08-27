@@ -93,7 +93,7 @@ export function currentProfection(natal: BirthMoment, chart: Chart, now: Date): 
   return profectionAt(natal, chart, ageOn(natal.date, now));
 }
 
-/** 현재−2부터 12칸 — 프리뷰의 12년 스트립. */
+/** 현재-2부터 12칸 — 프리뷰의 12년 스트립. */
 export function profectionYears(natal: BirthMoment, chart: Chart, now: Date): ProfectionYear[] | null {
   if (chart.ascendant === null) return null;
   const age = ageOn(natal.date, now);
@@ -124,7 +124,7 @@ export function isDayBirth(chart: Chart): boolean | null {
 }
 
 /**
- * 행운의 점: 주간 Asc+달−태양, 야간 반전. 정신의 점은 그 반대.
+ * 행운의 점: 주간 Asc+달-태양, 야간 반전. 정신의 점은 그 반대.
  * 릴리징의 출발 자리는 이 값의 whole-sign 자리다.
  */
 export function lotLongitude(chart: Chart, lot: LotKey): number | null {

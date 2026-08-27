@@ -74,7 +74,7 @@ describe("연간 프로펙션", () => {
     expect(current.to).toBe("2027-07-14");
   });
 
-  it("12년 스트립 — 현재−2부터 12칸, 자리 연속 전진", () => {
+  it("12년 스트립 — 현재-2부터 12칸, 자리 연속 전진", () => {
     const years = profectionYears(NATAL, CHART, now)!;
     expect(years).toHaveLength(12);
     expect(years[0].age).toBe(29);
@@ -102,7 +102,7 @@ describe("점(Lot) — 주야 판정과 공식", () => {
     expect(isDayBirth(CHART)).toBe(true);
   });
 
-  it("행운의 점 — 주간 공식 Asc + 달 − 태양", () => {
+  it("행운의 점 — 주간 공식 Asc + 달 - 태양", () => {
     expect(lotLongitude(CHART, "fortune")).toBeCloseTo(norm(asc + moon - sun), 6);
   });
 
