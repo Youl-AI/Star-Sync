@@ -1,13 +1,13 @@
-import { describe, expect, it } from "vitest";
-import { computeChart, type BirthMoment } from "../chart";
-import { ZODIAC_SIGNS } from "../zodiac";
+﻿import { describe, expect, it } from "vitest";
+import { computeChart, type BirthMoment } from "../lib/chart";
+import { ZODIAC_SIGNS } from "../lib/zodiac";
 import {
   TRADITIONAL_RULER,
   SIGN_YEARS,
   ageOn,
   currentProfection,
   profectionYears,
-} from "../time-lords";
+} from "../lib/time-lords";
 
 /** 예시 인물과 같은 값 — 시각이 있어 상승궁이 선다. */
 const NATAL: BirthMoment = {
