@@ -302,15 +302,24 @@ export function wheelArt(data: WheelArtData): CardSpec["art"] {
       return [cx + Math.cos(angle) * radius, cy - Math.sin(angle) * radius];
     };
 
-    // 두 링과 자리 경계 눈금.
+    // 네 개의 링 — 화면 원반과 같은 골격(자리 띠 둘, 하우스 링, 어스펙트 링).
+    // 처음엔 바깥 두 링뿐이어서 현들이 허공에 떠 보였다(피드백 2026-08-28).
+    const HOUSE_R = R - BAND - 5;
+    const ASPECT_R = 42;
     ctx.strokeStyle = GOLD;
-    ctx.lineWidth = 0.9;
-    ctx.globalAlpha = 0.4;
-    for (const r of [R, R - BAND]) {
+    ctx.lineWidth = 0.8;
+    for (const [r, alpha] of [
+      [R, 0.4],
+      [R - BAND, 0.4],
+      [HOUSE_R, 0.16],
+      [ASPECT_R, 0.22],
+    ] as const) {
+      ctx.globalAlpha = alpha;
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();
     }
+    ctx.globalAlpha = 0.4;
     for (let i = 0; i < 12; i += 1) {
       const [x0, y0] = pt(i * 30, R);
       const [x1, y1] = pt(i * 30, R - BAND);
@@ -330,48 +339,61 @@ export function wheelArt(data: WheelArtData): CardSpec["art"] {
       ctx.fillText(`${SIGN_SYMBOL[sign.key]}\uFE0E`, x, y);
     });
 
-    // 지평선 — 상승궁이 있을 때만. 왼쪽의 굵은 선이 화면 원반과 같은 축이다.
+    // 지평선 — 상승궁이 있을 때만. 화면처럼 하우스 링과 어스펙트 링 사이에만
+    // 긋는다. 중심까지 밀면 현들과 뒤엉킨다(피드백 2026-08-28).
     if (data.ascendant !== null) {
-      const [x0, y0] = pt(data.ascendant, R - BAND);
-      const [x1, y1] = pt(data.ascendant, 40);
+      const [x0, y0] = pt(data.ascendant, HOUSE_R);
+      const [x1, y1] = pt(data.ascendant, ASPECT_R);
       ctx.strokeStyle = GOLD;
-      ctx.globalAlpha = 0.8;
-      ctx.lineWidth = 1.3;
+      ctx.globalAlpha = 0.85;
+      ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.moveTo(x0, y0);
       ctx.lineTo(x1, y1);
       ctx.stroke();
     }
 
-    // 어스펙트 현 — 화면과 같은 문법: 금색이 순풍, 흐린 선이 맞바람.
+    // 어스펙트 현 — 어스펙트 링 위의 두 점을 잇고, 끝점을 작은 점으로 마감한다.
+    // 금색이 순풍, 흐린 선이 맞바람 — 화면 원반과 같은 문법.
+    ctx.lineWidth = 0.7;
     for (const asp of data.aspects) {
-      const [x0, y0] = pt(asp.a, 44);
-      const [x1, y1] = pt(asp.b, 44);
+      const [x0, y0] = pt(asp.a, ASPECT_R);
+      const [x1, y1] = pt(asp.b, ASPECT_R);
       ctx.strokeStyle = asp.harmony >= 0 ? GOLD_SOFT : STARLIGHT;
-      ctx.globalAlpha = asp.harmony >= 0 ? 0.65 : 0.3;
-      ctx.lineWidth = 0.8;
+      ctx.globalAlpha = asp.harmony >= 0 ? 0.55 : 0.28;
       ctx.beginPath();
       ctx.moveTo(x0, y0);
       ctx.lineTo(x1, y1);
       ctx.stroke();
     }
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = GOLD_SOFT;
+    for (const asp of data.aspects) {
+      for (const lon of [asp.a, asp.b]) {
+        const [x, y] = pt(lon, ASPECT_R);
+        ctx.beginPath();
+        ctx.arc(x, y, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
 
-    // 별 글리프 — 황경이 가까우면 반지름을 안쪽으로 벌려 겹침을 푼다.
+    // 별 글리프 — 황경이 가까우면 반지름을 안쪽으로 번갈아 내려 겹침을 푼다.
+    // 10도 문턱으로는 13~14도 간격의 무리(토성·목성·달)가 그대로 붙었다.
     const sorted = [...data.placements].sort((a, b) => a.longitude - b.longitude);
     ctx.globalAlpha = 1;
     let level = 0;
     let prev = Number.NEGATIVE_INFINITY;
     for (const p of sorted) {
-      level = p.longitude - prev < 10 ? (level + 1) % 2 : 0;
+      level = p.longitude - prev < 16 ? (level + 1) % 2 : 0;
       prev = p.longitude;
-      const [x, y] = pt(p.longitude, level === 0 ? 72 : 58);
+      const [x, y] = pt(p.longitude, level === 0 ? 68 : 55);
       ctx.fillStyle = STARLIGHT;
       ctx.font = `11px ${ASTRO_FONT}`;
       ctx.fillText(`${p.symbol}\uFE0E`, x, y);
       if (p.retrograde) {
         ctx.fillStyle = GOLD_SOFT;
-        ctx.font = `6px ${ASTRO_FONT}`;
-        ctx.fillText("R", x + 7, y - 5);
+        ctx.font = `5.5px ${ASTRO_FONT}`;
+        ctx.fillText("R", x + 6.5, y - 5);
       }
     }
     ctx.textBaseline = "alphabetic";
