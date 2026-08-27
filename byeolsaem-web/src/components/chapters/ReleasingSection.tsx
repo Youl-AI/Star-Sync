@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { BirthMoment, Chart } from "@/lib/chart";
 import { fractionalAge, zodiacalReleasing, type LotKey, type ZrPeriod } from "@/lib/time-lords";
+import { SIGN_SYMBOL } from "@/lib/zodiac";
 
 const LOT_LABEL: Record<LotKey, { name: string; scope: string }> = {
   spirit: { name: "정신의 점", scope: "커리어와 행동의 장" },
@@ -23,14 +24,14 @@ type SwapPhase = "" | "out-left" | "out-right" | "in-left" | "in-right";
 const SWAP_MS = 300;
 
 /**
- * 조디악 릴리징 — L1 타임라인 + 현재 장의 L2 스트립 + 범례(프리뷰 승인본).
- * 기본은 정신의 점(사람들이 가장 궁금해하는 커리어 질문). 토글은 컴포넌트
- * 상태만 — URL·저장 없음(스펙 §3.3).
+ * 조디악 릴리징 — 생의 성좌(L1) + 현재 장의 L2 스트립 + 범례.
  *
- * 토글은 세그먼티드 컨트롤이다(2026-08-27 모션 패스). 금색 하이라이트가
- * 미끄러지고, 아래 내용이 같은 방향으로 밀리며 교체된다. 나가는 쪽에 blur를
- * 살짝 얹어 두 상태가 겹쳐 보이는 크로스페이드의 이음새를 가린다.
- * reduced-motion에서는 즉시 교체된다.
+ * L1은 상자가 아니라 하나의 성좌다("생의 성좌" 컨셉, 2026-08-27 승인):
+ * 장의 경계마다 별, 선분의 길이가 연수, "지금"은 선 위의 정확한 나이 위치에
+ * 이중 링을 두른 별로 찍힌다 — 부적 카드의 성좌 그림과 같은 문법이다.
+ *
+ * 기본은 정신의 점(사람들이 가장 궁금해하는 커리어 질문). 토글은 세그먼티드
+ * 컨트롤 + 방향 있는 스와이프(모션 패스), 상태는 컴포넌트 안에만 산다.
  */
 export function ReleasingSection({
   natal,
@@ -41,16 +42,13 @@ export function ReleasingSection({
   chart: Chart;
   now: Date;
 }) {
-  // lot은 컨트롤(하이라이트·aria)의 상태, shownLot은 실제 그려진 내용의 상태.
-  // 전환 중에는 둘이 잠시 어긋난다 — 컨트롤은 먼저 가고 내용이 뒤따른다.
   const [lot, setLot] = useState<LotKey>("spirit");
   const [shownLot, setShownLot] = useState<LotKey>("spirit");
   const [swap, setSwap] = useState<SwapPhase>("");
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  // 계산 결과의 첫 등장 스태거(모션 패스 02). 마운트 후 한 번만 —
-  // 토글 전환의 스와이프와 겹치지 않는다.
+  // 첫 등장 — 성좌가 왼쪽부터 그려진다(선이 자라고 별이 따라 뜬다).
   const [entered, setEntered] = useState(false);
   useEffect(() => {
     const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
@@ -137,19 +135,24 @@ export function ReleasingSection({
         <div
           className={`transition-[transform,opacity,filter] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none ${swapClass}`}
         >
-          {/* L1 타임라인 — 장 폭은 연수에 비례 */}
-          <div className="mt-12 flex flex-wrap gap-x-1 gap-y-6">
-            {zr.l1.map((p, i) => (
-              <ChapterCell
-                key={p.fromAge}
-                period={p}
-                current={p === zr.currentL1}
-                age={age}
-                first={i === 0}
-                entered={entered}
-                index={i}
-              />
-            ))}
+          {/* 생의 성좌 — 데스크톱은 가로, 좁은 화면은 세로로 흐른다. */}
+          <div className="mt-10">
+            <ChapterPath
+              l1={zr.l1}
+              current={zr.currentL1}
+              age={age}
+              entered={entered}
+              vertical={false}
+              className="hidden w-full sm:block"
+            />
+            <ChapterPath
+              l1={zr.l1}
+              current={zr.currentL1}
+              age={age}
+              entered={entered}
+              vertical
+              className="mx-auto w-full max-w-[340px] sm:hidden"
+            />
           </div>
 
           {/* 현재 장의 L2 */}
@@ -219,66 +222,195 @@ export function ReleasingSection({
   );
 }
 
-function ChapterCell({
-  period,
+const ASTRO_FONT = '"Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols2", "Noto Sans Symbols", sans-serif';
+
+/** 성좌처럼 살짝 꺾이는 결정론적 오프셋 — 무작위면 렌더마다 그림이 흔들린다. */
+const WOBBLE = [18, -22, 12, -16, 20, -12, 16, -18, 14];
+
+/**
+ * 생의 성좌. 장의 경계가 별, 선분이 장이다. 각의 장은 선분이 밝고, "지금"은
+ * 현재 장 선분 위 정확한 나이 위치에 이중 링(성좌 그림에서 가장 밝은 별의
+ * 문법)으로 찍힌다. 첫 등장 때 선이 왼쪽(위)부터 자라며 별이 따라 뜬다.
+ */
+function ChapterPath({
+  l1,
   current,
   age,
-  first,
   entered,
-  index,
+  vertical,
+  className,
 }: {
-  period: ZrPeriod;
-  current: boolean;
+  l1: ZrPeriod[];
+  current: ZrPeriod | null;
   age: number;
-  first: boolean;
-  /** 첫 등장 스태거 — false에서 true로 한 번만 바뀐다. */
   entered: boolean;
-  index: number;
+  vertical: boolean;
+  className?: string;
 }) {
-  const years = period.toAge - period.fromAge;
-  const badge = current
-    ? `지금 · ${Math.floor(age - period.fromAge) + 1}년째`
-    : period.peak
-      ? "절정의 장"
-      : first
-        ? "제1장 · 점의 자리"
-        : period.angular
-          ? "각(角)의 장"
-          : null;
+  const total = l1[l1.length - 1].toAge;
+  const n = l1.length;
+  const W = vertical ? 320 : 900;
+  const H = vertical ? 90 * n : 250;
+  const M0 = vertical ? 26 : 34;
+  const M1 = vertical ? H - 26 : W - 34;
+  const AXIS = vertical ? 96 : 125;
+
+  const pos = (a: number) => M0 + (M1 - M0) * (a / total);
+  const node = (i: number): [number, number] => {
+    const main = pos(l1[i] ? l1[i].fromAge : total);
+    const off = AXIS + WOBBLE[i % WOBBLE.length] * (vertical ? 0.8 : 1);
+    return vertical ? [off, main] : [main, off];
+  };
+  const bounds = [...l1.map((p) => p.fromAge), total];
+  const nodes = bounds.map((_, i) =>
+    i < n ? node(i) : (vertical
+      ? [AXIS + WOBBLE[n % WOBBLE.length] * 0.8, pos(total)]
+      : [pos(total), AXIS + WOBBLE[n % WOBBLE.length]]) as [number, number],
+  );
+
+  const curIdx = current ? l1.indexOf(current) : -1;
+  // "지금" 별 — 현재 장 선분 위를 나이 비율로 보간.
+  let nowPt: [number, number] | null = null;
+  if (curIdx >= 0) {
+    const [x1, y1] = nodes[curIdx];
+    const [x2, y2] = nodes[curIdx + 1];
+    const f = (age - l1[curIdx].fromAge) / (l1[curIdx].toAge - l1[curIdx].fromAge);
+    nowPt = [x1 + (x2 - x1) * f, y1 + (y2 - y1) * f];
+  }
+
+  const seg = (i: number) => {
+    const [x1, y1] = nodes[i];
+    const [x2, y2] = nodes[i + 1];
+    return { x1, y1, x2, y2, len: Math.hypot(x2 - x1, y2 - y1) };
+  };
+  const STEP = 140;
+
   return (
-    <div
-      className={`relative flex min-w-[92px] basis-0 flex-col justify-between border px-2.5 pb-2.5 pt-3.5 transition-[opacity,transform,border-color,background-color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
-        entered ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-      } ${
-        current
-          ? "border-gold bg-gradient-to-b from-gold/15 to-nebula/40 shadow-[0_0_22px_rgba(201,162,39,0.2)]"
-          : "border-gold/20 bg-nebula/35 hover:border-gold/50 hover:bg-nebula/60"
-      }`}
-      style={{
-        flexGrow: years,
-        // 스태거는 등장(opacity·transform)에만 — 호버의 색 전환은 즉시.
-        transitionDelay: `${index * 60}ms, ${index * 60}ms, 0ms, 0ms`,
-        transitionDuration: "500ms, 500ms, 150ms, 150ms",
-      }}
-    >
-      {badge && (
-        <span
-          className={`absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap border border-gold/50 bg-ink px-2 text-[10px] tracking-[0.08em] text-gold-soft ${
-            current ? "badge-breathe" : ""
-          }`}
+    <svg viewBox={`0 0 ${W} ${H}`} className={className} role="img" aria-label="인생의 장 타임라인">
+      {/* 선분(장) — 왼쪽부터 순서대로 그려진다. */}
+      {l1.map((p, i) => {
+        const s = seg(i);
+        const cur = i === curIdx;
+        return (
+          <line
+            key={p.fromAge}
+            x1={s.x1}
+            y1={s.y1}
+            x2={s.x2}
+            y2={s.y2}
+            stroke={cur ? "var(--color-gold-soft)" : p.angular || p.peak ? "rgba(201,162,39,0.85)" : "rgba(201,162,39,0.45)"}
+            strokeWidth={cur ? 2.2 : 1.4}
+            strokeDasharray={s.len}
+            strokeDashoffset={entered ? 0 : s.len}
+            className="transition-[stroke-dashoffset] duration-[450ms] ease-out motion-reduce:transition-none motion-reduce:[stroke-dashoffset:0]"
+            style={{ transitionDelay: `${i * STEP}ms` }}
+          />
+        );
+      })}
+
+      {/* 경계 별과 경계 나이 */}
+      {nodes.map(([x, y], i) => (
+        <g
+          key={i}
+          className="transition-opacity duration-300 ease-out motion-reduce:opacity-100 motion-reduce:transition-none"
+          style={{ transitionDelay: `${i * STEP + 120}ms`, opacity: entered ? 1 : 0 }}
         >
-          {badge}
-        </span>
+          <circle cx={x} cy={y} r={4.4} fill="var(--color-starlight)" />
+          <text
+            x={vertical ? x - 16 : x}
+            y={vertical ? y + 4 : y + (WOBBLE[i % WOBBLE.length] > 0 ? 21 : -13)}
+            textAnchor={vertical ? "end" : "middle"}
+            fill="rgba(154,150,168,0.8)"
+            fontSize={11}
+            style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.08em" }}
+          >
+            {bounds[i]}
+          </text>
+        </g>
+      ))}
+
+      {/* 장 라벨 — 선분 중앙에서 위아래(좌우) 교대 */}
+      {l1.map((p, i) => {
+        const s = seg(i);
+        const mx = (s.x1 + s.x2) / 2;
+        const my = (s.y1 + s.y2) / 2;
+        const cur = i === curIdx;
+        const tone = cur ? "var(--color-gold-soft)" : "var(--color-starlight)";
+        const badge = cur
+          ? `지금 · ${Math.floor(age - p.fromAge) + 1}년째`
+          : p.peak
+            ? "절정의 장"
+            : i === 0
+              ? "제1장 · 점의 자리"
+              : p.angular
+                ? "각(角)의 장"
+                : null;
+        const label = `${p.sign.ko.replace("자리", "")} · ${p.toAge - p.fromAge}년`;
+        if (vertical) {
+          return (
+            <g
+              key={p.fromAge}
+              className="transition-opacity duration-300 ease-out motion-reduce:opacity-100 motion-reduce:transition-none"
+              style={{ transitionDelay: `${i * STEP + 200}ms`, opacity: entered ? 1 : 0 }}
+            >
+              <text x={mx + 34} y={my - 4} fill={cur ? "var(--color-gold-soft)" : "rgba(227,197,104,0.7)"} fontSize={13} style={{ fontFamily: ASTRO_FONT }}>
+                {SIGN_SYMBOL[p.sign.key]}
+                {"\uFE0E"}
+              </text>
+              <text x={mx + 54} y={my - 4} fill={tone} fontSize={12.5} style={{ fontFamily: "var(--font-display)" }}>
+                {label}
+              </text>
+              {badge && (
+                <text x={mx + 34} y={my + 14} fill="var(--color-gold)" fontSize={9.5} style={{ letterSpacing: "0.06em" }}>
+                  {badge}
+                </text>
+              )}
+            </g>
+          );
+        }
+        const up = i % 2 === 0;
+        const ly = my + (up ? -46 : 46);
+        return (
+          <g
+            key={p.fromAge}
+            textAnchor="middle"
+            className="transition-opacity duration-300 ease-out motion-reduce:opacity-100 motion-reduce:transition-none"
+            style={{ transitionDelay: `${i * STEP + 200}ms`, opacity: entered ? 1 : 0 }}
+          >
+            <line
+              x1={mx}
+              y1={my + (up ? -9 : 9)}
+              x2={mx}
+              y2={ly + (up ? 6 : -12)}
+              stroke="rgba(201,162,39,0.18)"
+              strokeWidth={1}
+            />
+            <text x={mx} y={ly} fill={cur ? "var(--color-gold-soft)" : "rgba(227,197,104,0.7)"} fontSize={15} style={{ fontFamily: ASTRO_FONT }}>
+              {SIGN_SYMBOL[p.sign.key]}
+              {"\uFE0E"}
+            </text>
+            <text x={mx} y={ly + 19} fill={tone} fontSize={13.5} style={{ fontFamily: "var(--font-display)" }}>
+              {label}
+            </text>
+            {badge && (
+              <text x={mx} y={ly + 35} fill="var(--color-gold)" fontSize={10} style={{ letterSpacing: "0.08em" }}>
+                {badge}
+              </text>
+            )}
+          </g>
+        );
+      })}
+
+      {/* "지금" — 이중 링을 두른 별. 성좌가 다 그려진 뒤 마지막에 뜬다. */}
+      {nowPt && (
+        <g
+          className="transition-opacity duration-400 ease-out motion-reduce:opacity-100 motion-reduce:transition-none"
+          style={{ transitionDelay: `${n * STEP + 250}ms`, opacity: entered ? 1 : 0 }}
+        >
+          <circle cx={nowPt[0]} cy={nowPt[1]} r={10} fill="none" stroke="var(--color-gold-soft)" strokeWidth={1.1} className="star-breathe" />
+          <circle cx={nowPt[0]} cy={nowPt[1]} r={4.8} fill="var(--color-gold-soft)" />
+        </g>
       )}
-      <div>
-        <p className={`font-display text-[15px] ${current ? "text-gold-soft" : "text-starlight"}`}>
-          {period.sign.ko.replace("자리", "")}
-        </p>
-        <p className="mt-0.5 text-[11px] tracking-[0.05em] text-starlight-dim">{years}년</p>
-      </div>
-      <p className="mt-2 font-latin text-[11.5px] tabular-nums tracking-[0.1em] text-starlight-dim">
-        {period.fromAge} – {period.toAge}
-      </p>
-    </div>
+    </svg>
   );
 }
