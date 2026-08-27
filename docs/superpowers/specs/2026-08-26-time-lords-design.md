@@ -87,6 +87,8 @@ export interface ZrPeriod {
   houseFromFortune: number;
   /** 1·4·7·10이면 true — 각(角)의 장. */
   angular: boolean;
+  /** 10번째면 true — 절정의 장. UI가 각과 구분해 배지를 단다. */
+  peak: boolean;
   /** 매듭 풀림으로 건너뛰어 시작된 장인가 (L2 전용). */
   loosedBond: boolean;
 }
