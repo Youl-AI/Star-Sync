@@ -744,3 +744,16 @@ html[data-cal-dir] ::view-transition-old(calendar-grid) {
 html[data-cal-dir] ::view-transition-new(calendar-grid) {
   animation: cal-slide-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* /chapters "지금" 배지의 숨쉬는 글로우(모션 패스 03). 페이지에 하나뿐인
+   앰비언트 — 여러 곳에 쓰면 앰비언트가 아니라 소음이 된다. */
+@keyframes badge-breathe {
+  0%, 100% { box-shadow: 0 0 0 rgba(227, 197, 104, 0); }
+  50% { box-shadow: 0 0 14px rgba(227, 197, 104, 0.45); }
+}
+.badge-breathe {
+  animation: badge-breathe 4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .badge-breathe { animation: none; }
+}
