@@ -32,6 +32,7 @@ const NAV_TARGETS = [
   "calendar.html",
   "weekly.html",
   "solar-return.html",
+  "chapters.html",
   "blog.html",
   "ephemeris.html",
 ];

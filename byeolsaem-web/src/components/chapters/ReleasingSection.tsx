@@ -8,6 +8,15 @@ const LOT_LABEL: Record<LotKey, { name: string; scope: string }> = {
   fortune: { name: "행운의 점", scope: "몸과 환경의 장" },
 };
 
+/** 현재 장의 풀이 — 장 유형 프레임 x 자리 원자(tagline) 한 줄 인용(스펙 §3.3). */
+function chapterFrame(period: ZrPeriod): string {
+  if (period.peak)
+    return "행운의 점에서 열 번째 자리 — 이 장에서 하는 일이 가장 멀리까지 보이는 절정의 장입니다.";
+  if (period.angular)
+    return "행운의 점에서 모난 자리 — 삶의 무대가 크게 움직이는 장입니다.";
+  return "모난 자리 사이의 장 — 무대가 바뀌기보다, 지난 장이 벌인 일을 살아 내는 시간입니다.";
+}
+
 /**
  * 조디악 릴리징 — L1 타임라인 + 현재 장의 L2 스트립 + 범례(프리뷰 승인본).
  * 기본은 정신의 점(사람들이 가장 궁금해하는 커리어 질문). 토글은 컴포넌트
@@ -47,7 +56,7 @@ export function ReleasingSection({
             type="button"
             onClick={() => setLot(key)}
             aria-pressed={lot === key}
-            className={`border px-4 py-2 text-meta tracking-wide transition-colors ${
+            className={`break-keep border px-4 py-2 text-meta tracking-wide transition-colors ${
               lot === key
                 ? "border-gold bg-gold/10 text-gold-soft"
                 : "border-gold/25 text-starlight-dim hover:text-starlight"
@@ -59,9 +68,9 @@ export function ReleasingSection({
       </div>
 
       {/* L1 타임라인 — 장 폭은 연수에 비례 */}
-      <div className="mt-12 flex flex-wrap gap-1">
-        {zr.l1.map((p) => (
-          <ChapterCell key={p.fromAge} period={p} current={p === zr.currentL1} age={age} />
+      <div className="mt-12 flex flex-wrap gap-x-1 gap-y-6">
+        {zr.l1.map((p, i) => (
+          <ChapterCell key={p.fromAge} period={p} current={p === zr.currentL1} age={age} first={i === 0} />
         ))}
       </div>
 
@@ -71,11 +80,11 @@ export function ReleasingSection({
           <h3 className="break-keep text-center font-display text-lg text-starlight">
             지금 장의 속살 — {zr.currentL1.sign.ko.replace("자리", "")}의 {zr.currentL1.toAge - zr.currentL1.fromAge}년
           </h3>
-          <div className="mt-5 flex flex-wrap gap-1">
+          <div className="mt-5 grid gap-1 [grid-template-columns:repeat(auto-fit,minmax(72px,1fr))]">
             {zr.l2OfCurrent.map((p) => (
               <div
                 key={p.fromAge}
-                className={`min-w-[72px] flex-1 border px-1 py-2.5 text-center text-[12px] leading-normal ${
+                className={`border px-1 py-2.5 text-center text-[12px] leading-normal ${
                   p === zr.currentL2
                     ? "border-gold bg-gold/10 text-gold-soft"
                     : "border-gold/15 bg-nebula/30 text-starlight-dim"
@@ -94,6 +103,19 @@ export function ReleasingSection({
           <p className="mt-4 text-center text-meta text-starlight-dim">
             긴 장 안에서 달이 도는 작은 장(L2) — 숫자는 만 나이
           </p>
+          <div className="mx-auto mt-8 max-w-[56ch] text-center">
+            <p className="break-keep leading-relaxed text-starlight">
+              지금은 {zr.currentL1.sign.ko}의 장 — {zr.currentL1.sign.tagline}의
+              시간입니다. {chapterFrame(zr.currentL1)}
+            </p>
+            {zr.currentL2 && (
+              <p className="mt-3 break-keep text-guide text-starlight-dim">
+                그 안의 작은 장은 지금 {zr.currentL2.sign.ko}를 지나고 있습니다.
+                {zr.currentL2.loosedBond &&
+                  " 이 작은 장은 매듭 풀림으로 건너뛰어 시작되었습니다 — 흐름이 한 번 꺾인 자리입니다."}
+              </p>
+            )}
+          </div>
         </div>
       )}
 
@@ -117,18 +139,30 @@ export function ReleasingSection({
   );
 }
 
-function ChapterCell({ period, current, age }: { period: ZrPeriod; current: boolean; age: number }) {
+function ChapterCell({
+  period,
+  current,
+  age,
+  first,
+}: {
+  period: ZrPeriod;
+  current: boolean;
+  age: number;
+  first: boolean;
+}) {
   const years = period.toAge - period.fromAge;
   const badge = current
     ? `지금 · ${Math.floor(age - period.fromAge) + 1}년째`
     : period.peak
       ? "절정의 장"
-      : period.angular
-        ? "각(角)의 장"
-        : null;
+      : first
+        ? "제1장 · 점의 자리"
+        : period.angular
+          ? "각(角)의 장"
+          : null;
   return (
     <div
-      className={`relative flex min-w-[92px] flex-col justify-between border px-2.5 pb-2.5 pt-3.5 ${
+      className={`relative flex min-w-[92px] basis-0 flex-col justify-between border px-2.5 pb-2.5 pt-3.5 ${
         current
           ? "border-gold bg-gradient-to-b from-gold/15 to-nebula/40 shadow-[0_0_22px_rgba(201,162,39,0.2)]"
           : "border-gold/20 bg-nebula/35"
