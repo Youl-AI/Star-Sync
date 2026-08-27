@@ -257,28 +257,43 @@ export function ReleasingSection({
         </p>
       </div>
 
-      <StorySummary zr={zr} other={zrOther} otherLot={otherLot} age={age} />
+      <StorySummary
+        spirit={shownLot === "spirit" ? zr : zrOther}
+        fortune={shownLot === "fortune" ? zr : zrOther}
+        age={age}
+      />
     </section>
   );
 }
 
 /**
- * 이야기로 읽기 — 위 그림의 조각들을 한 편의 이야기로 엮는다(2026-08-28
- * 피드백: 조각은 다 있는데 엮어 주는 문단이 없어 처음 보는 사람이 길을
- * 잃는다). 순서는 큰 뉴스부터: 지금 몇 번째 장을 몇 년째인가, 다음에 무엇이
- * 언제 오는가, 절정은 언제인가.
+ * 이야기로 읽기 — 위 그림의 조각들을 이야기로 엮는다(2026-08-28 피드백:
+ * 조각은 다 있는데 엮어 주는 문단이 없어 처음 보는 사람이 길을 잃는다).
+ * 두 시간표를 전부 풀어 준다 — 토글로 오르내리는 동선 없이 여기서 다
+ * 읽히도록. 순서는 언제나 큰 뉴스부터: 지금 몇 번째 장을 몇 년째인가,
+ * 다음에 무엇이 언제 오는가, 절정은 언제인가.
  */
 function StorySummary({
-  zr,
-  other,
-  otherLot,
+  spirit,
+  fortune,
   age,
 }: {
-  zr: ZodiacalReleasing;
-  other: ZodiacalReleasing | null;
-  otherLot: LotKey;
+  spirit: ZodiacalReleasing | null;
+  fortune: ZodiacalReleasing | null;
   age: number;
 }) {
+  if (!spirit && !fortune) return null;
+  return (
+    <div className="mx-auto mt-14 max-w-[58ch] border-t border-gold/15 pt-10">
+      <h3 className="break-keep text-center font-display text-lg text-starlight">이야기로 읽기</h3>
+      {spirit && <LotStory zr={spirit} age={age} />}
+      {fortune && <LotStory zr={fortune} age={age} />}
+    </div>
+  );
+}
+
+/** 한 점(Lot)의 시간표를 세 문단의 이야기로. */
+function LotStory({ zr, age }: { zr: ZodiacalReleasing; age: number }) {
   const cur = zr.currentL1;
   if (!cur) return null;
   const curIdx = zr.l1.indexOf(cur);
@@ -299,23 +314,27 @@ function StorySummary({
 
   const gold = "font-medium text-gold-soft";
   return (
-    <div className="mx-auto mt-14 max-w-[58ch] border-t border-gold/15 pt-10">
-      <h3 className="break-keep text-center font-display text-lg text-starlight">이야기로 읽기</h3>
-      <div className="mt-5 grid gap-4 break-keep leading-relaxed text-starlight-dim">
+    <div className="mt-8">
+      <p className="text-center text-meta tracking-[0.12em] text-gold-soft">
+        {LOT_LABEL[zr.lot].scope.replace("의 장", "")}의 시간표 — {LOT_LABEL[zr.lot].name}
+      </p>
+      <div className="mt-4 grid gap-4 break-keep leading-relaxed text-starlight-dim">
         <p>
           {curIdx === 0 ? (
             <>
-              당신의 인생 1장은 태어나며 함께 열린{" "}
+              이 시간표의 1장은 태어나며 함께 열린{" "}
               <b className={gold}>{cur.sign.ko}의 장</b>
               ({cur.toAge - cur.fromAge}년)입니다. 올해로 {yearsIn}년째, 이 장은{" "}
-              {yearMonth(cur.to)}까지 이어집니다 — 아직 첫 장 안을 걷고 있습니다.
+              {yearMonth(cur.to)}까지 이어집니다 — 아직 첫 장 안을 걷는,{" "}
+              {cur.sign.tagline}의 시간입니다.
             </>
           ) : (
             <>
-              당신은 지금 <b className={gold}>{yearMonth(cur.from)}</b>에 열린{" "}
+              지금은 <b className={gold}>{yearMonth(cur.from)}</b>에 열린{" "}
               {curIdx + 1}번째 장, <b className={gold}>{cur.sign.ko}의 장</b>
-              ({cur.toAge - cur.fromAge}년)을 {yearsIn}년째 지나고 있습니다. 이
-              장은 {yearMonth(cur.to)}까지 이어집니다.
+              ({cur.toAge - cur.fromAge}년)의 {yearsIn}년째 —{" "}
+              {cur.sign.tagline}의 시간입니다. 이 장은 {yearMonth(cur.to)}까지
+              이어집니다.
             </>
           )}
           {l2 && (
@@ -377,28 +396,6 @@ function StorySummary({
             </>
           )}
         </p>
-        {other?.currentL1 &&
-          (() => {
-            const oCur = other.currentL1;
-            const oNext = other.l1[other.l1.indexOf(oCur) + 1];
-            return (
-              <p>
-                이 이야기는 {LOT_LABEL[zr.lot].name}({LOT_LABEL[zr.lot].scope})
-                기준입니다. 또 하나의 시간표 —{" "}
-                <b className={gold}>{LOT_LABEL[otherLot].name}</b>(
-                {LOT_LABEL[otherLot].scope})으로 보면 지금은{" "}
-                {oCur.sign.ko}의 장이고
-                {oNext ? (
-                  <>
-                    , 다음 큰 전환은 <b className={gold}>{yearMonth(oNext.from)}</b>{" "}
-                    — {oNext.sign.ko}의 장({oNext.toAge - oNext.fromAge}년)이
-                    열립니다
-                  </>
-                ) : null}
-                . 위 토글로 그쪽 시간표 전체를 볼 수 있습니다.
-              </p>
-            );
-          })()}
       </div>
     </div>
   );
