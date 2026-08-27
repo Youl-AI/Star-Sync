@@ -34,6 +34,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/natal", label: "내 천궁도", desc: "태어난 순간의 하늘 전부" },
       { href: "/yearly", label: "한 해의 하늘", desc: "올해 내 별들을 지나는 흐름" },
       { href: "/solar-return", label: "솔라 리턴", desc: "생일마다 새로 그려지는 일 년의 지도" },
+      { href: "/chapters", label: "인생의 시간표", desc: "올해의 자리와 인생의 장 — 고전 시간법" },
       { href: "/synastry", label: "궁합", desc: "두 하늘이 겹칠 때 생기는 각도" },
     ],
   },
@@ -48,4 +49,4 @@ export const NAV_GROUPS: NavGroup[] = [
 ];
 
 /** 금색 새 표시(●). 출시 4주 뒤(2026-09-20께) 이 배열을 비운다. */
-export const NAV_NEW: string[] = ["/weekly", "/calendar", "/solar-return", "/ephemeris"];
+export const NAV_NEW: string[] = ["/weekly", "/calendar", "/solar-return", "/ephemeris", "/chapters"];

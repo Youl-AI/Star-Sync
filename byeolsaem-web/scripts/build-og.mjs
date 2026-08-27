@@ -287,6 +287,7 @@ const PAGE_CARDS = [
   { file: "weekly.png", eyebrow: "THIS WEEK", title: "이번 주 하늘", sub: "이레 동안 하늘에 일어나는 일", motif: "horizon" },
   { file: "solar-return.png", eyebrow: "SOLAR RETURN", title: "솔라 리턴", sub: "생일마다 새로 그려지는 일 년의 지도", motif: "rings" },
   { file: "ephemeris.png", eyebrow: "EPHEMERIS", title: "천문력", sub: "날짜별 행성 위치, 원자료 그대로", motif: "horizon" },
+  { file: "chapters.png", eyebrow: "TIME LORDS", title: "인생의 시간표", sub: "올해의 자리, 인생의 장", motif: "rings" },
 ];
 
 async function render(element, file, font) {

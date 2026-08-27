@@ -36,6 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/weekly`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/calendar`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/solar-return`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/chapters`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/ephemeris`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/blog`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE}/about`, changeFrequency: "yearly", priority: 0.3 },
