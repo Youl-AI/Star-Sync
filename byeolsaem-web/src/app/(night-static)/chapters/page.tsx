@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ChaptersScope } from "@/components/chapters/ChaptersScope";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { PlaceBand } from "@/components/place/PlaceBand";
@@ -42,7 +43,7 @@ export default function ChaptersPage() {
         </p>
       </header>
 
-      {/* Task 5: <ChaptersScope /> */}
+      <ChaptersScope />
 
       <section className="mt-20 border-t border-gold/15 pt-12">
         <h2 className="mb-6 break-keep font-display text-xl text-starlight">자주 묻는 것</h2>
