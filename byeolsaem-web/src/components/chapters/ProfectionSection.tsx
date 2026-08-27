@@ -41,6 +41,10 @@ export function ProfectionSection({
       <p className="mt-2 text-center font-latin text-eyebrow tracking-[0.3em] text-starlight-dim">
         ANNUAL PROFECTIONS
       </p>
+      <p className="mx-auto mt-6 max-w-[56ch] break-keep text-center text-guide text-starlight-dim">
+        생일마다 한 칸씩 도는 12년의 시계입니다. 올해가 어느 자리의 해이고,
+        어느 행성이 올해를 주관하는지 — 나이만으로 정해집니다.
+      </p>
 
       <div className="mt-12 flex flex-wrap items-center justify-center gap-x-12 gap-y-10">
         <ProfectionDial years={years} currentAge={profection.age} entered={entered} />

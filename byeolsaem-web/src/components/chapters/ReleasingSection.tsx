@@ -98,9 +98,10 @@ export function ReleasingSection({
         ZODIACAL RELEASING
       </p>
       <p className="mx-auto mt-6 max-w-[56ch] break-keep text-center text-guide text-starlight-dim">
-        {LOT_LABEL[shownLot].name}({zr.lotSign.ko})에서 출발해, 별자리마다 정해진
-        연수만큼 인생을 장으로 나눕니다. 행운의 점에서 모난 자리의 장은 굵은
-        사건의 장으로, 열 번째 자리의 장은 절정의 장으로 읽습니다.
+        인생 전체를 책처럼 몇 년짜리 장(章)으로 나눠 읽는 기법입니다. 첫 장은
+        출생 차트의 {LOT_LABEL[shownLot].name}({zr.lotSign.ko})에서 열리고,
+        별자리마다 정해진 연수만큼 한 장씩 이어집니다 — 지금이 몇 장인지,
+        다음 장이 언제 열리는지를 봅니다.
       </p>
 
       {/* 점 토글 — 세그먼티드 컨트롤. 하이라이트가 두 칸 사이를 미끄러진다.
@@ -199,18 +200,22 @@ export function ReleasingSection({
         </div>
       </div>
 
-      {/* 범례 */}
+      {/* 범례 — 서양 용어 병기: 아는 사람에게는 다리가 되고, 처음 보는
+          사람에게는 검색할 열쇠말이 된다(2026-08-28 피드백). */}
       <div className="mx-auto mt-10 grid max-w-[60ch] gap-2.5 text-guide text-starlight-dim">
         <p className="break-keep">
-          <b className="font-medium text-gold-soft">각(角)의 장</b> — 행운의 점에서
+          <b className="font-medium text-gold-soft">각(角)의 장</b>
+          <span className="text-meta"> · 앵귤러</span> — 행운의 점에서
           1·4·7번째 자리. 삶의 무대가 크게 움직이는 장으로 읽습니다.
         </p>
         <p className="break-keep">
-          <b className="font-medium text-gold-soft">절정의 장</b> — 행운의 점에서 열
+          <b className="font-medium text-gold-soft">절정의 장</b>
+          <span className="text-meta"> · 피크</span> — 행운의 점에서 열
           번째 자리. 이 시기의 일이 가장 멀리까지 보이는 장입니다.
         </p>
         <p className="break-keep">
-          <b className="font-medium text-gold-soft">매듭 풀림</b> — 작은 장이 출발
+          <b className="font-medium text-gold-soft">매듭 풀림</b>
+          <span className="text-meta"> · 루싱 오브 본드</span> — 작은 장이 출발
           자리로 되돌아오는 순간 맞은편 자리로 건너뜁니다. 흐름이 한 번 꺾이는
           지점입니다.
         </p>
