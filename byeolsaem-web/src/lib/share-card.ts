@@ -104,6 +104,30 @@ function drawDiamondRule(ctx: CanvasRenderingContext2D, cx: number, y: number, s
   ctx.restore();
 }
 
+/** 공백 기준으로 폭에 맞춰 접는다. 한 어절이 폭을 넘으면 글자 단위로 자른다. */
+function wrapLine(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const lines: string[] = [];
+  let line = "";
+  const push = (piece: string): void => {
+    const joined = line ? `${line} ${piece}` : piece;
+    if (ctx.measureText(joined).width <= maxWidth) {
+      line = joined;
+      return;
+    }
+    if (line) lines.push(line);
+    line = piece;
+    while (ctx.measureText(line).width > maxWidth && line.length > 1) {
+      let cut = line.length - 1;
+      while (cut > 1 && ctx.measureText(line.slice(0, cut)).width > maxWidth) cut -= 1;
+      lines.push(line.slice(0, cut));
+      line = line.slice(cut);
+    }
+  };
+  for (const piece of text.split(" ")) push(piece);
+  if (line) lines.push(line);
+  return lines;
+}
+
 async function drawCard(spec: CardSpec): Promise<HTMLCanvasElement> {
   const display = resolveFont("--font-display");
   const latin = resolveFont("--font-latin");
@@ -160,8 +184,12 @@ async function drawCard(spec: CardSpec): Promise<HTMLCanvasElement> {
   ctx.restore();
 
   // 아래 글 무리. ArchCard와 같은 차례 — 이름, 라틴, 기간, 선-다이아-선, 문구.
+  // 문구가 길면 카드 밖으로 흘렀다(2026-08-28) — 폭에 맞춰 접고, 접힌 만큼
+  // 무리 전체를 위로 올려 아래 금테를 지키게 한다.
   const cx = W / 2;
-  let y = H - (spec.range ? 118 : 102);
+  ctx.font = `italic 14px ${body}`;
+  const taglineLines = wrapLine(ctx, spec.tagline, W - 64).slice(0, 3);
+  let y = H - (spec.range ? 118 : 102) - (taglineLines.length - 1) * 18;
   ctx.textAlign = "center";
 
   ctx.fillStyle = STARLIGHT;
@@ -195,7 +223,9 @@ async function drawCard(spec: CardSpec): Promise<HTMLCanvasElement> {
 
   ctx.fillStyle = GOLD_SOFT;
   ctx.font = `italic 14px ${body}`;
-  ctx.fillText(spec.tagline, cx, y);
+  for (const [i, line] of taglineLines.entries()) {
+    ctx.fillText(line, cx, y + i * 18);
+  }
 
   // 낙관 — 카드 밖 아래.
   ctx.fillStyle = STARLIGHT_DIM;

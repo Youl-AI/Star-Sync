@@ -271,6 +271,11 @@ export function NatalReading() {
         {/* 계산이 가장 무거운 결과인데 밖으로 나가는 통로가 없었다(정찰 ⑧).
             카드에는 한 줄 요약의 첫 문장만 — 부적 크기의 글자에는 그게 전부 들어간다. */}
         <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-gold/15 pt-8">
+          {/* 뜬금없이 버튼만 있으면 뭘 저장하는지 모른다(2026-08-28). 문구는 태양
+              자리 카드가 아니라 세 기둥 — 이 카드가 천궁도의 것임을 문구가 말한다. */}
+          <span className="w-full text-meta text-starlight-dim sm:w-auto">
+            이 하늘을 카드 한 장으로 —
+          </span>
           <SaveCardButton
             filename={`byeolsaem-natal-${profile.date.replaceAll("-", "")}.png`}
             spec={() => ({
@@ -278,7 +283,11 @@ export function NatalReading() {
               latin: "MY NIGHT SKY",
               range: formatBirthDate(profile.date),
               symbol: SIGN_SYMBOL[core.sun.placement.sign.key],
-              tagline: firstSentence(reading.oneLiner),
+              tagline: [
+                `태양 ${core.sun.placement.sign.ko}`,
+                `달 ${core.moon.placement.sign.ko}`,
+                ...(core.ascendant ? [`상승 ${core.ascendant.sign.ko}`] : []),
+              ].join(" · "),
               art: signArt(core.sun.placement.sign),
             })}
           />
