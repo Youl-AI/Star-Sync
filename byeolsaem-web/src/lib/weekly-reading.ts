@@ -1,3 +1,4 @@
+import { TRANSIT_FRAME, TRANSIT_SELF, TRANSIT_SKY } from "@/content/atoms/transits";
 import { eventsBetween, type CalendarEvent } from "./calendar-events";
 import { eventTitle } from "./calendar-copy";
 import { ASPECT_TYPES, angleBetween, longitudeOf, type Chart } from "./chart";
@@ -76,6 +77,8 @@ export interface WeeklyTouch {
   movingKo: string;
   fixedKo: string;
   aspectKo: string;
+  /** 펼치면 나오는 풀이 — 트랜싯 아톰 세 조각을 이어 붙인다. */
+  detail: string;
 }
 
 /**
@@ -107,6 +110,7 @@ export function weeklyPersonal(weekStart: Date, natal: Chart): WeeklyTouch[] {
             movingKo: moving.ko,
             fixedKo: planetKo.get(fixed.planet) ?? fixed.planet,
             aspectKo: type.ko,
+            detail: `하늘의 ${moving.ko} — ${TRANSIT_SKY[moving.key]}. 내 ${planetKo.get(fixed.planet)} — ${TRANSIT_SELF[fixed.planet]}. ${TRANSIT_FRAME[type.key]}`,
           };
           const prev = best.get(key);
           if (!prev || orb < prev.orb) best.set(key, { orb, touch });

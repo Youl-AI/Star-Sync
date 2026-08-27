@@ -6,11 +6,54 @@ import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
 import { eventDescription, eventHref, eventTitle } from "@/lib/calendar-copy";
 import { kstParts } from "@/lib/retrograde-clock";
 import { requestRitual } from "@/lib/ritual";
-import { kstWeekStart, weeklyData, weeklyPersonal, type WeeklyData } from "@/lib/weekly-reading";
+import { kstWeekStart, weeklyData, weeklyPersonal, type WeeklyData, type WeeklyTouch } from "@/lib/weekly-reading";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { WeekPath } from "./WeekPath";
 
 const DOW_KO = ["일", "월", "화", "수", "목", "금", "토"];
+
+/** 트랜싯 한 줄 + 눌러 펼치는 풀이. 천궁도 별 사전의 아코디언과 같은 몸짓. */
+function TouchRow({
+  touch,
+  open,
+  onToggle,
+}: {
+  touch: WeeklyTouch;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <li className="border-t border-gold/10 first:border-t-0">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex w-full items-baseline gap-x-2.5 py-2 text-left"
+      >
+        <span
+          aria-hidden
+          className={`flex-none text-meta text-gold transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            open ? "rotate-90" : ""
+          }`}
+        >
+          ›
+        </span>
+        <span className="break-keep text-guide text-starlight-dim">{touch.text}</span>
+      </button>
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <p className="max-w-[48ch] break-keep pb-4 pl-6 text-meta leading-relaxed text-starlight-dim">
+            {touch.detail}
+          </p>
+        </div>
+      </div>
+    </li>
+  );
+}
 
 /**
  * 이번 주 카드. 서버 HTML은 빌드 시점의 주를 담고(크롤러가 본문을 본다),
@@ -28,6 +71,8 @@ export function WeeklyCard({ initial, builtAt }: { initial: WeeklyData; builtAt:
   }, []);
 
   const data = useMemo(() => (now ? weeklyData(now) : initial), [now, initial]);
+  /** "내 차트에는"에서 지금 펼쳐진 줄. 천궁도의 별 사전과 같은 아코디언 문법. */
+  const [openTouch, setOpenTouch] = useState<string | null>(null);
 
   const touches = useMemo(() => {
     if (!profile) return null;
@@ -113,9 +158,15 @@ export function WeeklyCard({ initial, builtAt }: { initial: WeeklyData; builtAt:
         {profile && touches && touches.length > 0 && (
           <>
             <p className="font-display text-lg text-gold-soft">내 차트에는</p>
-            <ul className="mt-2 space-y-1.5">
+            <p className="mt-1 text-meta text-starlight-dim">눌러서 펼치기 — 그 각이 무슨 뜻인지 풀어 두었습니다.</p>
+            <ul className="mt-2">
               {touches.map((t) => (
-                <li key={t.text} className="break-keep text-guide text-starlight-dim">{t.text}</li>
+                <TouchRow
+                  key={t.text}
+                  touch={t}
+                  open={openTouch === t.text}
+                  onToggle={() => setOpenTouch(openTouch === t.text ? null : t.text)}
+                />
               ))}
             </ul>
           </>

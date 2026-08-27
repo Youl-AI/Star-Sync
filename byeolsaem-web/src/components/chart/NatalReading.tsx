@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { formatPlacement } from "@/lib/chart";
-import type { PlanetKey } from "@/lib/planets";
+import { PLANET_BY_KEY, type PlanetKey } from "@/lib/planets";
 import { describeElements, type ReadingPlacement } from "@/lib/reading";
-import { signArt } from "@/lib/share-card";
+import { wheelArt } from "@/lib/share-card";
 import { firstSentence } from "@/lib/text";
 import { SIGN_SYMBOL } from "@/lib/zodiac";
 import { requestRitual } from "@/lib/ritual";
@@ -288,7 +288,20 @@ export function NatalReading() {
                 `달 ${core.moon.placement.sign.ko}`,
                 ...(core.ascendant ? [`상승 ${core.ascendant.sign.ko}`] : []),
               ].join(" · "),
-              art: signArt(core.sun.placement.sign),
+              // 천궁도 카드에는 천궁도를 — 태양 자리 성좌는 /sign 카드의 옷이다.
+              art: wheelArt({
+                placements: chart.placements.map((p) => ({
+                  symbol: PLANET_BY_KEY[p.planet].symbol,
+                  longitude: p.longitude,
+                  retrograde: p.retrograde,
+                })),
+                ascendant: chart.ascendant,
+                aspects: reading.aspects.map((item) => ({
+                  a: chart.placements.find((p) => p.planet === item.a.key)!.longitude,
+                  b: chart.placements.find((p) => p.planet === item.b.key)!.longitude,
+                  harmony: item.aspect.type.harmony,
+                })),
+              }),
             })}
           />
           <KakaoShareButton

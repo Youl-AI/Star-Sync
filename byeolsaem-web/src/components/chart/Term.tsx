@@ -24,8 +24,10 @@ export function Term({ name }: { name: keyof typeof GLOSSARY }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={id}
-        className={`border-b border-dashed pb-px transition-colors ${
-          open ? "border-gold-soft text-gold-soft" : "border-gold/50 text-starlight hover:text-gold-soft"
+        // border-b는 줄간격이 넓은 문단에서 글자보다 한참 아래에 그어졌다
+        // (2026-08-28). text-decoration은 줄간격과 무관하게 글자를 따라간다.
+        className={`underline decoration-dashed decoration-1 underline-offset-4 transition-colors ${
+          open ? "decoration-gold-soft text-gold-soft" : "decoration-gold/50 text-starlight hover:text-gold-soft"
         }`}
       >
         {name}

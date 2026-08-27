@@ -1,5 +1,5 @@
 ﻿import type { MoonPhaseKey } from "./moon";
-import type { ZodiacSign } from "./zodiac";
+import { SIGN_SYMBOL, ZODIAC_SIGNS, type ZodiacSign } from "./zodiac";
 
 /**
  * 부적 카드를 이미지로 굽는다(스펙 §6.2 — "공유 이미지 = 아치 카드 형태").
@@ -272,6 +272,109 @@ export function signArt(sign: ZodiacSign): CardSpec["art"] {
       ctx.fill();
     });
     ctx.restore();
+  };
+}
+
+const ASTRO_FONT = '"Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols2", "Noto Sans Symbols", sans-serif';
+
+export interface WheelArtData {
+  placements: { symbol: string; longitude: number; retrograde: boolean }[];
+  /** 상승궁 황경. 시각 미상이면 null — 그때는 양자리 0도가 왼쪽에 온다. */
+  ascendant: number | null;
+  /** 카드에 그릴 어스펙트 현 — 화면이 고른 것과 같은 목록을 받는다. */
+  aspects: { a: number; b: number; harmony: number }[];
+}
+
+/**
+ * 천궁도 원반 그림. ChartWheel과 같은 투영(상승궁이 왼쪽, 황경이 늘수록
+ * 반시계)을 캔버스로 옮긴 축약본이다 — 천궁도 카드가 태양 별자리 성좌를
+ * 그대로 쓰는 것은 카드가 아니라 남의 옷이었다(2026-08-28).
+ */
+export function wheelArt(data: WheelArtData): CardSpec["art"] {
+  return (ctx, card) => {
+    const cx = card.w / 2;
+    const cy = 152;
+    const R = 104;
+    const BAND = 15;
+    const rotation = data.ascendant ?? 0;
+    const pt = (longitude: number, radius: number): [number, number] => {
+      const angle = ((180 + (longitude - rotation)) * Math.PI) / 180;
+      return [cx + Math.cos(angle) * radius, cy - Math.sin(angle) * radius];
+    };
+
+    // 두 링과 자리 경계 눈금.
+    ctx.strokeStyle = GOLD;
+    ctx.lineWidth = 0.9;
+    ctx.globalAlpha = 0.4;
+    for (const r of [R, R - BAND]) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    for (let i = 0; i < 12; i += 1) {
+      const [x0, y0] = pt(i * 30, R);
+      const [x1, y1] = pt(i * 30, R - BAND);
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
+    // 자리 글리프 — 띠 가운데.
+    ctx.globalAlpha = 0.75;
+    ctx.fillStyle = GOLD_SOFT;
+    ctx.font = `8px ${ASTRO_FONT}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ZODIAC_SIGNS.forEach((sign, i) => {
+      const [x, y] = pt(i * 30 + 15, R - BAND / 2);
+      ctx.fillText(`${SIGN_SYMBOL[sign.key]}\uFE0E`, x, y);
+    });
+
+    // 지평선 — 상승궁이 있을 때만. 왼쪽의 굵은 선이 화면 원반과 같은 축이다.
+    if (data.ascendant !== null) {
+      const [x0, y0] = pt(data.ascendant, R - BAND);
+      const [x1, y1] = pt(data.ascendant, 40);
+      ctx.strokeStyle = GOLD;
+      ctx.globalAlpha = 0.8;
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
+
+    // 어스펙트 현 — 화면과 같은 문법: 금색이 순풍, 흐린 선이 맞바람.
+    for (const asp of data.aspects) {
+      const [x0, y0] = pt(asp.a, 44);
+      const [x1, y1] = pt(asp.b, 44);
+      ctx.strokeStyle = asp.harmony >= 0 ? GOLD_SOFT : STARLIGHT;
+      ctx.globalAlpha = asp.harmony >= 0 ? 0.65 : 0.3;
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
+
+    // 별 글리프 — 황경이 가까우면 반지름을 안쪽으로 벌려 겹침을 푼다.
+    const sorted = [...data.placements].sort((a, b) => a.longitude - b.longitude);
+    ctx.globalAlpha = 1;
+    let level = 0;
+    let prev = Number.NEGATIVE_INFINITY;
+    for (const p of sorted) {
+      level = p.longitude - prev < 10 ? (level + 1) % 2 : 0;
+      prev = p.longitude;
+      const [x, y] = pt(p.longitude, level === 0 ? 72 : 58);
+      ctx.fillStyle = STARLIGHT;
+      ctx.font = `11px ${ASTRO_FONT}`;
+      ctx.fillText(`${p.symbol}\uFE0E`, x, y);
+      if (p.retrograde) {
+        ctx.fillStyle = GOLD_SOFT;
+        ctx.font = `6px ${ASTRO_FONT}`;
+        ctx.fillText("R", x + 7, y - 5);
+      }
+    }
+    ctx.textBaseline = "alphabetic";
   };
 }
 
