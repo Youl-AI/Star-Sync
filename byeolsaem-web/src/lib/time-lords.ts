@@ -137,3 +137,152 @@ export function lotLongitude(chart: Chart, lot: LotKey): number | null {
     ? norm360(chart.ascendant + moon - sun)
     : norm360(chart.ascendant + sun - moon);
 }
+
+export interface ZrPeriod {
+  sign: ZodiacSign;
+  /** 만 나이(년, 소수). */
+  fromAge: number;
+  toAge: number;
+  /** 달력 날짜 환산("2027-07-14"). 월 단위 환산이라 ±1일 오차 허용. */
+  from: string;
+  to: string;
+  /** 행운의 점 자리를 1로 세는 자리 번호 — 어느 점 릴리징이든 행운 기준. */
+  houseFromFortune: number;
+  /** 1·4·7·10번째 — 각(角)의 장. */
+  angular: boolean;
+  /** 10번째 — 절정의 장. */
+  peak: boolean;
+  /** 매듭 풀림(루싱 오브 본드)으로 건너뛰어 시작한 장(L2 전용). */
+  loosedBond: boolean;
+}
+
+export interface ZodiacalReleasing {
+  lot: LotKey;
+  lotSign: ZodiacSign;
+  l1: ZrPeriod[];
+  currentL1: ZrPeriod | null;
+  l2OfCurrent: ZrPeriod[];
+  currentL2: ZrPeriod | null;
+}
+
+/** 만 나이의 소수부까지 — 생일 사이를 선형으로. */
+export function fractionalAge(natalDate: string, now: Date): number {
+  const whole = ageOn(natalDate, now);
+  const [by, bm, bd] = natalDate.split("-").map(Number);
+  const last = Date.UTC(by + whole, bm - 1, bd) - KST_OFFSET_MS;
+  const next = Date.UTC(by + whole + 1, bm - 1, bd) - KST_OFFSET_MS;
+  return whole + (now.getTime() - last) / (next - last);
+}
+
+/** 생일 + 개월 수를 달력 날짜로. Date.UTC의 월 굴림에 맡긴다(±1일 허용). */
+function ageToDate(natalDate: string, age: number): string {
+  const [by, bm, bd] = natalDate.split("-").map(Number);
+  const months = Math.round(age * 12);
+  const rolled = new Date(Date.UTC(by, bm - 1 + months, bd));
+  return rolled.toISOString().slice(0, 10);
+}
+
+function makePeriod(
+  natalDate: string,
+  signIdx: number,
+  fromAge: number,
+  toAge: number,
+  fortuneIdx: number,
+  loosedBond: boolean,
+): ZrPeriod {
+  const house = ((signIdx - fortuneIdx + 12) % 12) + 1;
+  return {
+    sign: ZODIAC_SIGNS[signIdx],
+    fromAge,
+    toAge,
+    from: ageToDate(natalDate, fromAge),
+    to: ageToDate(natalDate, toAge),
+    houseFromFortune: house,
+    angular: house === 1 || house === 4 || house === 7 || house === 10,
+    peak: house === 10,
+    loosedBond,
+  };
+}
+
+/**
+ * L2 분할. 자리별 연수를 "월"로 배정하고, 열이 한 바퀴 돌아 자기 L1 자리의
+ * 차례로 되돌아오면 그 자리를 반복하는 대신 맞은편으로 건너뛴다(매듭 풀림).
+ * 긴 장(염소·물병 27년)에서는 두 번째 귀환에도 같은 규칙을 다시 적용한다.
+ */
+function l2Periods(
+  natalDate: string,
+  startIdx: number,
+  fromAge: number,
+  totalMonths: number,
+  fortuneIdx: number,
+): ZrPeriod[] {
+  const out: ZrPeriod[] = [];
+  let cursor = 0;
+  let idx = startIdx;
+  let first = true;
+  while (cursor < totalMonths) {
+    let loosed = false;
+    if (!first && idx === startIdx) {
+      idx = (idx + 6) % 12;
+      loosed = true;
+    }
+    const months = Math.min(SIGN_YEARS[idx], totalMonths - cursor);
+    out.push(
+      makePeriod(
+        natalDate,
+        idx,
+        fromAge + cursor / 12,
+        fromAge + (cursor + months) / 12,
+        fortuneIdx,
+        loosed,
+      ),
+    );
+    cursor += months;
+    idx = (idx + 1) % 12;
+    first = false;
+  }
+  return out;
+}
+
+/** 테스트 전용 — L2 분할 규칙을 차트 없이 검증하는 창구. fortuneIdx는 0 고정. */
+export function zodiacalReleasingL2ForTest(startIdx: number, totalMonths: number): ZrPeriod[] {
+  return l2Periods("2000-01-01", startIdx, 0, totalMonths, 0);
+}
+
+export function zodiacalReleasing(
+  natal: BirthMoment,
+  chart: Chart,
+  lot: LotKey,
+  now: Date,
+): ZodiacalReleasing | null {
+  const lotLon = lotLongitude(chart, lot);
+  const fortuneLon = lotLongitude(chart, "fortune");
+  if (lotLon === null || fortuneLon === null) return null;
+  const startIdx = Math.floor(lotLon / 30);
+  const fortuneIdx = Math.floor(fortuneLon / 30);
+
+  const l1: ZrPeriod[] = [];
+  let ageCursor = 0;
+  let idx = startIdx;
+  while (ageCursor < 100) {
+    const years = SIGN_YEARS[idx];
+    l1.push(makePeriod(natal.date, idx, ageCursor, ageCursor + years, fortuneIdx, false));
+    ageCursor += years;
+    idx = (idx + 1) % 12;
+  }
+
+  const age = fractionalAge(natal.date, now);
+  const currentL1 = l1.find((p) => age >= p.fromAge && age < p.toAge) ?? null;
+  const l2OfCurrent = currentL1
+    ? l2Periods(
+        natal.date,
+        ZODIAC_SIGNS.indexOf(currentL1.sign),
+        currentL1.fromAge,
+        Math.round((currentL1.toAge - currentL1.fromAge) * 12),
+        fortuneIdx,
+      )
+    : [];
+  const currentL2 = l2OfCurrent.find((p) => age >= p.fromAge && age < p.toAge) ?? null;
+
+  return { lot, lotSign: ZODIAC_SIGNS[startIdx], l1, currentL1, l2OfCurrent, currentL2 };
+}

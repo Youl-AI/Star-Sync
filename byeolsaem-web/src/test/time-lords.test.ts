@@ -9,6 +9,9 @@ import {
   profectionYears,
   isDayBirth,
   lotLongitude,
+  fractionalAge,
+  zodiacalReleasing,
+  zodiacalReleasingL2ForTest,
 } from "../lib/time-lords";
 
 /** 예시 인물과 같은 값 — 시각이 있어 상승궁이 선다. */
@@ -125,5 +128,93 @@ describe("점(Lot) — 주야 판정과 공식", () => {
   it("시각 미상이면 null", () => {
     expect(isDayBirth(CHART_NO_TIME)).toBeNull();
     expect(lotLongitude(CHART_NO_TIME, "fortune")).toBeNull();
+  });
+});
+
+describe("조디악 릴리징", () => {
+  const now = new Date("2026-08-26T03:00:00Z");
+  const zr = zodiacalReleasing(NATAL, CHART, "fortune", now)!;
+  const norm = (x: number) => ((x % 360) + 360) % 360;
+
+  it("L1 — 점의 자리에서 출발, 연수표 누적, 100세 넘는 장까지", () => {
+    const lotIdx = Math.floor(lotLongitude(CHART, "fortune")! / 30);
+    expect(ZODIAC_SIGNS.indexOf(zr.l1[0].sign)).toBe(lotIdx);
+    expect(zr.l1[0].fromAge).toBe(0);
+    // 이웃 장: fromAge 연속 + 자리 1칸 전진
+    for (let i = 1; i < zr.l1.length; i++) {
+      expect(zr.l1[i].fromAge).toBe(zr.l1[i - 1].toAge);
+      expect(ZODIAC_SIGNS.indexOf(zr.l1[i].sign)).toBe(
+        (ZODIAC_SIGNS.indexOf(zr.l1[i - 1].sign) + 1) % 12,
+      );
+      // 장 길이 = 연수표
+      expect(zr.l1[i].toAge - zr.l1[i].fromAge).toBe(
+        SIGN_YEARS[ZODIAC_SIGNS.indexOf(zr.l1[i].sign)],
+      );
+    }
+    // 마지막 장이 100세를 덮는다
+    expect(zr.l1[zr.l1.length - 1].toAge).toBeGreaterThanOrEqual(100);
+    expect(zr.l1[zr.l1.length - 2].toAge).toBeLessThan(100);
+  });
+
+  it("현재 장 — fractionalAge가 구간 안에 있다", () => {
+    const age = fractionalAge(NATAL.date, now);
+    expect(zr.currentL1).not.toBeNull();
+    expect(age).toBeGreaterThanOrEqual(zr.currentL1!.fromAge);
+    expect(age).toBeLessThan(zr.currentL1!.toAge);
+  });
+
+  it("L2 — 자리별 연수를 월로, 합이 L1 길이와 일치, 마지막 칸 부분 절단", () => {
+    const l1 = zr.currentL1!;
+    const months = Math.round((l1.toAge - l1.fromAge) * 12);
+    const sum = zr.l2OfCurrent.reduce(
+      (acc, p) => acc + Math.round((p.toAge - p.fromAge) * 12), 0);
+    expect(sum).toBe(months);
+    // 첫 L2는 L1과 같은 자리에서 시작
+    expect(zr.l2OfCurrent[0].sign).toBe(l1.sign);
+    expect(zr.currentL2).not.toBeNull();
+  });
+
+  it("각 판정 — 행운의 점 자리 기준 1·4·7·10, 10번째는 peak", () => {
+    const fortuneIdx = Math.floor(lotLongitude(CHART, "fortune")! / 30);
+    for (const p of zr.l1) {
+      const idx = ZODIAC_SIGNS.indexOf(p.sign);
+      const house = ((idx - fortuneIdx + 12) % 12) + 1;
+      expect(p.houseFromFortune).toBe(house);
+      expect(p.angular).toBe([1, 4, 7, 10].includes(house));
+      expect(p.peak).toBe(house === 10);
+    }
+  });
+
+  it("정신의 점 릴리징에서도 각 판정은 행운의 점 기준이다", () => {
+    const spirit = zodiacalReleasing(NATAL, CHART, "spirit", now)!;
+    const fortuneIdx = Math.floor(lotLongitude(CHART, "fortune")! / 30);
+    const first = spirit.l1[0];
+    const idx = ZODIAC_SIGNS.indexOf(first.sign);
+    expect(first.houseFromFortune).toBe(((idx - fortuneIdx + 12) % 12) + 1);
+  });
+
+  it("매듭 풀림 — 긴 장(염소 27년)의 L2가 한 바퀴 돌면 맞은편으로 건너뛴다", () => {
+    // 염소(27년) L1을 합성해 직접 검사한다 — 어느 차트든 규칙은 같다.
+    // 염소 출발 L2: 염소27 물병27 물고기12 양15 황소8 쌍20 게25 사19 처20 천8 전15 사수12
+    // 개월 누적: 27+27+12+15+8+20+25+19+20+8+15+12 = 208 → 다음 차례가 다시 염소(월 208).
+    // 이때 맞은편 게자리로 건너뛰어야 한다. 총 길이 324개월(27년).
+    const zrCap = zodiacalReleasingL2ForTest(9, 27 * 12); // 염소=9
+    const jump = zrCap.find((p) => p.loosedBond);
+    expect(jump).toBeDefined();
+    expect(ZODIAC_SIGNS.indexOf(jump!.sign)).toBe(3); // 게자리
+    // 건너뛴 지점 직전까지의 누적이 208개월
+    const before = zrCap.slice(0, zrCap.indexOf(jump!));
+    const monthsBefore = before.reduce(
+      (acc, p) => acc + Math.round((p.toAge - p.fromAge) * 12), 0);
+    expect(monthsBefore).toBe(208);
+  });
+
+  it("짧은 장(천칭 8년)에서는 매듭 풀림이 없다", () => {
+    const zrLib = zodiacalReleasingL2ForTest(6, 8 * 12); // 천칭=6
+    expect(zrLib.every((p) => !p.loosedBond)).toBe(true);
+  });
+
+  it("시각 미상이면 null", () => {
+    expect(zodiacalReleasing(NATAL_NO_TIME, CHART_NO_TIME, "fortune", now)).toBeNull();
   });
 });
