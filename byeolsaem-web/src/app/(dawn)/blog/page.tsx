@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { POSTS, formatPublished } from "@/content/blog";
+import { POSTS, formatPublished, type Post } from "@/content/blog";
 import { alternatesFor } from "@/lib/metadata";
 
 export const metadata: Metadata = {
@@ -10,7 +10,25 @@ export const metadata: Metadata = {
   alternates: alternatesFor("/blog"),
 };
 
+/**
+ * 주제 순서 — 격자가 아니라 읽는 길이다. 기초 문법부터 시작해 자기 차트로,
+ * 실전으로, 올해의 하늘로 나아간다. 여기 없는 새 분류는 목록 끝에 붙는다.
+ */
+const CATEGORY_ORDER = ["점성학 기초", "나를 아는 법", "실전 점성학", "2026 흐름", "생존 가이드"];
+
+const anchorOf = (category: string): string => category.replaceAll(" ", "-");
+
 export default function BlogIndexPage() {
+  // POSTS는 최신순 — 맨 앞이 새로 나온 글이다.
+  const [featured, ...rest] = POSTS;
+  const ordered = [
+    ...CATEGORY_ORDER,
+    ...[...new Set(rest.map((p) => p.category))].filter((c) => !CATEGORY_ORDER.includes(c)),
+  ];
+  const groups = ordered
+    .map((category) => ({ category, posts: rest.filter((p) => p.category === category) }))
+    .filter((g) => g.posts.length > 0);
+
   return (
     <main className="mx-auto max-w-3xl px-6 pb-32 pt-10">
       <header className="text-center">
@@ -31,27 +49,75 @@ export default function BlogIndexPage() {
       </header>
 
       {/*
-        목록은 카드 격자가 아니라 세로 한 줄이다. 글이 다섯 편뿐이라 격자로
-        늘어놓으면 빈칸이 생기고, 무엇보다 여기는 읽으러 온 사람의 자리라
-        제목과 한 문장이 나란히 보이는 편이 고르기 쉽다.
+        글이 스물을 넘으면서 한 줄 목록은 끝없는 두루마리가 됐다(2026-08-28).
+        새로 나온 글 한 편을 앞에 세우고, 나머지는 읽는 길 순서의 주제로 묶는다.
       */}
-      <ul className="mx-auto max-w-[65ch]">
-        {POSTS.map((post) => (
-          <li key={post.slug} className="border-t border-gold-dark/15 first:border-t-0">
-            <Link href={`/blog/${post.slug}`} className="group block py-8">
-              <p className="text-eyebrow tracking-[0.22em] text-gold-dark">{post.category}</p>
-              <h2 className="mt-3 break-keep font-display text-xl leading-snug text-ink-text transition-colors group-hover:text-gold-dark md:text-2xl">
-                {post.title}
-              </h2>
-              <p className="mt-3 break-keep leading-relaxed text-ink-dim">{post.summary}</p>
-              <p className="mt-4 text-meta text-ink-dim">
-                <time dateTime={post.published}>{formatPublished(post.published)}</time> · 읽는 데{" "}
-                {post.readingMinutes}분
-              </p>
-            </Link>
-          </li>
+      <section className="mx-auto max-w-[65ch]">
+        <p className="text-eyebrow tracking-[0.22em] text-gold-dark">
+          새로 나온 글 · {featured.category}
+        </p>
+        <Link href={`/blog/${featured.slug}`} className="group mt-4 block">
+          <h2 className="break-keep font-display text-2xl leading-snug text-ink-text transition-colors group-hover:text-gold-dark md:text-3xl">
+            {featured.title}
+          </h2>
+          <p className="mt-4 break-keep leading-relaxed text-ink-dim">{featured.summary}</p>
+          <p className="mt-4 text-meta text-ink-dim">
+            <time dateTime={featured.published}>{formatPublished(featured.published)}</time> · 읽는 데{" "}
+            {featured.readingMinutes}분
+          </p>
+        </Link>
+      </section>
+
+      <nav
+        aria-label="주제별 바로 가기"
+        className="mx-auto mt-14 flex max-w-[65ch] flex-wrap gap-x-6 gap-y-2 border-y border-gold-dark/15 py-4"
+      >
+        {groups.map((g) => (
+          <a
+            key={g.category}
+            href={`#${anchorOf(g.category)}`}
+            className="text-meta text-ink-dim transition-colors hover:text-gold-dark"
+          >
+            {g.category} <span className="text-gold-dark">{g.posts.length}</span>
+          </a>
         ))}
-      </ul>
+      </nav>
+
+      {groups.map((g) => (
+        <section
+          key={g.category}
+          id={anchorOf(g.category)}
+          className="mx-auto mt-16 max-w-[65ch] scroll-mt-24"
+        >
+          <h2 className="flex items-baseline gap-4 break-keep font-display text-lg text-ink-text">
+            {g.category}
+            <span aria-hidden className="h-px flex-1 bg-gold-dark/20" />
+            <span className="text-meta font-normal text-ink-dim">{g.posts.length}편</span>
+          </h2>
+          <ul className="mt-2">
+            {g.posts.map((post) => (
+              <PostRow key={post.slug} post={post} />
+            ))}
+          </ul>
+        </section>
+      ))}
     </main>
+  );
+}
+
+function PostRow({ post }: { post: Post }) {
+  return (
+    <li className="border-t border-gold-dark/15 first:border-t-0">
+      <Link href={`/blog/${post.slug}`} className="group block py-6">
+        <h3 className="break-keep font-display text-lg leading-snug text-ink-text transition-colors group-hover:text-gold-dark">
+          {post.title}
+        </h3>
+        <p className="mt-2 break-keep leading-relaxed text-ink-dim">{post.summary}</p>
+        <p className="mt-3 text-meta text-ink-dim">
+          <time dateTime={post.published}>{formatPublished(post.published)}</time> · 읽는 데{" "}
+          {post.readingMinutes}분
+        </p>
+      </Link>
+    </li>
   );
 }
