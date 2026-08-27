@@ -1,4 +1,4 @@
-# 인생의 시간표(/chapters) Implementation Plan
+﻿# 인생의 시간표(/chapters) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -24,7 +24,7 @@
 | 파일 | 책임 |
 |---|---|
 | `src/lib/time-lords.ts` (신규) | 프로펙션·점·릴리징 계산 전부. UI 무관, 순수 함수 |
-| `src/lib/__tests__/time-lords.test.ts` (신규) | 위 라이브러리의 전 규칙 검증 |
+| `src/test/time-lords.test.ts` (신규) | 위 라이브러리의 전 규칙 검증 |
 | `src/app/(night-static)/chapters/page.tsx` (신규) | SSG 셸: 메타·JSON-LD·헤더·개념 설명·FAQ |
 | `src/components/chapters/ChaptersScope.tsx` (신규) | 프로필 게이트(없음/좌표실패/시각미상) + 두 섹션 배선 |
 | `src/components/chapters/ProfectionSection.tsx` (신규) | 올해 카드 + 12년 스트립 |
@@ -39,7 +39,7 @@
 
 **Files:**
 - Create: `src/lib/time-lords.ts`
-- Test: `src/lib/__tests__/time-lords.test.ts`
+- Test: `src/test/time-lords.test.ts`
 
 **Interfaces:**
 - Consumes: `Chart`, `BirthMoment` (`src/lib/chart.ts`), `ZODIAC_SIGNS`, `ZodiacSign` (`src/lib/zodiac.ts` — 배열 0번이 양자리).
@@ -53,19 +53,19 @@
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
-`src/lib/__tests__/time-lords.test.ts`:
+`src/test/time-lords.test.ts`:
 
 ```ts
 import { describe, expect, it } from "vitest";
-import { computeChart, type BirthMoment } from "../chart";
-import { ZODIAC_SIGNS } from "../zodiac";
+import { computeChart, type BirthMoment } from "../lib/chart";
+import { ZODIAC_SIGNS } from "../lib/zodiac";
 import {
   TRADITIONAL_RULER,
   SIGN_YEARS,
   ageOn,
   currentProfection,
   profectionYears,
-} from "../time-lords";
+} from "../lib/time-lords";
 
 /** 예시 인물과 같은 값 — 시각이 있어 상승궁이 선다. */
 const NATAL: BirthMoment = {
@@ -151,7 +151,7 @@ describe("연간 프로펙션", () => {
 
 - [ ] **Step 2: 실패 확인**
 
-Run: `npx vitest run src/lib/__tests__/time-lords.test.ts`
+Run: `npx vitest run src/test/time-lords.test.ts`
 Expected: FAIL — `Cannot find module '../time-lords'`
 
 - [ ] **Step 3: 구현**
@@ -269,13 +269,13 @@ export function profectionYears(natal: BirthMoment, chart: Chart, now: Date): Pr
 
 - [ ] **Step 4: 통과 확인**
 
-Run: `npx vitest run src/lib/__tests__/time-lords.test.ts`
+Run: `npx vitest run src/test/time-lords.test.ts`
 Expected: PASS (전 항목)
 
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add byeolsaem-web/src/lib/time-lords.ts byeolsaem-web/src/lib/__tests__/time-lords.test.ts
+git add byeolsaem-web/src/lib/time-lords.ts byeolsaem-web/src/test/time-lords.test.ts
 git commit -m "feat(chapters): annual profections learn to count the years"
 ```
 
@@ -285,7 +285,7 @@ git commit -m "feat(chapters): annual profections learn to count the years"
 
 **Files:**
 - Modify: `src/lib/time-lords.ts` (Task 1 파일 끝에 추가)
-- Test: `src/lib/__tests__/time-lords.test.ts` (추가)
+- Test: `src/test/time-lords.test.ts` (추가)
 
 **Interfaces:**
 - Consumes: Task 1의 파일. `norm360`은 `src/lib/ephemeris.ts`에서 import (chart.ts가 같은 함수를 쓴다 — export되어 있는지 확인하고, 없으면 `const norm360 = (x: number) => ((x % 360) + 360) % 360;`을 time-lords.ts 안에 둔다).
@@ -299,7 +299,7 @@ git commit -m "feat(chapters): annual profections learn to count the years"
 테스트 파일에 추가:
 
 ```ts
-import { isDayBirth, lotLongitude } from "../time-lords";
+import { isDayBirth, lotLongitude } from "../lib/time-lords";
 
 describe("점(Lot) — 주야 판정과 공식", () => {
   const sun = CHART.placements.find((p) => p.planet === "sun")!.longitude;
@@ -341,7 +341,7 @@ describe("점(Lot) — 주야 판정과 공식", () => {
 
 - [ ] **Step 2: 실패 확인**
 
-Run: `npx vitest run src/lib/__tests__/time-lords.test.ts`
+Run: `npx vitest run src/test/time-lords.test.ts`
 Expected: FAIL — `isDayBirth is not a function`
 
 - [ ] **Step 3: 구현 추가**
@@ -387,13 +387,13 @@ export function lotLongitude(chart: Chart, lot: LotKey): number | null {
 
 - [ ] **Step 4: 통과 확인**
 
-Run: `npx vitest run src/lib/__tests__/time-lords.test.ts`
+Run: `npx vitest run src/test/time-lords.test.ts`
 Expected: PASS
 
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add byeolsaem-web/src/lib/time-lords.ts byeolsaem-web/src/lib/__tests__/time-lords.test.ts
+git add byeolsaem-web/src/lib/time-lords.ts byeolsaem-web/src/test/time-lords.test.ts
 git commit -m "feat(chapters): fortune and spirit find their places by day and night"
 ```
 
@@ -403,7 +403,7 @@ git commit -m "feat(chapters): fortune and spirit find their places by day and n
 
 **Files:**
 - Modify: `src/lib/time-lords.ts` (끝에 추가)
-- Test: `src/lib/__tests__/time-lords.test.ts` (추가)
+- Test: `src/test/time-lords.test.ts` (추가)
 
 **Interfaces:**
 - Consumes: Task 1·2의 전부.
@@ -416,7 +416,7 @@ git commit -m "feat(chapters): fortune and spirit find their places by day and n
 - [ ] **Step 1: 실패하는 테스트 추가**
 
 ```ts
-import { fractionalAge, zodiacalReleasing } from "../time-lords";
+import { fractionalAge, zodiacalReleasing } from "../lib/time-lords";
 
 describe("조디악 릴리징", () => {
   const now = new Date("2026-08-26T03:00:00Z");
@@ -511,7 +511,7 @@ describe("조디악 릴리징", () => {
 
 - [ ] **Step 2: 실패 확인**
 
-Run: `npx vitest run src/lib/__tests__/time-lords.test.ts`
+Run: `npx vitest run src/test/time-lords.test.ts`
 Expected: FAIL — `zodiacalReleasing is not a function`
 
 - [ ] **Step 3: 구현 추가**
@@ -671,13 +671,13 @@ export function zodiacalReleasing(
 
 - [ ] **Step 4: 통과 확인**
 
-Run: `npx vitest run src/lib/__tests__/time-lords.test.ts`
+Run: `npx vitest run src/test/time-lords.test.ts`
 Expected: PASS (매듭 풀림 208개월·게자리 건너뜀 포함 전부)
 
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add byeolsaem-web/src/lib/time-lords.ts byeolsaem-web/src/lib/__tests__/time-lords.test.ts
+git add byeolsaem-web/src/lib/time-lords.ts byeolsaem-web/src/test/time-lords.test.ts
 git commit -m "feat(chapters): the chapters of a life unfold and loose their bond"
 ```
 
