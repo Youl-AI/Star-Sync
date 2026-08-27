@@ -1,8 +1,14 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { BirthMoment, Chart } from "@/lib/chart";
-import { fractionalAge, zodiacalReleasing, type LotKey, type ZrPeriod } from "@/lib/time-lords";
-import { SIGN_SYMBOL } from "@/lib/zodiac";
+import {
+  fractionalAge,
+  zodiacalReleasing,
+  type LotKey,
+  type ZodiacalReleasing,
+  type ZrPeriod,
+} from "@/lib/time-lords";
+import { SIGN_SYMBOL, ZODIAC_SIGNS } from "@/lib/zodiac";
 
 /** "2028-01-15" -> "2028. 1" — 소수 나이 대신 사람의 달력으로 말한다. */
 const yearMonth = (iso: string): string => {
@@ -243,7 +249,118 @@ export function ReleasingSection({
           지점입니다.
         </p>
       </div>
+
+      <StorySummary zr={zr} age={age} />
     </section>
+  );
+}
+
+/**
+ * 이야기로 읽기 — 위 그림의 조각들을 한 편의 이야기로 엮는다(2026-08-28
+ * 피드백: 조각은 다 있는데 엮어 주는 문단이 없어 처음 보는 사람이 길을
+ * 잃는다). 순서는 큰 뉴스부터: 지금 몇 번째 장을 몇 년째인가, 다음에 무엇이
+ * 언제 오는가, 절정은 언제인가.
+ */
+function StorySummary({ zr, age }: { zr: ZodiacalReleasing; age: number }) {
+  const cur = zr.currentL1;
+  if (!cur) return null;
+  const curIdx = zr.l1.indexOf(cur);
+  const nextL1 = zr.l1[curIdx + 1];
+  const yearsIn = Math.floor(age - cur.fromAge) + 1;
+  const l2 = zr.currentL2;
+  const nextL2 = l2 ? zr.l2OfCurrent[zr.l2OfCurrent.indexOf(l2) + 1] : undefined;
+
+  // 절정의 장 — 목록에 없으면 100세 안에 오지 않는 것이다. 자리 이름은
+  // 행운의 점 자리에서 아홉 칸 앞으로 세어 알아낸다.
+  const peaks = zr.l1.filter((p) => p.peak);
+  const futurePeak = peaks.find((p) => p.fromAge > age);
+  const pastPeak = [...peaks].reverse().find((p) => p.toAge <= age);
+  const first = zr.l1[0];
+  const fortuneIdx =
+    (((ZODIAC_SIGNS.indexOf(first.sign) - (first.houseFromFortune - 1)) % 12) + 12) % 12;
+  const peakSignKo = ZODIAC_SIGNS[(fortuneIdx + 9) % 12].ko;
+
+  const gold = "font-medium text-gold-soft";
+  return (
+    <div className="mx-auto mt-14 max-w-[58ch] border-t border-gold/15 pt-10">
+      <h3 className="break-keep text-center font-display text-lg text-starlight">이야기로 읽기</h3>
+      <div className="mt-5 grid gap-4 break-keep leading-relaxed text-starlight-dim">
+        <p>
+          {curIdx === 0 ? (
+            <>
+              당신의 인생 1장은 태어나며 함께 열린{" "}
+              <b className={gold}>{cur.sign.ko}의 장</b>
+              ({cur.toAge - cur.fromAge}년)입니다. 올해로 {yearsIn}년째 — 아직 첫
+              장 안을 걷고 있습니다.
+            </>
+          ) : (
+            <>
+              당신은 지금 <b className={gold}>{yearMonth(cur.from)}</b>에 열린{" "}
+              {curIdx + 1}번째 장, <b className={gold}>{cur.sign.ko}의 장</b>
+              ({cur.toAge - cur.fromAge}년)을 {yearsIn}년째 지나고 있습니다.
+            </>
+          )}
+          {l2 && (
+            <>
+              {" "}그 안의 작은 흐름은 {yearMonth(l2.from)}부터의 {l2.sign.ko}
+              {l2.loosedBond && " — 매듭 풀림으로 건너뛰어 시작된, 흐름이 한 번 꺾인 자리"}
+              입니다.
+            </>
+          )}
+        </p>
+        <p>
+          다음에 올 일:{" "}
+          {nextL2 && (
+            <>
+              <b className={gold}>{yearMonth(nextL2.from)}</b>에 작은 흐름이{" "}
+              {nextL2.sign.ko}로 넘어가고,{" "}
+            </>
+          )}
+          {nextL1 ? (
+            <>
+              <b className={gold}>{yearMonth(nextL1.from)}</b>에는{" "}
+              {cur.sign.ko}의 장 전체가 막을 내리고{" "}
+              <b className={gold}>{nextL1.sign.ko}의 장</b>
+              ({nextL1.toAge - nextL1.fromAge}년)이 새로 열립니다
+              {nextL1.peak
+                ? " — 그 장이 바로 절정의 장입니다"
+                : nextL1.angular
+                  ? " — 삶의 무대가 크게 움직이는 각(角)의 장입니다"
+                  : ""}
+              .
+            </>
+          ) : (
+            <>이 장이 시간표의 마지막 장입니다.</>
+          )}
+        </p>
+        <p>
+          {cur.peak ? (
+            <>
+              그리고 지금 이 장이 바로 <b className={gold}>절정의 장</b>입니다 —
+              여기서 하는 일이 가장 멀리까지 보입니다.
+            </>
+          ) : futurePeak ? (
+            <>
+              이 시간표의 <b className={gold}>절정의 장</b>은{" "}
+              <b className={gold}>{yearMonth(futurePeak.from)}</b>에 열리는{" "}
+              {futurePeak.sign.ko}의 장(만 {futurePeak.fromAge}세부터{" "}
+              {futurePeak.toAge}세까지)입니다.
+            </>
+          ) : pastPeak ? (
+            <>
+              절정의 장({pastPeak.sign.ko})은 만 {pastPeak.fromAge}세부터{" "}
+              {pastPeak.toAge}세까지 — 이미 지나왔습니다. 이제는 그 시절에 심은
+              것을 거두는 순서입니다.
+            </>
+          ) : (
+            <>
+              절정의 장({peakSignKo})은 100세 안에 오지 않는 시간표입니다 —
+              대신 각(角)의 장들이 삶의 굵은 마디가 됩니다.
+            </>
+          )}
+        </p>
+      </div>
+    </div>
   );
 }
 
