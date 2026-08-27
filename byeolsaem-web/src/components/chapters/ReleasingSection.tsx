@@ -71,6 +71,13 @@ export function ReleasingSection({
     () => zodiacalReleasing(natal, chart, shownLot, now),
     [natal, chart, shownLot, now],
   );
+  // 반대쪽 점의 시간표 — 이야기 요약이 "다른 시간표의 큰 전환"까지 말해 준다
+  // (2026-08-28 피드백: 제일 가까운 큰 뉴스가 반대 토글에 숨어 있으면 못 본다).
+  const otherLot: LotKey = shownLot === "spirit" ? "fortune" : "spirit";
+  const zrOther = useMemo(
+    () => zodiacalReleasing(natal, chart, otherLot, now),
+    [natal, chart, otherLot, now],
+  );
   if (!zr) return null;
   const age = fractionalAge(natal.date, now);
 
@@ -250,7 +257,7 @@ export function ReleasingSection({
         </p>
       </div>
 
-      <StorySummary zr={zr} age={age} />
+      <StorySummary zr={zr} other={zrOther} otherLot={otherLot} age={age} />
     </section>
   );
 }
@@ -261,7 +268,17 @@ export function ReleasingSection({
  * 잃는다). 순서는 큰 뉴스부터: 지금 몇 번째 장을 몇 년째인가, 다음에 무엇이
  * 언제 오는가, 절정은 언제인가.
  */
-function StorySummary({ zr, age }: { zr: ZodiacalReleasing; age: number }) {
+function StorySummary({
+  zr,
+  other,
+  otherLot,
+  age,
+}: {
+  zr: ZodiacalReleasing;
+  other: ZodiacalReleasing | null;
+  otherLot: LotKey;
+  age: number;
+}) {
   const cur = zr.currentL1;
   if (!cur) return null;
   const curIdx = zr.l1.indexOf(cur);
@@ -290,14 +307,15 @@ function StorySummary({ zr, age }: { zr: ZodiacalReleasing; age: number }) {
             <>
               당신의 인생 1장은 태어나며 함께 열린{" "}
               <b className={gold}>{cur.sign.ko}의 장</b>
-              ({cur.toAge - cur.fromAge}년)입니다. 올해로 {yearsIn}년째 — 아직 첫
-              장 안을 걷고 있습니다.
+              ({cur.toAge - cur.fromAge}년)입니다. 올해로 {yearsIn}년째, 이 장은{" "}
+              {yearMonth(cur.to)}까지 이어집니다 — 아직 첫 장 안을 걷고 있습니다.
             </>
           ) : (
             <>
               당신은 지금 <b className={gold}>{yearMonth(cur.from)}</b>에 열린{" "}
               {curIdx + 1}번째 장, <b className={gold}>{cur.sign.ko}의 장</b>
-              ({cur.toAge - cur.fromAge}년)을 {yearsIn}년째 지나고 있습니다.
+              ({cur.toAge - cur.fromAge}년)을 {yearsIn}년째 지나고 있습니다. 이
+              장은 {yearMonth(cur.to)}까지 이어집니다.
             </>
           )}
           {l2 && (
@@ -359,6 +377,28 @@ function StorySummary({ zr, age }: { zr: ZodiacalReleasing; age: number }) {
             </>
           )}
         </p>
+        {other?.currentL1 &&
+          (() => {
+            const oCur = other.currentL1;
+            const oNext = other.l1[other.l1.indexOf(oCur) + 1];
+            return (
+              <p>
+                이 이야기는 {LOT_LABEL[zr.lot].name}({LOT_LABEL[zr.lot].scope})
+                기준입니다. 또 하나의 시간표 —{" "}
+                <b className={gold}>{LOT_LABEL[otherLot].name}</b>(
+                {LOT_LABEL[otherLot].scope})으로 보면 지금은{" "}
+                {oCur.sign.ko}의 장이고
+                {oNext ? (
+                  <>
+                    , 다음 큰 전환은 <b className={gold}>{yearMonth(oNext.from)}</b>{" "}
+                    — {oNext.sign.ko}의 장({oNext.toAge - oNext.fromAge}년)이
+                    열립니다
+                  </>
+                ) : null}
+                . 위 토글로 그쪽 시간표 전체를 볼 수 있습니다.
+              </p>
+            );
+          })()}
       </div>
     </div>
   );
