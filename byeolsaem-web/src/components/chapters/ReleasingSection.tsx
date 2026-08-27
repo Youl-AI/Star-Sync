@@ -103,9 +103,11 @@ export function ReleasingSection({
         사건의 장으로, 열 번째 자리의 장은 절정의 장으로 읽습니다.
       </p>
 
-      {/* 점 토글 — 세그먼티드 컨트롤. 하이라이트가 두 칸 사이를 미끄러진다. */}
+      {/* 점 토글 — 세그먼티드 컨트롤. 하이라이트가 두 칸 사이를 미끄러진다.
+          grid-cols-2 + nowrap: 두 칸이 긴 쪽 라벨의 폭으로 같아져 줄바꿈이
+          없다(2026-08-27 피드백). 좁은 화면에서는 점 이름만 남는다. */}
       <div
-        className="relative mx-auto mt-8 flex w-fit border border-gold/40"
+        className="relative mx-auto mt-8 grid w-fit grid-cols-2 border border-gold/40"
         role="group"
         aria-label="릴리징 기준점"
       >
@@ -121,11 +123,12 @@ export function ReleasingSection({
             type="button"
             onClick={() => switchLot(key)}
             aria-pressed={lot === key}
-            className={`relative z-[1] flex-1 break-keep px-4 py-2 text-meta tracking-wide transition-[color,transform] duration-150 active:scale-[0.97] ${
+            className={`relative z-[1] whitespace-nowrap px-4 py-2 text-meta tracking-wide transition-[color,transform] duration-150 active:scale-[0.97] ${
               lot === key ? "text-gold-soft" : "text-starlight-dim hover:text-starlight"
             }`}
           >
-            {LOT_LABEL[key].name} — {LOT_LABEL[key].scope}
+            {LOT_LABEL[key].name}
+            <span className="max-sm:hidden"> — {LOT_LABEL[key].scope}</span>
           </button>
         ))}
       </div>
@@ -161,28 +164,22 @@ export function ReleasingSection({
               <h3 className="break-keep text-center font-display text-lg text-starlight">
                 지금 장의 속살 — {zr.currentL1.sign.ko.replace("자리", "")}의 {zr.currentL1.toAge - zr.currentL1.fromAge}년
               </h3>
-              <div className="mt-5 grid gap-1 [grid-template-columns:repeat(auto-fit,minmax(72px,1fr))]">
-                {zr.l2OfCurrent.map((p) => (
-                  <div
-                    key={p.fromAge}
-                    className={`border px-1 py-2.5 text-center text-[12px] leading-normal transition-colors duration-150 ${
-                      p === zr.currentL2
-                        ? "border-gold bg-gold/10 text-gold-soft"
-                        : "border-gold/15 bg-nebula/30 text-starlight-dim hover:border-gold/40"
-                    }`}
-                  >
-                    {p.loosedBond && (
-                      <span className="mb-0.5 block text-[10px] tracking-[0.08em] text-gold">매듭 풀림</span>
-                    )}
-                    {p.sign.ko.replace("자리", "")}
-                    <small className="mt-0.5 block text-[10px] tabular-nums tracking-[0.04em]">
-                      {p.fromAge.toFixed(1)} – {p.toAge.toFixed(1)}
-                    </small>
-                  </div>
-                ))}
-              </div>
+              <SubPath
+                l2={zr.l2OfCurrent}
+                current={zr.currentL2}
+                entered={entered}
+                vertical={false}
+                className="hidden w-full sm:block"
+              />
+              <SubPath
+                l2={zr.l2OfCurrent}
+                current={zr.currentL2}
+                entered={entered}
+                vertical
+                className="mx-auto w-full max-w-[340px] sm:hidden"
+              />
               <p className="mt-4 text-center text-meta text-starlight-dim">
-                긴 장 안에서 달이 도는 작은 장(L2) — 숫자는 만 나이
+                위 성좌의 빛나는 선분을 곧게 펴서 확대한 것 — 달이 도는 작은 장(L2), 숫자는 만 나이
               </p>
               <div className="mx-auto mt-8 max-w-[56ch] text-center">
                 <p className="break-keep leading-relaxed text-starlight">
@@ -223,6 +220,122 @@ export function ReleasingSection({
 }
 
 const ASTRO_FONT = '"Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols2", "Noto Sans Symbols", sans-serif';
+
+/**
+ * 지금 장의 속살 — 위 성좌의 현재 선분을 곧게 펴서 확대한 직선.
+ *
+ * 정거장은 등간격이다: L2에서 정보는 차례이지 비례가 아니고(대체 전의 표도
+ * 등폭이었다), 비례로 그리면 8개월짜리 작은 장의 라벨이 설 자리가 없다.
+ * 양 끝의 큰 별 = 성좌의 두 경계 별. 현재 작은 장은 이중 링, 매듭 풀림으로
+ * 건너뛴 자리는 앞 구간이 점선이 된다.
+ */
+function SubPath({
+  l2,
+  current,
+  entered,
+  vertical,
+  className,
+}: {
+  l2: ZrPeriod[];
+  current: ZrPeriod | null;
+  entered: boolean;
+  vertical: boolean;
+  className?: string;
+}) {
+  const n = l2.length;
+  if (n === 0) return null;
+  const curIdx = current ? l2.indexOf(current) : -1;
+
+  const W = vertical ? 320 : 900;
+  const H = vertical ? 40 + n * 42 : 190;
+  const LINE = vertical ? 84 : 96;
+  const M0 = vertical ? 26 : 44;
+  const M1 = vertical ? H - 26 : W - 44;
+  const stop = (i: number): [number, number] => {
+    const main = n === 1 ? (M0 + M1) / 2 : M0 + ((M1 - M0) * i) / (n - 1);
+    return vertical ? [LINE, main] : [main, LINE];
+  };
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className={`${className ?? ""} transition-opacity duration-500 ease-out motion-reduce:opacity-100 motion-reduce:transition-none`}
+      style={{ transitionDelay: "600ms", opacity: entered ? 1 : 0 }}
+      role="img"
+      aria-label="현재 장의 작은 장들"
+    >
+      {/* 구간 선 — 매듭 풀림으로 건너뛴 자리 앞은 점선. */}
+      {l2.slice(1).map((p, i) => {
+        const [x1, y1] = stop(i);
+        const [x2, y2] = stop(i + 1);
+        return (
+          <line
+            key={p.fromAge}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke="rgba(227,197,104,0.5)"
+            strokeWidth={1.6}
+            strokeDasharray={p.loosedBond ? "3 5" : undefined}
+          />
+        );
+      })}
+
+      {/* 정거장 별과 라벨 */}
+      {l2.map((p, i) => {
+        const [x, y] = stop(i);
+        const cur = i === curIdx;
+        const edge = i === 0 || i === n - 1;
+        const up = i % 2 === 0;
+        const range = `${p.fromAge.toFixed(1)} – ${p.toAge.toFixed(1)}`;
+        return (
+          <g key={p.fromAge} textAnchor={vertical ? "start" : "middle"}>
+            {cur && (
+              <circle cx={x} cy={y} r={9} fill="none" stroke="var(--color-gold-soft)" strokeWidth={1.1} className="star-breathe" />
+            )}
+            <circle
+              cx={x}
+              cy={y}
+              r={cur ? 4.6 : edge ? 4.4 : 3.2}
+              fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"}
+              opacity={cur || edge ? 1 : 0.75}
+            />
+            {vertical ? (
+              <>
+                <text x={x + 22} y={y - 1} fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"} fontSize={12.5} style={{ fontFamily: "var(--font-display)" }}>
+                  {p.sign.ko.replace("자리", "")}
+                </text>
+                <text x={x + 22} y={y + 13} fill="rgba(154,150,168,0.85)" fontSize={9.5} style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.06em", fontVariantNumeric: "tabular-nums" }}>
+                  {range}
+                </text>
+                {p.loosedBond && (
+                  <text x={x - 14} y={y + 3.5} textAnchor="end" fill="var(--color-gold)" fontSize={9} style={{ letterSpacing: "0.06em" }}>
+                    매듭 풀림
+                  </text>
+                )}
+              </>
+            ) : (
+              <>
+                <text x={x} y={up ? y - 30 : y + 27} fill={cur ? "var(--color-gold-soft)" : "var(--color-starlight)"} fontSize={12} style={{ fontFamily: "var(--font-display)" }}>
+                  {p.sign.ko.replace("자리", "")}
+                </text>
+                <text x={x} y={up ? y - 17 : y + 40} fill="rgba(154,150,168,0.85)" fontSize={9.5} style={{ fontFamily: "var(--font-latin)", letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums" }}>
+                  {range}
+                </text>
+                {p.loosedBond && (
+                  <text x={x} y={up ? y - 44 : y + 54} fill="var(--color-gold)" fontSize={9} style={{ letterSpacing: "0.06em" }}>
+                    매듭 풀림
+                  </text>
+                )}
+              </>
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
 
 /** 성좌처럼 살짝 꺾이는 결정론적 오프셋 — 무작위면 렌더마다 그림이 흔들린다. */
 const WOBBLE = [18, -22, 12, -16, 20, -12, 16, -18, 14];

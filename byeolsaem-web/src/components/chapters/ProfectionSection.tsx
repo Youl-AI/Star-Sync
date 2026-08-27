@@ -45,27 +45,33 @@ export function ProfectionSection({
       <div className="mt-12 flex flex-wrap items-center justify-center gap-x-12 gap-y-10">
         <ProfectionDial years={years} currentAge={profection.age} entered={entered} />
 
-        {/* 올해의 부적 — 별샘 아치 카드의 형태 언어를 입는다. */}
+        {/* 올해의 부적 — ArchCard와 같은 이중 프레임과 인장. 형태만 흉내 내면
+            헐벗어 보인다(2026-08-27 피드백) — 부적의 격식을 전부 갖춘다. */}
         <div
-          className={`w-full max-w-[340px] rounded-t-[170px] rounded-b-lg border border-gold/50 bg-gradient-to-b from-nebula/85 to-ink px-7 pb-9 pt-14 text-center shadow-[0_0_44px_rgba(201,162,39,0.12)] transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
+          className={`w-full max-w-[340px] rounded-t-[176px] rounded-b-xl border border-gold/30 bg-gold/5 p-[7px] transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:translate-y-0 motion-reduce:opacity-100 ${
             entered ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >
-          <p className="font-latin text-eyebrow tabular-nums tracking-[0.3em] text-gold">
-            AGE {profection.age} · {yearMonth(profection.from)} – {yearMonth(profection.to)}
-          </p>
-          <p className="mt-3 break-keep font-display text-3xl text-starlight">
-            {profection.sign.ko}의 해
-          </p>
-          <p className="mt-2 text-meta text-starlight-dim">
-            {house.ko} · 올해의 주인 <b className="font-medium text-gold-soft">{profection.lordKo}</b>
-          </p>
-          <LineDiamond className="mt-6" symbol={SIGN_SYMBOL[profection.sign.key]} />
-          <p className="mx-auto mt-5 max-w-[36ch] break-keep text-guide leading-relaxed text-starlight">
-            {house.ko}에 불이 들어온 해입니다 — {house.domain}. 올해의 주인이{" "}
-            {profection.lordKo}이므로, {profection.lordKo}이 어디를 지나는지가
-            올해 트랜짓 읽기의 축이 됩니다.
-          </p>
+          <div className="relative rounded-t-[169px] rounded-b-lg border border-gold/60 bg-gradient-to-b from-nebula/90 to-ink px-6 pb-9 pt-16 text-center shadow-[0_0_44px_6px_rgba(201,162,39,0.12),inset_0_1px_0_rgba(232,228,216,0.07)]">
+            <svg viewBox="0 0 14 14" className="absolute left-1/2 top-5 size-3.5 -translate-x-1/2" aria-hidden>
+              <path d="M7 .5 8 4.6l4.5.6L9 8l1 4.5L7 9.9 4 12.5 5 8 1.5 5.2l4.5-.6Z" fill="var(--color-gold-soft)" />
+            </svg>
+            <p className="font-latin text-eyebrow tabular-nums tracking-[0.3em] text-gold">
+              AGE {profection.age} · {yearMonth(profection.from)} – {yearMonth(profection.to)}
+            </p>
+            <p className="mt-3 break-keep font-display text-3xl text-starlight">
+              {profection.sign.ko}의 해
+            </p>
+            <p className="mt-2 text-meta text-starlight-dim">
+              {house.ko} · 올해의 주인 <b className="font-medium text-gold-soft">{profection.lordKo}</b>
+            </p>
+            <LineDiamond className="mt-6" symbol={SIGN_SYMBOL[profection.sign.key]} />
+            <p className="mx-auto mt-5 max-w-[36ch] break-keep text-guide leading-relaxed text-starlight">
+              {house.ko}에 불이 들어온 해입니다 — {house.domain}. 올해의 주인이{" "}
+              {profection.lordKo}이므로, {profection.lordKo}이 어디를 지나는지가
+              올해 트랜짓 읽기의 축이 됩니다.
+            </p>
+          </div>
         </div>
       </div>
       <p className="mt-6 text-center text-meta text-starlight-dim">
