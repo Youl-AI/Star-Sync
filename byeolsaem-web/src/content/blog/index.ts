@@ -33,6 +33,17 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "일식-월식",
+    title: "일식과 월식 — 진하게 켜진 신월과 보름",
+    summary:
+      "식은 흩어져 오지 않고 반년마다 몰려서 옵니다. 일식이 배정의 날이고 월식이 마감의 날인 이유, 그리고 2026년 네 번의 식과 다음 식의 날짜까지.",
+    category: "점성학 기초",
+    published: "2026-08-31",
+    readingMinutes: 5,
+    image: "/og/blog/eclipses.png",
+    load: () => import("./eclipses.mdx"),
+  },
+  {
     slug: "2026-가을-하늘",
     title: "2026 가을·겨울 하늘 일정 — 9월부터 12월까지 한눈에",
     summary:
