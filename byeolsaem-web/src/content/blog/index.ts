@@ -33,6 +33,17 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "북쪽노드-남쪽노드",
+    title: "북쪽 노드와 남쪽 노드 — 차트가 가리키는 방향",
+    summary:
+      "별이 아닌 두 교차점이 별만큼 진지하게 읽히는 이유. 익숙한 남쪽과 가야 할 북쪽, 그리고 태어난 해로 내 노드 자리를 찾는 표까지.",
+    category: "나를 아는 법",
+    published: "2026-09-02",
+    readingMinutes: 5,
+    image: "/og/blog/lunar-nodes.png",
+    load: () => import("./lunar-nodes.mdx"),
+  },
+  {
     slug: "일식-월식",
     title: "일식과 월식 — 진하게 켜진 신월과 보름",
     summary:
