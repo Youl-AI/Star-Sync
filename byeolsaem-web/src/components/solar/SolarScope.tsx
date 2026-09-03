@@ -67,7 +67,10 @@ export function SolarScope({ builtAt }: { builtAt: string }) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    // 바깥은 원반이 두 칸으로 누울 폭(780px)까지 열어 두고, 글줄은 안쪽
+    // max-w-2xl이 지킨다 — 읽는 폭이 넓어지면 줄이 길어져 눈이 줄을 놓친다.
+    <div className="mx-auto max-w-[780px]">
+      <div className="mx-auto max-w-2xl">
       {isExample && (
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4 rounded-xl border border-gold/35 bg-ink-raised/85 px-5 py-4">
           <div className="min-w-[240px] flex-1">
@@ -88,13 +91,15 @@ export function SolarScope({ builtAt }: { builtAt: string }) {
           {formatKstDate(data.instant.toISOString())} ~ {formatKstDate(data.nextInstant.toISOString())}
         </span>
       </p>
+      </div>
 
       {/* 원반과 범례 — natal의 WheelFigure와 같은 짝이다. WheelFigure 자체는
           onSelectPlanet(아래 본문의 그 별 자리로 스크롤)을 필수로 요구하는데,
           이 페이지는 행성 사전 섹션이 없어 데려갈 자리가 없다. 그래서 원반과
           범례만 나란히 둔다 — 기준은 "원반의 기호에 범례가 딸려 있을 것". */}
-      {/* justify-center: 줄바꿈이 일어나 원반만 한 줄을 차지할 때 가운데로 온다.
-          두 칸으로 눕는 폭에서는 범례가 남은 자리를 다 채워 효과가 없다. */}
+      {/* justify-center: 좁은 화면에서 줄바꿈이 일어나 원반만 한 줄을 차지할 때
+          가운데로 온다. 두 칸으로 눕는 폭에서는 범례가 남은 자리를 다 채워
+          효과가 없다. */}
       <figure className="mt-8 flex flex-wrap items-start justify-center gap-x-10 gap-y-6">
         <div className="w-full max-w-[460px] flex-none">
           <ChartWheel chart={data.chart} />
@@ -104,6 +109,7 @@ export function SolarScope({ builtAt }: { builtAt: string }) {
         </figcaption>
       </figure>
 
+      <div className="mx-auto max-w-2xl">
       {reading.ascendant && <AxisSection axis={reading.ascendant} />}
       {reading.sunHouse && <AxisSection axis={reading.sunHouse} />}
       {reading.moonSign && <AxisSection axis={reading.moonSign} />}
@@ -116,6 +122,7 @@ export function SolarScope({ builtAt }: { builtAt: string }) {
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 }

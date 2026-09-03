@@ -32,9 +32,12 @@ const FAQS = [
   },
 ];
 
+// 글은 max-w-2xl로 읽히는데(SolarScope) 원반과 범례만 두 칸으로 눕느라 780px이
+// 필요하다. 그 자리만 넓게 빠져나갈 수 있도록 바깥을 넉넉히 준다. 나머지
+// 블록(머리말·FAQ)은 저마다 자기 폭을 이미 물고 있어 함께 늘어나지 않는다.
 export default function SolarReturnPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+    <main className="mx-auto max-w-4xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "솔라 리턴", path: "/solar-return" }])} />
       <JsonLd data={faqSchema(FAQS)} />
       <PlaceBand src="/world/place-natal.webp" />
