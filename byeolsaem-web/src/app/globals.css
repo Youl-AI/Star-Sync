@@ -14,7 +14,11 @@
   --color-paper: #f5f3ee;
   --color-ink-text: #1d1b2e;
   --color-ink-dim: #6b6878;
-  --color-gold-dark: #9c7c1a;
+  /* 새벽 배색의 금색. #9c7c1a였는데 종이(#f5f3ee) 위에서 대비가 3.57이라
+     작은 글씨 기준(4.5)에 못 미쳤다 — 칼럼 목록의 분류 라벨처럼 12px로
+     쓰이는 자리가 있어 실제로 읽기 어려웠다(2026-09-04 axe 검사).
+     색조는 그대로 두고 명도만 낮춰 4.93으로 올렸다. */
+  --color-gold-dark: #816614;
 
   --font-display: var(--font-maruburi), serif;
   --font-body: "Pretendard Variable", system-ui, sans-serif;
