@@ -33,6 +33,17 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "목성-리턴",
+    title: "목성 리턴 — 12년마다 열리는 확장의 창",
+    summary:
+      "만 11, 23, 35, 47세 무렵 목성은 태어난 자리로 돌아옵니다. 무엇이든 부풀리는 별을 다루는 법과, 지금 리턴 중인 사자자리 목성 세대까지.",
+    category: "나를 아는 법",
+    published: "2026-09-04",
+    readingMinutes: 4,
+    image: "/og/blog/jupiter-return.png",
+    load: () => import("./jupiter-return.mdx"),
+  },
+  {
     slug: "북쪽노드-남쪽노드",
     title: "북쪽 노드와 남쪽 노드 — 차트가 가리키는 방향",
     summary:
