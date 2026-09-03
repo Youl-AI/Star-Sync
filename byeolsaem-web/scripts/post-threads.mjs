@@ -32,10 +32,21 @@ const VOICES = [
 
 const KST = { timeZone: "Asia/Seoul" };
 
-function kstParts(date) {
-  const f = new Intl.DateTimeFormat("ko-KR", { ...KST, month: "long", day: "numeric", weekday: "long" });
-  const t = new Intl.DateTimeFormat("ko-KR", { ...KST, hour: "numeric", minute: "2-digit", hour12: false });
-  return { day: f.format(date), time: t.format(date).replace(":", "시 ") + "분" };
+const KST_DAY = new Intl.DateTimeFormat("ko-KR", { ...KST, month: "long", day: "numeric", weekday: "long" });
+const KST_DATE = new Intl.DateTimeFormat("ko-KR", { ...KST, month: "long", day: "numeric" });
+const KST_TIME = new Intl.DateTimeFormat("ko-KR", { ...KST, hour: "numeric", minute: "2-digit", hour12: false });
+/** 정렬 가능한 KST 날짜(YYYY-MM-DD). 며칠 뒤인지 세는 데만 쓴다. */
+const KST_ISO = new Intl.DateTimeFormat("en-CA", { ...KST, year: "numeric", month: "2-digit", day: "2-digit" });
+
+function kstTime(date) {
+  // 자정 뒤 한 시간은 "00시"로 나온다. 읽는 글에서는 0시가 자연스럽다.
+  return KST_TIME.format(date).replace(/^0(?=\d)/, "").replace(":", "시 ") + "분";
+}
+
+/** 두 순간이 KST 달력에서 며칠 떨어져 있는가. 같은 날이면 0, 내일이면 1. */
+function kstDayGap(from, to) {
+  const day = (d) => Date.parse(`${KST_ISO.format(d)}T00:00:00Z`);
+  return Math.round((day(to) - day(from)) / 86400000);
 }
 
 /** 달의 위상 — 태양과 달의 황경 차 하나로 여덟 국면이 갈린다. */
@@ -62,9 +73,8 @@ export function buildPost(now = new Date()) {
   const sun = sunPosition(jd).longitude;
   const moon = moonPosition(jd).longitude;
   const phase = moonPhase(((moon - sun) % 360 + 360) % 360);
-  const { day } = kstParts(now);
 
-  const lines = [`${day}의 하늘.`, ""];
+  const lines = [`${KST_DAY.format(now)}의 하늘.`, ""];
 
   lines.push(
     `달은 ${signAtLongitude(moon).ko}에 있습니다. ${phase.ko}을 지나는 중이라, ${phase.note}.`,
@@ -79,13 +89,20 @@ export function buildPost(now = new Date()) {
   }
 
   // 다가오는 삭망 하나만 — 둘 다 적으면 달력이 되어 버린다.
+  //
+  // 오늘이나 내일 오는 삭망을 "다음 신월은 9월 11일…"이라고 쓰면, 바로 위에서
+  // 이미 "신월을 지나는 중"이라고 말해 놓고 그것을 다시 앞날로 가리키게 된다.
+  // 가까운 것은 날짜 대신 오늘·내일로 부르고, 그날의 정확한 시각을 준다.
   const soon = lunationsBetween(now, new Date(now.getTime() + 16 * 86400000))[0];
   if (soon) {
-    const when = new Intl.DateTimeFormat("ko-KR", {
-      ...KST, month: "long", day: "numeric", hour: "numeric", minute: "2-digit", hour12: false,
-    }).format(new Date(soon.date));
+    const at = new Date(soon.date);
     const what = soon.kind === "new" ? "신월" : "보름";
-    lines.push("", `다음 ${what}은 ${when}, ${soon.signKo}입니다.`);
+    const gap = kstDayGap(now, at);
+    if (gap <= 1) {
+      lines.push("", `${gap === 0 ? "오늘" : "내일"} ${kstTime(at)}, ${soon.signKo}에서 ${what}이 옵니다.`);
+    } else {
+      lines.push("", `다음 ${what}은 ${KST_DATE.format(at)} ${kstTime(at)}, ${soon.signKo}입니다.`);
+    }
   }
 
   lines.push("", `오늘의 하늘 전체 → ${SITE}/today`);
@@ -137,4 +154,5 @@ async function main() {
   console.log(`게시 완료: ${published.id}`);
 }
 
-await main();
+// 직접 실행할 때만 게시한다. 테스트와 미리보기는 buildPost만 가져다 쓴다.
+if (import.meta.main) await main();
