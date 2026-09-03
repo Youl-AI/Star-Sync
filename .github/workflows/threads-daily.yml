@@ -1,0 +1,64 @@
+# 매일 아침, 오늘의 하늘 한 편을 스레드에 올린다.
+#
+# 글은 사이트와 같은 계산에서 나온다(byeolsaem-web/scripts/post-threads.mjs).
+# 모델이 문장을 짓지 않으므로 매일 같은 문법의 글이 나오고, 여기서 말하는
+# 날짜와 도수는 사이트가 말하는 것과 어긋날 수 없다.
+#
+# 시각: UTC 22:30 = KST 다음날 07:30. 출근길에 한 편 읽히는 시간대다.
+#
+# 필요한 시크릿 (Settings → Secrets and variables → Actions):
+#   THREADS_ACCESS_TOKEN — Threads 테스터용 장기 토큰. 60일마다 만료되므로
+#     앱 대시보드(이용 사례 → Threads API → 설정 → 사용자 토큰 생성기)에서
+#     다시 뽑아 이 시크릿을 갱신한다. 만료가 가까우면 아래 단계가 경고한다.
+name: threads-daily
+
+on:
+  schedule:
+    - cron: "30 22 * * *"
+  # 수동 실행 단추 — 문구를 고친 날 바로 확인할 때 쓴다.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "게시하지 않고 글만 만들어 본다"
+        type: boolean
+        default: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 스크립트가 --experimental-strip-types로 TS 라이브러리를 직접 물어온다.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: byeolsaem-web/package-lock.json
+
+      - name: Install
+        working-directory: byeolsaem-web
+        run: npm ci
+
+      # 토큰이 언제 만료되는지 미리 알려 둔다. 만료된 뒤에 알면 그날은 이미 늦다.
+      - name: Check token
+        working-directory: byeolsaem-web
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$THREADS_ACCESS_TOKEN" ]; then
+            echo "::error::THREADS_ACCESS_TOKEN 시크릿이 없습니다."
+            exit 1
+          fi
+          days=$(curl -sf "https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=$THREADS_ACCESS_TOKEN" \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(Math.floor(JSON.parse(s).expires_in/86400))}catch{console.log('')}})")
+          if [ -n "$days" ] && [ "$days" -lt 10 ]; then
+            echo "::warning::스레드 토큰이 ${days}일 뒤 만료됩니다. 앱 대시보드에서 새로 뽑아 시크릿을 갱신하세요."
+          fi
+
+      - name: Post today's sky
+        working-directory: byeolsaem-web
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+        run: node --experimental-strip-types --import ./scripts/lib/register-ts-ext.mjs scripts/post-threads.mjs
