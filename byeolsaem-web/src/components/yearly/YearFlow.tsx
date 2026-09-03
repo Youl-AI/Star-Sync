@@ -41,6 +41,11 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
   const trackRef = useRef<HTMLDivElement>(null);
   const riverRef = useRef<SVGPathElement>(null);
   const fillRef = useRef<HTMLSpanElement>(null);
+  const dotRef = useRef<HTMLSpanElement>(null);
+  const barRef = useRef<HTMLSpanElement>(null);
+  /** 진행 막대의 폭. 스크롤마다 재면 핫패스에 레이아웃 읽기가 들어가므로
+      ScrollTrigger가 새로 잴 때(생성·리사이즈)만 갱신한다. */
+  const barWidth = useRef(0);
   const gradientId = useId();
 
   const [active, setActive] = useState(-1);
@@ -63,11 +68,20 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
           end: "bottom bottom",
           scrub: 0.25,
           invalidateOnRefresh: true,
+          onRefresh: () => {
+            barWidth.current = barRef.current?.clientWidth ?? 0;
+          },
           onUpdate: (self) => {
             if (fillRef.current) {
               // width가 아니라 scaleX — 스크롤마다 도는 핫패스에서 width는 매번
               // 레이아웃을 다시 계산시킨다. ReadingProgress와 같은 이유·같은 방식.
               fillRef.current.style.transform = `scaleX(${self.progress.toFixed(4)})`;
+            }
+            if (dotRef.current) {
+              // 채움의 끝을 따라가는 점. 막대를 scaleX로 늘이므로 점을 그 안에
+              // 두면 같이 납작해진다 — 그래서 형제로 두고 따로 옮긴다.
+              const x = (barWidth.current * self.progress).toFixed(1);
+              dotRef.current.style.transform = `translate(calc(${x}px - 50%), -50%)`;
             }
             // 카드·달 표기는 화면에 실제로 보이는 위치(눅어진 x)를 따른다.
             // 진행률(스크럽 전 값)을 쓰면 강은 아직 안 왔는데 글이 먼저 바뀐다.
@@ -278,13 +292,25 @@ export function YearFlow({ year, events }: { year: number; events: YearReadingEv
           )}
         </div>
 
-        {/* 한 해의 어디쯤인가 */}
-        <div className="mt-6 flex items-center gap-4 text-meta text-starlight-dim">
-          <span className="w-8">{month}월</span>
-          <span className="relative h-px flex-1 bg-gold/20">
-            <span ref={fillRef} className="absolute inset-0 block origin-left bg-gold" style={{ transform: "scaleX(0)" }} />
-          </span>
-          <span>12월</span>
+        {/* 한 해의 어디쯤인가.
+            양 끝은 1월과 12월로 고정하고 점만 움직인다. 예전에는 왼쪽이 지금 달을
+            따라 바뀌었는데, 자가 함께 움직이면 눈금을 읽을 수 없다 — 끝까지 내려간
+            사람에게는 "12월 —— 12월"이 되어 고장으로 보이기까지 했다(2026-09-04). */}
+        <div className="mt-6">
+          <p className="text-meta text-starlight-dim">{month}월 어름을 지나는 중</p>
+          <div className="mt-2 flex items-center gap-3 text-meta text-starlight-dim">
+            <span className="w-8 flex-none">1월</span>
+            <span ref={barRef} className="relative h-px flex-1 bg-gold/20">
+              <span ref={fillRef} className="absolute inset-0 block origin-left bg-gold" style={{ transform: "scaleX(0)" }} />
+              <span
+                ref={dotRef}
+                aria-hidden
+                className="absolute left-0 top-1/2 block size-1.5 rounded-full bg-gold"
+                style={{ transform: "translate(-50%, -50%)" }}
+              />
+            </span>
+            <span className="w-8 flex-none text-right">12월</span>
+          </div>
         </div>
       </div>
     </div>
