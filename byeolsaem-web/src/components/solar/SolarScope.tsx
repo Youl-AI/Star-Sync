@@ -93,7 +93,9 @@ export function SolarScope({ builtAt }: { builtAt: string }) {
           onSelectPlanet(아래 본문의 그 별 자리로 스크롤)을 필수로 요구하는데,
           이 페이지는 행성 사전 섹션이 없어 데려갈 자리가 없다. 그래서 원반과
           범례만 나란히 둔다 — 기준은 "원반의 기호에 범례가 딸려 있을 것". */}
-      <figure className="mt-8 flex flex-wrap items-start gap-x-10 gap-y-6">
+      {/* justify-center: 줄바꿈이 일어나 원반만 한 줄을 차지할 때 가운데로 온다.
+          두 칸으로 눕는 폭에서는 범례가 남은 자리를 다 채워 효과가 없다. */}
+      <figure className="mt-8 flex flex-wrap items-start justify-center gap-x-10 gap-y-6">
         <div className="w-full max-w-[460px] flex-none">
           <ChartWheel chart={data.chart} />
         </div>

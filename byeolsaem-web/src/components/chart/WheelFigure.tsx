@@ -117,8 +117,10 @@ export function WheelFigure({
   // 손으로 짚은 별 > 투어의 차례 > 범례.
   const shown = hovered ?? tour?.selection ?? null;
 
+  // justify-center: 줄바꿈이 일어나 원반만 한 줄을 차지할 때 가운데로 온다.
+  // 두 칸으로 눕는 폭에서는 범례가 남은 자리를 다 채워 효과가 없다.
   return (
-    <figure ref={figureRef} className="mt-14 flex flex-wrap items-start gap-x-10 gap-y-6">
+    <figure ref={figureRef} className="mt-14 flex flex-wrap items-start justify-center gap-x-10 gap-y-6">
       {/* 원반이 이 그림의 주인공이다. 340px일 때는 기호가 눈을 좁혀야 보였다. */}
       <div className="w-full max-w-[460px] flex-none">
         <ChartWheel
