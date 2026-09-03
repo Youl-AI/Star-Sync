@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { clearBirthProfile, formatBirthDate } from "@/lib/birth-profile";
 import { requestRitual } from "@/lib/ritual";

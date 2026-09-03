@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import type { ReactNode } from "react";
 import { useBirthProfile } from "@/hooks/useBirthProfile";
 import { formatBirthDate } from "@/lib/birth-profile";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { SEAL_CLIP } from "./goldStyles";
 
 type GoldButtonProps = {

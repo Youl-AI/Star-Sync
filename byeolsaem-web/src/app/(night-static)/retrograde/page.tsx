@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { RetrogradeLoop } from "@/components/retrograde/RetrogradeLoop";

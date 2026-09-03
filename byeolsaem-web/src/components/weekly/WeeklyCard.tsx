@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { computeChart } from "@/lib/chart";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
 import { eventDescription, eventHref, eventTitle } from "@/lib/calendar-copy";

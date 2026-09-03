@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { notFound } from "next/navigation";
 import { DawnDocument } from "@/components/dawn/Document";
 import { JsonLd, SITE_URL, breadcrumbSchema } from "@/components/seo/JsonLd";

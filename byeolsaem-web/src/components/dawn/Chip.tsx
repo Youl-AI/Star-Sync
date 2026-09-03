@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 
 /**
  * 글 안에 박아 넣는 새벽 배색 부적 칩 (스펙 §6.8).

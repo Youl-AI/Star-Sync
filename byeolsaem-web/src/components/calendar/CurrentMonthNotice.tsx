@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 
 /**
  * 허브는 빌드 시점의 달로 구워진다. 배포가 묵어 실제 달이 넘어갔으면, 그리드를

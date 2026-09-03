@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { DawnDocument, DawnSection } from "@/components/dawn/Document";
 import { alternatesFor } from "@/lib/metadata";
 

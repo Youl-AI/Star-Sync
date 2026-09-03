@@ -1,6 +1,6 @@
 "use client";
 import { useMemo } from "react";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { nextLunations } from "@/lib/lunation";
 import { PLANET_BY_KEY } from "@/lib/planets";
 import { mercuryRetrogrades } from "@/lib/retrograde";

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { Astrolabe } from "@/components/sign/Astrolabe";
 import { SignPrimer } from "@/components/sign/SignPrimer";
 import { alternatesFor, ogImage } from "@/lib/metadata";

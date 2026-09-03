@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import type { NavAmbient } from "@/lib/nav-ambient";
 import { Wordmark } from "../brand/Wordmark";
 import { AmbientLine } from "./AmbientLine";

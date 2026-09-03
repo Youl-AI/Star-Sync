@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 
 // 별자리 기호는 유니코드 점성 기호를 쓴다 — SVG를 12개 그리는 것보다 가볍고,

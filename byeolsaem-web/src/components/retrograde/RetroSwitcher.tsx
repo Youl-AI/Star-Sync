@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 
 /**
  * 역행 페이지 사이의 행성 전환기 (2026-08-22 사용자 제안).

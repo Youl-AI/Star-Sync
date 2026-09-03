@@ -1,5 +1,5 @@
 import type { MDXComponents } from "mdx/types";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { DawnChip } from "@/components/dawn/Chip";
 
 /**

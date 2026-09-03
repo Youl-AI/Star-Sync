@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { Wordmark } from "@/components/brand/Wordmark";
 
 // 레이아웃 패밀리: 좁은 중앙 스택이지만 위 세 섹션과 다르게 상단 구분선(border-t)을

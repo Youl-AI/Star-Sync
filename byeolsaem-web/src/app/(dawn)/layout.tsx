@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { AdSense } from "@/components/ads/AdSense";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ReadingProgress } from "@/components/dawn/ReadingProgress";

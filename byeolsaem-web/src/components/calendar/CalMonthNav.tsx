@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 
 /**
  * 월 이동 링크. 누르는 순간 문서 루트에 방향을 심어 두면 TransitionStage가 여는

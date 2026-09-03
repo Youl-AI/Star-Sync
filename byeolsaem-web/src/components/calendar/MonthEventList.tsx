@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { eventDescription, eventHref, eventTitle } from "@/lib/calendar-copy";
 import type { CalendarEvent } from "@/lib/calendar-events";
 import { formatKstDateTime, kstParts } from "@/lib/retrograde-clock";

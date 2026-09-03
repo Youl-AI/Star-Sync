@@ -9,7 +9,7 @@ import type { RitualData } from "@/components/hero/RitualForm";
 import { formatBirthDate } from "@/lib/birth-profile";
 import { computeChart, type Chart } from "@/lib/chart";
 import { coordinatesFor, KOREA_UTC_OFFSET_HOURS } from "@/lib/coordinates";
-import Link from "next/link";
+import { Link } from "@/components/ui/Link";
 import { SIGN_SYMBOL, getSunSign } from "@/lib/zodiac";
 import { signArt } from "@/lib/share-card";
 import { firstSentence } from "@/lib/text";
