@@ -60,7 +60,7 @@ export function Veil({ ambient }: { ambient: NavAmbient }) {
             : "border-b border-transparent bg-transparent"
         }`}
       >
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        <nav aria-label="주요 메뉴" className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link href="/" aria-label="별샘 홈" onClick={() => setOpen(false)}>
             <Wordmark size="nav" />
           </Link>

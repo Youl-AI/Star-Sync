@@ -117,7 +117,9 @@ export function ChartWheel({
     <svg
       viewBox={`0 0 ${SIZE} ${SIZE}`}
       className="mx-auto w-full max-w-[min(92vw,480px)]"
-      role="img"
+      // 각 행성이 tabIndex를 가진 손잡이라 이 원반은 그림 하나가 아니라 묶음이다.
+      // role="img"로 두면 "초점 갈 자식을 가진 이미지"가 되어 규격에 어긋난다.
+      role="group"
       aria-label="태어난 순간의 행성 배치를 그린 천궁도 원반"
     >
       {/* 별자리 띠 */}
@@ -330,10 +332,16 @@ export function ChartWheel({
  * 예전에는 각도 이름을 글로만 나열했다. "육분 60도 · 사각 90도"를 읽어도 원반의
  * 어느 선이 그것인지 알 수 없다 — 이름과 그림이 이어지지 않으면 범례가 아니다.
  * 그래서 각 항목에 그 자리에서 실제로 쓰는 획을 함께 그린다.
+ *
+ * 목록은 <dl>이 아니라 <ul>이다. 뜻으로만 보면 용어와 설명이니 <dl>이 맞지만,
+ * <dl>의 자식으로 허용되는 것은 <dt>/<dd>와 그 둘만 감싼 <div> 하나뿐이다.
+ * 여기처럼 획 그림과 글을 두 칸으로 나누려면 <div>가 한 겹 더 필요해져 규격을
+ * 벗어난다(2026-09-04 axe 검사에서 definition-list·dlitem 위반으로 잡혔다).
+ * 목록이라는 뼈대는 <ul>로도 그대로 전해지므로 이쪽을 택했다.
  */
 export function ChartWheelLegend() {
   return (
-    <dl className="space-y-3 text-guide text-starlight">
+    <ul className="space-y-3 text-guide text-starlight">
       <LegendRow swatch={<BandSwatch />} term="바깥 띠">
         열두 별자리. 하늘을 30도씩 나눈 것입니다.
       </LegendRow>
@@ -349,7 +357,7 @@ export function ChartWheelLegend() {
       <LegendRow swatch={<RetrogradeSwatch />} term="기호 옆 R">
         그때 그 행성이 역행 중이었다는 표시입니다.
       </LegendRow>
-    </dl>
+    </ul>
   );
 }
 
@@ -369,15 +377,15 @@ function LegendRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[34px_minmax(0,1fr)] items-start gap-x-3">
-      <div className="pt-1" aria-hidden>
+    <li className="grid grid-cols-[34px_minmax(0,1fr)] items-start gap-x-3">
+      <span className="pt-1" aria-hidden>
         {swatch}
-      </div>
-      <div className="min-w-0">
-        <dt className="inline font-display text-starlight">{term}</dt>
-        <dd className="inline break-keep text-starlight-dim"> — {children}</dd>
-      </div>
-    </div>
+      </span>
+      <span className="min-w-0">
+        <span className="font-display text-starlight">{term}</span>
+        <span className="break-keep text-starlight-dim"> — {children}</span>
+      </span>
+    </li>
   );
 }
 

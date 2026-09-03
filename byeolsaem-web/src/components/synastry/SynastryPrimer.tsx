@@ -41,12 +41,15 @@ export function SynastryPrimer() {
           두 별 사이의 거리가 아래 각도에 가까울 때 서로를 건드린다고 봅니다. 좋고
           나쁨이 아니라 사이의 종류입니다.
         </p>
-        <dl className="mt-8 space-y-6">
+        {/* <dl>이 아니라 <ul>이다 — 인장 그림과 글을 두 칸으로 나누려면 <dt>/<dd>를
+            감싸는 <div>가 한 겹 더 필요해지는데, 그 중첩은 <dl>의 규격을 벗어난다.
+            천궁도 범례도 같은 이유로 <ul>이다(ChartWheelLegend 주석 참고). */}
+        <ul className="mt-8 space-y-6">
           {Object.entries(SYNASTRY_ASPECTS).map(([key, meaning]) => {
             // 각의 기하 인장 — 각도는 본질이 기하인데 글로만 적혀 있었다(감사 2026-08-28).
             const type = ASPECT_TYPES.find((t) => t.key === key);
             return (
-              <div key={key} className="flex gap-5 border-t border-gold/12 pt-5">
+              <li key={key} className="flex gap-5 border-t border-gold/12 pt-5">
                 {type && (
                   <AspectBadge
                     angle={type.angle}
@@ -55,20 +58,20 @@ export function SynastryPrimer() {
                   />
                 )}
                 <div>
-                  <dt className="font-display text-lg text-starlight">
+                  <p className="font-display text-lg text-starlight">
                     {meaning.headline}
                     {type && (
                       <span className="ml-3 text-meta font-normal text-starlight-dim">
                         {type.ko} {type.angle}도
                       </span>
                     )}
-                  </dt>
-                  <dd className="mt-2 break-keep text-starlight-dim">{meaning.body}</dd>
+                  </p>
+                  <p className="mt-2 break-keep text-starlight-dim">{meaning.body}</p>
                 </div>
-              </div>
+              </li>
             );
           })}
-        </dl>
+        </ul>
 
         <h2 className="mt-14 break-keep font-display text-xl text-starlight">
           어느 자리가 만나는가

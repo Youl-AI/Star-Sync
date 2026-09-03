@@ -10,7 +10,7 @@ export function Footer() {
     <footer className="border-t border-gold/10 px-6 py-20 text-center md:py-28">
       <Wordmark size="hero" />
 
-      <nav className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-starlight-dim">
+      <nav aria-label="사이트 정보" className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-starlight-dim">
         {/* 별길·문에 못 실은 셋 — 읽을거리와 참조 도구는 푸터가 맡는다(안 B). */}
         <Link href="/blog" className="transition-colors hover:text-starlight">
           칼럼

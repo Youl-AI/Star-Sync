@@ -130,7 +130,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         </Link>
       </div>
 
-      <nav className="mt-16 flex flex-wrap justify-between gap-6 border-t border-gold-dark/15 pt-8 text-sm">
+      <nav aria-label="이웃한 칼럼" className="mt-16 flex flex-wrap justify-between gap-6 border-t border-gold-dark/15 pt-8 text-sm">
         {previous ? (
           <Link href={`/blog/${previous.slug}`} className="max-w-[45%] no-underline">
             <span className="block text-meta tracking-[0.2em] text-ink-dim">이전 글</span>
