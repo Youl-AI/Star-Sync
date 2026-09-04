@@ -2,6 +2,7 @@ import { Link } from "@/components/ui/Link";
 import { AdSense } from "@/components/ads/AdSense";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { ReadingProgress } from "@/components/dawn/ReadingProgress";
+import { PageFade } from "@/components/nav/PageFade";
 
 /**
  * 새벽 — 읽는 페이지의 세계. 블로그와 정책 문서가 여기 산다.
@@ -37,7 +38,7 @@ export default function DawnLayout({ children }: { children: React.ReactNode }) 
         </Link>
       </header>
 
-      {children}
+      <PageFade>{children}</PageFade>
 
       {/* 읽는 페이지에만 광고를 싣는다(AdSense 주석 참고). 이 그룹은 칼럼·소개·
           방침이라 전부 해당한다. */}

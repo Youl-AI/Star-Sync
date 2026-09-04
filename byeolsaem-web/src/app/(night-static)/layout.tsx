@@ -1,6 +1,7 @@
 import { AdSense } from "@/components/ads/AdSense";
 import { BirthPanel } from "@/components/birth/BirthPanel";
 import { NavVeil } from "@/components/nav/NavVeil";
+import { PageFade } from "@/components/nav/PageFade";
 import { StaticStars } from "@/components/sky/StaticStars";
 
 /**
@@ -28,7 +29,7 @@ export default function NightStaticLayout({ children }: { children: React.ReactN
       </div>
 
       <NavVeil />
-      <div className="relative z-10">{children}</div>
+      <PageFade className="relative z-10">{children}</PageFade>
 
       {/* 출생 정보를 어느 페이지에서든 받는다. 예전에는 메인으로 돌려보냈다. */}
       <BirthPanel />

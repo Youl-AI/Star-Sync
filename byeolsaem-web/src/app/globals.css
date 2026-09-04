@@ -733,31 +733,26 @@ main:focus {
   }
 }
 
-/* 페이지 전환 크로스페이드 — 브라우저 기본 250ms는 왕복이 사라진 지금 체감의
-   절반을 차지한다. 진입 연출 기준(150~250ms)의 가운데로 줄인다. 감소 모드에서는
-   TransitionStage가 전환 자체를 걸지 않으므로 여기 올 일이 없다. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 180ms;
+/* 페이지 전환 — 본문 기둥만 짧게 밝아진다(PageFade 주석에 왜 브라우저 전환을
+   쓰지 않는지 적어 두었다). 진입 연출 기준(150~250ms)의 가운데.
+
+   @keyframes가 아니라 @starting-style + transition인 데에는 이유가 있다.
+   키프레임은 시작값이 투명이라, 문서 타임라인이 돌지 않는 환경(숨은 탭,
+   헤드리스 캡처)에서는 애니메이션이 시작되지 않은 채 그 투명함에 그대로
+   머문다 — 본문이 통째로 안 보인다(실측). 전환은 반대다. 프레임이 돌지
+   않으면 최종값인 불투명으로 그냥 나타난다. 감소 모드에서도 마찬가지다. */
+.page-fade {
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
 }
 
-/* 달력의 월 이동 — 그리드만 방향 있게 미끄러진다. 이름을 분리했으므로 루트
-   크로스페이드(위 180ms)는 페이지의 나머지에 그대로 걸린다. 방향은 CalMonthNav가
-   클릭 순간 html[data-cal-dir]로 심는다. 감소 모드에서는 TransitionStage가 전환
-   자체를 열지 않으므로 여기 올 일이 없다. */
-@keyframes cal-slide-out {
-  to { transform: translateX(calc(var(--cal-dir) * -32px)); opacity: 0; }
-}
-@keyframes cal-slide-in {
-  from { transform: translateX(calc(var(--cal-dir) * 32px)); opacity: 0; }
-}
-html[data-cal-dir="next"] { --cal-dir: 1; }
-html[data-cal-dir="prev"] { --cal-dir: -1; }
-html[data-cal-dir] ::view-transition-old(calendar-grid) {
-  animation: cal-slide-out 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-html[data-cal-dir] ::view-transition-new(calendar-grid) {
-  animation: cal-slide-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+@media (prefers-reduced-motion: no-preference) {
+  .page-fade {
+    transition: opacity 180ms ease-out;
+  }
 }
 
 /* /chapters "지금" 별의 숨쉬는 링(모션 패스 03). SVG라 box-shadow가 안 먹혀

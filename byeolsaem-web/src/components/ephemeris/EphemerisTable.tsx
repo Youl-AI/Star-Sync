@@ -1,22 +1,7 @@
 import { eventTitle } from "@/lib/calendar-copy";
 import { monthEvents } from "@/lib/calendar-events";
 import type { EphemerisRow } from "@/lib/ephemeris-table";
-import { PLANETS } from "@/lib/planets";
 import { kstParts } from "@/lib/retrograde-clock";
-import { ZODIAC_SIGNS } from "@/lib/zodiac";
-
-/**
- * 자리 표기 ↔ 전체 이름 범례. 첫 글자만 쓰면 "물병자리/물고기자리"가 둘 다
- * "물"로 겹친다 — 두 글자(물병/물고)까지는 모든 자리가 서로 다르다.
- * 페이지 쪽 소개 아래 한 줄로 둔다(표 자체에는 안 싣는다).
- */
-export const SIGN_LEGEND = ZODIAC_SIGNS.map((s) => `${s.ko.slice(0, 2)}=${s.ko}`).join(" · ");
-
-/**
- * 행성 기호 ↔ 이름 범례. 표 머리는 기호(☉☽☿…)뿐이라 처음 보는 사람에게는
- * 암호다 — SIGN_LEGEND와 같은 방식으로 나란히 둔다(최종 리뷰 M-2).
- */
-export const PLANET_LEGEND = PLANETS.map((p) => `${p.symbol}=${p.ko}`).join(" · ");
 
 /**
  * 천문력 표 렌더. 표가 화면보다 넓으므로 반드시 자기 컨테이너 안에서 가로

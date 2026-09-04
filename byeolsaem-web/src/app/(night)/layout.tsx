@@ -1,6 +1,7 @@
 import { SkyBackdrop } from "@/components/sky/SkyBackdrop";
 import { BirthPanel } from "@/components/birth/BirthPanel";
 import { NavVeil } from "@/components/nav/NavVeil";
+import { PageFade } from "@/components/nav/PageFade";
 import { SmoothScroll } from "@/components/SmoothScroll";
 
 /**
@@ -28,7 +29,7 @@ export default function NightLayout({ children }: { children: React.ReactNode })
       <SmoothScroll />
       <SkyBackdrop />
       <NavVeil />
-      <div className="relative z-10">{children}</div>
+      <PageFade className="relative z-10">{children}</PageFade>
 
       {/* 출생 정보를 어느 페이지에서든 받는다. 메인에는 히어로의 의식이 따로 있어
           여기서는 열리지 않는다 — requestRitual이 히어로 유무를 보고 고른다. */}

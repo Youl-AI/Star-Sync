@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { CalMonthNav } from "@/components/calendar/CalMonthNav";
 import { CurrentMonthNotice } from "@/components/calendar/CurrentMonthNotice";
-import { EphemerisTable, PLANET_LEGEND, SIGN_LEGEND } from "@/components/ephemeris/EphemerisTable";
+import { EphemerisLegend } from "@/components/ephemeris/EphemerisLegend";
+import { EphemerisTable } from "@/components/ephemeris/EphemerisTable";
 import { NextSteps } from "@/components/nav/NextSteps";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { JsonLd, breadcrumbSchema } from "@/components/seo/JsonLd";
@@ -41,15 +42,7 @@ export default function EphemerisPage() {
         </p>
       </header>
       <CurrentMonthNotice builtYear={CURRENT.year} builtMonth={CURRENT.month} hrefBase="/ephemeris" noun="천문력" />
-      <div className="border border-gold/15 bg-ink-raised/40 px-4 py-3 text-meta text-starlight-dim">
-        <p className="text-starlight-dim">표 읽는 법</p>
-        <ul className="mt-1.5 list-disc space-y-1 pl-4">
-          <li>℞ 표시는 그 날 그 행성이 역행 중이라는 뜻입니다.</li>
-          <li>모든 시각은 한국 시간(KST) 자정 기준입니다.</li>
-          <li>자리 표기는 앞 두 글자입니다 — {SIGN_LEGEND}</li>
-          <li>행성 기호 — {PLANET_LEGEND}</li>
-        </ul>
-      </div>
+      <EphemerisLegend />
       <CalMonthNav
         label={`${CURRENT.year}년 ${CURRENT.month}월`}
         prevHref={href(MONTHS[0])}

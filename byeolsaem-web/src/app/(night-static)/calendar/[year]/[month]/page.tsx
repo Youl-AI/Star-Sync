@@ -82,6 +82,7 @@ export default async function CalendarMonthPage({ params }: { params: Promise<{ 
         month={month}
         prevHref={idx > 0 ? monthHref(MONTHS[idx - 1]) : null}
         nextHref={idx < MONTHS.length - 1 ? monthHref(MONTHS[idx + 1]) : null}
+        keepScroll
       />
       <IcsRow />
       <NextSteps
