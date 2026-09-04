@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { alternatesFor, ogImage } from "@/lib/metadata";
 import { NatalPrimer } from "@/components/chart/NatalPrimer";
+import { ExampleSky } from "@/components/chart/ExampleSky";
 import { NatalReading } from "@/components/chart/NatalReading";
 import { PlaceBand } from "@/components/place/PlaceBand";
 
@@ -58,8 +59,11 @@ export default function NatalPage() {
         </p>
       </header>
 
+      {/* 예시 하늘은 서버가 그려 넘긴다 — 클라이언트 안에서 만들면 HTML에 남지
+          않는다(ExampleSky 주석 참고). 저장된 출생 정보가 있으면 하이드레이션
+          뒤에 NatalReading이 자기 차트로 바꿔 끼운다. */}
       <div className="mt-14">
-        <NatalReading />
+        <NatalReading fallback={<ExampleSky />} />
       </div>
 
       {/* 차트는 브라우저가 그리므로 HTML에는 남지 않는다. 누구의 차트인지와 무관하게

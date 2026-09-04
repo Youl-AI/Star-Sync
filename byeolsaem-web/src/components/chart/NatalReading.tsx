@@ -14,7 +14,6 @@ import { GoldButton } from "@/components/ui/GoldButton";
 import { KakaoShareButton } from "@/components/ui/KakaoShareButton";
 import { SaveCardButton } from "@/components/ui/SaveCardButton";
 import { ToneBadge } from "@/components/ui/ToneBadge";
-import { ExampleSky } from "./ExampleSky";
 import { ChartLoading, UnknownPlace } from "./NoProfile";
 import { Term } from "./Term";
 import { useChart } from "./useChart";
@@ -34,16 +33,19 @@ import { WheelFigure } from "./WheelFigure";
  * 왼쪽 기둥은 스크롤을 따라오며 누구의 하늘을 보고 있는지 계속 말한다. 예전에는
  * 그 정보가 맨 위에 한 줄 있다가 사라졌다.
  */
-export function NatalReading() {
+export function NatalReading({ fallback }: { fallback: React.ReactNode }) {
   const { profile, ready } = useBirthProfile();
   const state = useChart(profile);
   /** 사전 섹션에서 지금 펼쳐져 있는 별. 원반에서 골라도 열린다.
       이른 return들보다 앞에 서야 한다 — 훅 순서 규칙. */
   const [openPlanet, setOpenPlanet] = useState<PlanetKey | null>(null);
 
-  if (!ready) return <ChartLoading />;
+  // 저장소를 읽기 전에도 예시 하늘을 그대로 둔다. 서버가 이미 그려 둔 것이라
+  // HTML에 남아 있고, 여기서 로딩 문구로 바꾸면 그 글이 지워진다 — 수집기가
+  // 자바스크립트를 돌리지 않고 보는 화면이 다시 빈 껍데기가 된다.
+  if (!ready) return fallback;
   // 정보가 없으면 요구부터 하지 않는다 — 예시 하늘을 먼저 보여준다(ExampleSky 주석 참고).
-  if (!profile) return <ExampleSky />;
+  if (!profile) return fallback;
   if (state?.status === "unknown-place") return <UnknownPlace city={profile.city} />;
   if (state?.status !== "ready") return <ChartLoading />;
 

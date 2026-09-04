@@ -1,9 +1,7 @@
-"use client";
 import { formatPlacement } from "@/lib/chart";
 import { EXAMPLE_BIRTH, exampleSky } from "@/lib/example-sky";
-import { requestRitual } from "@/lib/ritual";
-import { GoldButton } from "@/components/ui/GoldButton";
 import { ToneBadge } from "@/components/ui/ToneBadge";
+import { ExampleCta } from "./ExampleCta";
 
 /**
  * 출생 정보를 넣기 전의 /natal — 빈 화면 대신 예시 하늘을 보여준다.
@@ -14,6 +12,12 @@ import { ToneBadge } from "@/components/ui/ToneBadge";
  * 다 보여주면 자기 정보를 넣을 이유가 줄어든다(시안 2026-08-22, 결정 ④).
  *
  * "예시" 라벨은 안내 띠와 첫 섹션 옆, 두 곳뿐이다. 섹션마다 붙이면 소음이다(결정 ②).
+ *
+ * 서버 컴포넌트다(2026-09-05). 예전에는 클라이언트에서만 그려져서, 서버가 찍는
+ * HTML에는 이 글이 한 글자도 남지 않았다 — 검색 수집기와 광고 심사자가 /natal에서
+ * 본 것은 프라이머뿐이었다. EXAMPLE_BIRTH는 고정 상수이고 계산은 결정론이라
+ * 서버에서 그릴 수 있다. 화면은 그대로이고, 달라지는 것은 문서에 남는 글이다.
+ * 단추만 ExampleCta로 떼어 클라이언트에 둔다.
  */
 export function ExampleSky() {
   const { reading } = exampleSky();
@@ -30,9 +34,7 @@ export function ExampleSky() {
           </p>
           <p className="mt-1 break-keep text-meta text-starlight-dim">{EXAMPLE_BIRTH.label}</p>
         </div>
-        <GoldButton variant="solid" onClick={() => requestRitual()}>
-          내 하늘 열기
-        </GoldButton>
+        <ExampleCta label="내 하늘 열기" />
       </div>
 
       <div className="mt-12">
@@ -96,9 +98,7 @@ export function ExampleSky() {
           예시는 여기까지 — 행성 열 개의 사전과 나머지 각도는 내 하늘에서 열립니다.
         </p>
         <div className="mt-6 flex justify-center">
-          <GoldButton variant="solid" onClick={() => requestRitual()}>
-            여기서부터는 내 하늘로
-          </GoldButton>
+          <ExampleCta label="여기서부터는 내 하늘로" />
         </div>
         <p className="mx-auto mt-4 max-w-md break-keep text-meta text-starlight-dim">
           날짜와 시각, 태어난 곳. 한 번만 남기면 모든 페이지가 그 하늘을 씁니다.
