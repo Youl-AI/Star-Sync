@@ -7,6 +7,7 @@ import { NextSteps } from "@/components/nav/NextSteps";
 import { PlaceBand } from "@/components/place/PlaceBand";
 import { eventTitle } from "@/lib/calendar-copy";
 import { BUILD_MONTHS, monthEvents } from "@/lib/calendar-events";
+import { monthNote } from "@/content/month-notes";
 import { alternatesFor, ogImage } from "@/lib/metadata";
 import { formatKstDate } from "@/lib/retrograde-clock";
 
@@ -42,6 +43,12 @@ export async function generateMetadata({ params }: { params: Promise<{ year: str
     description: `${year}년 ${month}월의 하늘: ${headline || "조용한 달"}. 신월과 보름, 역행의 시작과 끝, 태양이 자리를 옮기는 날을 날짜와 시각까지 계산했습니다.`,
     alternates: alternatesFor(path),
     openGraph: ogImage(path, "/og/calendar.png"),
+    /**
+     * 손으로 쓴 글이 있는 달만 색인한다(content/month-notes.ts 주석 참고).
+     * 나머지 열 장은 틀에서 나온 문장이 절반을 넘어 얇은 페이지로 읽힌다 —
+     * 화면에서 사라지지는 않고, 검색 결과에만 내놓지 않는다.
+     */
+    robots: monthNote(year, month) ? undefined : { index: false, follow: true },
   };
 }
 
@@ -49,6 +56,7 @@ export default async function CalendarMonthPage({ params }: { params: Promise<{ 
   const { year, month, idx } = parseParams(await params);
   if (idx < 0) notFound();
   const events = monthEvents(year, month);
+  const note = monthNote(year, month);
 
   const faqs = [
     events.find((e) => e.kind === "new-moon") && {
@@ -84,6 +92,9 @@ export default async function CalendarMonthPage({ params }: { params: Promise<{ 
         nextHref={idx < MONTHS.length - 1 ? monthHref(MONTHS[idx + 1]) : null}
         keepScroll
       />
+      {note && (
+        <p className="mt-8 break-keep leading-relaxed text-starlight-dim">{note.calendar}</p>
+      )}
       <IcsRow />
       <NextSteps
         lead="이 달의 하늘이 당신의 차트에서는 어느 방을 지나는지 — 태어난 순간을 넣으면 바로 나옵니다."

@@ -3,6 +3,7 @@ import { POSTS } from "@/content/blog";
 import { SIGN_CONTENT } from "@/lib/sign-content";
 import { ZODIAC_SIGNS } from "@/lib/zodiac";
 import { BUILD_MONTHS } from "@/lib/calendar-events";
+import { isIndexableMonth } from "@/content/month-notes";
 
 // 정적 export라 빌드 시점에 sitemap.xml로 구워진다.
 export const dynamic = "force-static";
@@ -40,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/ephemeris`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/blog`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE}/about`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/method`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/privacy`, changeFrequency: "yearly", priority: 0.1 },
   ];
 
@@ -58,13 +60,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  const months: MetadataRoute.Sitemap = BUILD_MONTHS.map((m) => ({
+  // 손으로 쓴 글이 있는 달만 싣는다. 나머지는 화면에 그대로 있지만 색인 대상이
+  // 아니다(content/month-notes.ts 주석 참고) — 사이트맵과 robots가 어긋나면
+  // 수집기에 서로 다른 말을 하게 된다.
+  const indexable = BUILD_MONTHS.filter((m) => isIndexableMonth(m.year, m.month));
+
+  const months: MetadataRoute.Sitemap = indexable.map((m) => ({
     url: `${BASE}/calendar/${m.year}/${String(m.month).padStart(2, "0")}`,
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
-  const ephemerisMonths: MetadataRoute.Sitemap = BUILD_MONTHS.map((m) => ({
+  const ephemerisMonths: MetadataRoute.Sitemap = indexable.map((m) => ({
     url: `${BASE}/ephemeris/${m.year}/${String(m.month).padStart(2, "0")}`,
     changeFrequency: "monthly",
     priority: 0.5,

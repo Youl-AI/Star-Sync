@@ -8,6 +8,7 @@ import { PlaceBand } from "@/components/place/PlaceBand";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/components/seo/JsonLd";
 import { BUILD_MONTHS } from "@/lib/calendar-events";
 import { monthTable } from "@/lib/ephemeris-table";
+import { monthNote } from "@/content/month-notes";
 import { alternatesFor, ogImage } from "@/lib/metadata";
 
 /**
@@ -40,12 +41,15 @@ export async function generateMetadata({ params }: { params: Promise<{ year: str
     description: `${year}년 ${month}월 매일 자정(KST)의 열 행성 위치. 별자리·도수·역행(℞)까지 실제 천문 계산 그대로의 원자료입니다.`,
     alternates: alternatesFor(path),
     openGraph: ogImage(path, "/og/ephemeris.png"),
+    /** 달력 월별 화면과 같은 규칙 — 손으로 쓴 글이 있는 달만 색인한다. */
+    robots: monthNote(year, month) ? undefined : { index: false, follow: true },
   };
 }
 
 export default async function EphemerisMonthPage({ params }: { params: Promise<{ year: string; month: string }> }) {
   const { year, month, idx } = parseParams(await params);
   if (idx < 0) notFound();
+  const note = monthNote(year, month);
 
   const faqs = [
     {
@@ -76,6 +80,9 @@ export default async function EphemerisMonthPage({ params }: { params: Promise<{
         nextHref={idx < MONTHS.length - 1 ? monthHref(MONTHS[idx + 1]) : null}
         keepScroll
       />
+      {note && (
+        <p className="mt-6 break-keep leading-relaxed text-starlight-dim">{note.ephemeris}</p>
+      )}
       <div className="mt-6">
         <EphemerisLegend />
       </div>
