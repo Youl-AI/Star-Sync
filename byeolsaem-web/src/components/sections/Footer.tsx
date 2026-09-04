@@ -24,6 +24,9 @@ export function Footer() {
         <Link href="/about" className="transition-colors hover:text-starlight">
           소개
         </Link>
+        <Link href="/method" className="transition-colors hover:text-starlight">
+          계산 방법
+        </Link>
         <Link href="/privacy" className="transition-colors hover:text-starlight">
           개인정보처리방침
         </Link>
