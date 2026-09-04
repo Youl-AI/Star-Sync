@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function EphemerisPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "천문력", path: "/ephemeris" }])} />
       <PlaceBand src="/world/place-retro.webp" />
       <header className="mx-auto mb-12 max-w-xl text-center">

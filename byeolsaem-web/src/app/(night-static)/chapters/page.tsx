@@ -29,7 +29,7 @@ const FAQS = [
 
 export default function ChaptersPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "인생의 시간표", path: "/chapters" }])} />
       <JsonLd data={faqSchema(FAQS)} />
       <PlaceBand src="/world/place-natal.webp" />

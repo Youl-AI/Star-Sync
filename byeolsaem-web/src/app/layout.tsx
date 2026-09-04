@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import { Analytics } from "@/components/analytics/Analytics";
+import { SkipLink } from "@/components/nav/SkipLink";
 import { TransitionStage } from "@/components/nav/TransitionStage";
 import "./globals.css";
 
@@ -95,6 +96,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" className={`${maruburi.variable} ${cinzel.variable}`}>
       <body className="min-h-[100dvh] antialiased">
+        {/* 문서의 첫 초점 자리. 머리글보다 앞에 온다(SkipLink 주석 참고). */}
+        <SkipLink />
         {/* 초대 fragment 스크럽 — GA(afterInteractive)가 로드되기 전에, 동기로 실행되는
             이 한 줄이 #i=…를 주소에서 걷어 메모리로 옮긴다. gtag의 dl= 파라미터는
             location.href 전체를 구글로 보내므로, 걷어내지 않으면 초대에 담긴 출생

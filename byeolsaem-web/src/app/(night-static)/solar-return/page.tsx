@@ -37,7 +37,7 @@ const FAQS = [
 // 블록(머리말·FAQ)은 저마다 자기 폭을 이미 물고 있어 함께 늘어나지 않는다.
 export default function SolarReturnPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-4xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "솔라 리턴", path: "/solar-return" }])} />
       <JsonLd data={faqSchema(FAQS)} />
       <PlaceBand src="/world/place-natal.webp" />

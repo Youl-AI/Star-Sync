@@ -114,7 +114,7 @@ export default function MarsRetrogradePage() {
   }, {});
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <RetroRails current="mars" />
       <JsonLd
         data={breadcrumbSchema([

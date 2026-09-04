@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 // 사라진다 — 여정은 남은 구간끼리 이어져 끊기지 않는다.
 export default function Home() {
   return (
-    <main>
+    <main id="main" tabIndex={-1}>
       {/* 이 사이트가 무엇인지 한 번 밝힌다 — 검색 결과의 사이트 이름이 주소가
           아니라 '별샘'으로 나온다. */}
       <JsonLd data={siteSchema()} />

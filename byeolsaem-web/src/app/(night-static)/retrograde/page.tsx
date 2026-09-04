@@ -145,7 +145,7 @@ export default function RetrogradePage() {
   const upcoming = PERIODS.find((period) => Date.parse(period.start) > now.getTime());
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <RetroRails current="mercury" />
       {/* 화면의 문답과 같은 배열에서 나온다(FAQS 주석 참고). */}
       <JsonLd data={faqSchema(faqs)} />

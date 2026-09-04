@@ -66,7 +66,7 @@ export default async function CalendarMonthPage({ params }: { params: Promise<{ 
   ].filter(Boolean) as { question: string; answer: string }[];
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([
         { name: "별샘", path: "/" },
         { name: "하늘의 달력", path: "/calendar" },

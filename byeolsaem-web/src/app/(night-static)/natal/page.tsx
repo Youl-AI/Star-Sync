@@ -27,7 +27,7 @@ export default function NatalPage() {
   return (
     // 시안 B는 왼쪽에 출생 정보 기둥을 세우므로 그만큼 폭이 더 필요하다.
     // 본문 자체는 52자에서 끊기니 넓혀도 줄이 길어지지 않는다(§11.4).
-    <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-5xl px-6 pb-32 pt-28">
       {/* 화면에 있는 문답만 스키마로 낸다(자체 원칙) — 아래 답변은 프라이머 원문이다. */}
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "천궁도", path: "/natal" }])} />
       <JsonLd

@@ -30,7 +30,7 @@ export default function BlogIndexPage() {
     .filter((g) => g.posts.length > 0);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-10">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-10">
       <header className="text-center">
         <p className="font-latin text-eyebrow tracking-[0.28em] text-gold-dark">COLUMN</p>
         <h1 className="mt-4 break-keep font-display text-3xl leading-snug text-ink-text md:text-4xl">

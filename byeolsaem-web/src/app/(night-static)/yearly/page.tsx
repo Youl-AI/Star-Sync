@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 
 export default function YearlyPage() {
   return (
-    <main className="mx-auto max-w-5xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-5xl px-6 pb-32 pt-28">
       {/* 화면에 있는 문답만 스키마로 낸다(자체 원칙) — 아래 답변은 프라이머 원문이다. */}
       <JsonLd data={breadcrumbSchema([{ name: "별샘", path: "/" }, { name: "한 해", path: "/yearly" }])} />
       <JsonLd

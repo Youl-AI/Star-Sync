@@ -61,7 +61,7 @@ export default async function SignPage({ params }: { params: Promise<Params> }) 
 
   return (
     <SignArrival sign={sign.key}>
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       {/* 본문이 있는 자리만. 오해 문답은 화면에 그대로 있는 것이라 스키마로 낼 수
           있다(JsonLd 주석 — 화면에 없는 것을 넣으면 정책 위반이다). */}
       {content && (

@@ -58,7 +58,7 @@ export default async function EphemerisMonthPage({ params }: { params: Promise<{
   ];
 
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-28">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-28">
       <JsonLd data={breadcrumbSchema([
         { name: "별샘", path: "/" },
         { name: "천문력", path: "/ephemeris" },

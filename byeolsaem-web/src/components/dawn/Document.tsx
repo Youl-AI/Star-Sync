@@ -29,7 +29,7 @@ export function DawnDocument({
   children: ReactNode;
 }) {
   return (
-    <main className="mx-auto max-w-3xl px-6 pb-32 pt-10">
+    <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-6 pb-32 pt-10">
       <header className="text-center">
         {ornament && chapter && (
           <p className="text-eyebrow tracking-[0.28em] text-gold-dark">{chapter}</p>
