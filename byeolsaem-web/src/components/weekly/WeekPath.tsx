@@ -91,7 +91,7 @@ function HorizontalPath({ days, label, className }: { days: DayCell[]; label: st
       <line x1={X0 - 18} y1={LINE} x2={X1 + 18} y2={LINE} stroke="rgba(227,197,104,0.5)" strokeWidth={1.4} />
       {days.map((d, i) => {
         const cx = x(i);
-        const hasBig = d.events.some((ev) => ev.kind !== "ingress");
+        const hasBig = d.events.some((ev) => ev.kind !== "ingress" && ev.kind !== "moon-ingress");
         const hasEvent = d.events.length > 0;
         return (
           <g key={d.dow} textAnchor="middle">
@@ -145,7 +145,7 @@ function VerticalPath({ days, label, className }: { days: DayCell[]; label: stri
       <line x1={LINE} y1={y(0) - 14} x2={LINE} y2={y(6) + 14} stroke="rgba(227,197,104,0.5)" strokeWidth={1.4} />
       {days.map((d, i) => {
         const cy = y(i);
-        const hasBig = d.events.some((ev) => ev.kind !== "ingress");
+        const hasBig = d.events.some((ev) => ev.kind !== "ingress" && ev.kind !== "moon-ingress");
         const hasEvent = d.events.length > 0;
         return (
           <g key={d.dow}>

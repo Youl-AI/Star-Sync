@@ -1,5 +1,6 @@
 import { lunationsBetween } from "./lunation";
 import { sunIngresses } from "./ingress";
+import { moonIngresses } from "./moon-ingress";
 import { retrogradesOf, type RetroPlanet } from "./retrograde";
 
 /**
@@ -9,7 +10,9 @@ import { retrogradesOf, type RetroPlanet } from "./retrograde";
 export type CalendarEvent =
   | { kind: "new-moon" | "full-moon"; date: string; signKo: string }
   | { kind: "retro-start" | "retro-end"; date: string; planet: RetroPlanet; planetKo: string }
-  | { kind: "ingress"; date: string; signKo: string };
+  | { kind: "ingress"; date: string; signKo: string }
+  /** 달이 자리를 옮기는 순간. 주간 화면만 쓴다 — moon-ingress.ts 주석 참고. */
+  | { kind: "moon-ingress"; date: string; signKo: string };
 
 const PLANET_KO: Record<RetroPlanet, string> = { mercury: "수성", venus: "금성", mars: "화성" };
 const RETRO_PLANETS: RetroPlanet[] = ["mercury", "venus", "mars"];
@@ -25,7 +28,13 @@ export function kstMonthRange(year: number, month: number): { from: Date; to: Da
   };
 }
 
-export function eventsBetween(from: Date, to: Date): CalendarEvent[] {
+/**
+ * 이 구간의 하늘 사건.
+ *
+ * `moon`을 켜면 달의 자리 이동까지 싣는다. 기본값은 끔이다 — 달력 그리드와 ics
+ * 구독에 한 달 열두어 개가 더 실리면 신월·보름·역행이 묻힌다(moon-ingress.ts 주석).
+ */
+export function eventsBetween(from: Date, to: Date, options?: { moon?: boolean }): CalendarEvent[] {
   const events: CalendarEvent[] = [];
   const inRange = (iso: string) => {
     const t = Date.parse(iso);
@@ -48,6 +57,11 @@ export function eventsBetween(from: Date, to: Date): CalendarEvent[] {
   }
   for (const ing of sunIngresses(from, to)) {
     events.push({ kind: "ingress", date: ing.date, signKo: ing.signKo });
+  }
+  if (options?.moon) {
+    for (const ing of moonIngresses(from, to)) {
+      events.push({ kind: "moon-ingress", date: ing.date, signKo: ing.signKo });
+    }
   }
   return events.sort((a, b) => a.date.localeCompare(b.date));
 }

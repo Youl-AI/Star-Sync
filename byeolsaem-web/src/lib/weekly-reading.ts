@@ -29,7 +29,7 @@ export interface WeeklyData {
 }
 
 /** 헤드라인이 앞세우는 순서 — 역행이 삭망보다, 삭망이 인그레스보다 크다. */
-const PRIORITY: CalendarEvent["kind"][] = ["retro-start", "retro-end", "new-moon", "full-moon", "ingress"];
+const PRIORITY: CalendarEvent["kind"][] = ["retro-start", "retro-end", "new-moon", "full-moon", "ingress", "moon-ingress"];
 
 function headlineOf(ev: CalendarEvent): string {
   switch (ev.kind) {
@@ -38,6 +38,7 @@ function headlineOf(ev: CalendarEvent): string {
     case "new-moon": return `${ev.signKo} 신월에서 새로 시작하는 주입니다.`;
     case "full-moon": return `${ev.signKo} 보름이 한가운데 놓인 주입니다.`;
     case "ingress": return `태양이 ${ev.signKo}로 들어서는 주입니다.`;
+    case "moon-ingress": return `달이 ${ev.signKo}로 옮겨 가는 주입니다.`;
   }
 }
 
@@ -46,26 +47,49 @@ function summaryName(ev: CalendarEvent): string {
   return ev.kind === "ingress" ? `태양의 ${ev.signKo} 진입` : eventTitle(ev);
 }
 
+/**
+ * 달의 이동은 요약에서 따로 묶는다. 한 주에 두세 번이라 다른 사건과 한 줄에
+ * 늘어놓으면 문장이 길어지고, 무게도 다르다 — 삭망은 그 주의 제목이 되지만
+ * 달의 이동은 배경음에 가깝다.
+ */
+function moonLineOf(moons: { date: string; signKo: string }[]): string {
+  if (moons.length === 0) return "";
+  const parts = moons.map((e) => `${kstParts(e.date).day}일 ${e.signKo}`);
+  return `달은 ${parts.join(", ")}로 자리를 옮깁니다.`;
+}
+
 export function weeklyData(now: Date): WeeklyData {
   const start = kstWeekStart(now);
   const end = new Date(start.getTime() + 7 * DAY_MS);
-  const events = eventsBetween(start, end);
+  // 달의 이동까지 싣는다. 삭망·역행·태양 인그레스만 세면 한 주가 통째로 비는
+  // 주가 생기고, 그런 주의 화면에는 "조용합니다" 한 줄밖에 남지 않았다.
+  const events = eventsBetween(start, end, { moon: true });
+  const moons = events.filter((e) => e.kind === "moon-ingress");
+  const major = events.filter((e) => e.kind !== "moon-ingress");
+  const moonLine = moonLineOf(moons);
 
-  if (events.length === 0) {
+  if (major.length === 0) {
     return {
       weekStart: start.toISOString(),
       events,
-      headline: "이번 주 하늘은 조용합니다.",
-      summary: "큰 이동 없이 지나가는 주입니다. 벌여 둔 것을 마저 하기 좋은 시간입니다.",
+      headline: "큰 이동 없이 달만 걸어가는 주입니다.",
+      summary: moonLine
+        ? `${moonLine} 삭망도 역행의 전환도 없는 주라, 벌여 둔 것을 마저 하기 좋은 시간입니다.`
+        : "벌여 둔 것을 마저 하기 좋은 시간입니다.",
     };
   }
-  const top = [...events].sort((a, b) => PRIORITY.indexOf(a.kind) - PRIORITY.indexOf(b.kind))[0];
-  const rest = events.filter((e) => e !== top);
-  const summary =
+  const top = [...major].sort((a, b) => PRIORITY.indexOf(a.kind) - PRIORITY.indexOf(b.kind))[0];
+  const rest = major.filter((e) => e !== top);
+  const restLine =
     rest.length === 0
-      ? "이 주의 하늘은 이 사건 하나로 요약됩니다."
+      ? "이 주의 큰 사건은 이 하나입니다."
       : `그 밖에 ${rest.map((e) => `${kstParts(e.date).day}일 ${summaryName(e)}`).join(", ")}이 있습니다.`;
-  return { weekStart: start.toISOString(), events, headline: headlineOf(top), summary };
+  return {
+    weekStart: start.toISOString(),
+    events,
+    headline: headlineOf(top),
+    summary: moonLine ? `${restLine} ${moonLine}` : restLine,
+  };
 }
 
 export interface WeeklyTouch {

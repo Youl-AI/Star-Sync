@@ -1,3 +1,6 @@
+// 상대 경로로 가져온다 — 이 파일은 ics를 굽는 node 스크립트도 불러 쓰는데,
+// 그쪽 로더는 `@/` 별칭을 풀지 못한다(scripts/build-ics.mjs).
+import { MOON_THROUGH } from "../content/atoms/transits";
 import type { CalendarEvent } from "./calendar-events";
 
 /**
@@ -11,6 +14,7 @@ export function eventTitle(ev: CalendarEvent): string {
     case "retro-start": return `${ev.planetKo} 역행 시작`;
     case "retro-end": return `${ev.planetKo} 역행 끝`;
     case "ingress": return `태양, ${ev.signKo}로`;
+    case "moon-ingress": return `달, ${ev.signKo}로`;
   }
 }
 
@@ -21,6 +25,9 @@ export function eventDescription(ev: CalendarEvent): string {
     case "retro-start": return retroStartDesc(ev.planetKo);
     case "retro-end": return `${ev.planetKo}이 다시 앞으로 걷기 시작합니다. 미뤄 둔 결정을 꺼내기 좋은 때입니다.`;
     case "ingress": return `태양이 ${ev.signKo}의 방으로 들어섭니다. 한 달 동안 이 자리의 주제가 계절의 기본값이 됩니다.`;
+    // 자리마다 다른 문장을 붙인다. 한 주에 두세 번 나오는 항목이라 같은 문장을
+    // 쓰면 한 화면에 똑같은 줄이 세 번 실린다.
+    case "moon-ingress": return `달이 ${ev.signKo}로 옮겨 갑니다. ${MOON_THROUGH[ev.signKo] ?? "이틀 반쯤 머뭅니다."}`;
   }
 }
 
