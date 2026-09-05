@@ -59,3 +59,12 @@ gsap · motion · lenis · MDX · Vitest · Cloudflare Workers
 
 `.claude/skills/`에 higgsfield 8종(이미지·영상·브랜드 자산 **생성**)과 gsap 8종이 있다.
 higgsfield는 에셋 생성용이고 코드 레벨 디자인 판단과는 층이 다르다.
+
+## 칼럼 집필 정책
+
+`src/content/blog/`에 새 글을 쓰거나 기존 글을 고칠 때는 **`docs/column-style.md`를
+먼저 읽는다.** 목소리, 구조, 사실 확인 방법, 링크 규칙, 발행 절차가 전부 거기 있다.
+스물아홉 편이 같은 결로 쌓여 있어서 결을 벗어난 글은 그 글만 눈에 띈다.
+
+집필 후 `korean-skills:humanizer`와 `korean-skills:grammar-checker`를 반드시 돌린다.
+선택 사항이 아니다.
