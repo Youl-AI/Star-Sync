@@ -33,6 +33,28 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "프로그레션",
+    title: "프로그레션 — 하루를 일 년으로 세는 법",
+    summary:
+      "태어난 지 서른 날 뒤의 하늘이 만 서른 살의 하늘입니다. 프로그레스드 달이 한 자리에 머무는 2년 3개월과, 평생 두세 번 자리를 옮기는 프로그레스드 태양까지.",
+    category: "실전 점성학",
+    published: "2026-09-05",
+    readingMinutes: 6,
+    image: "/og/blog/progression.png",
+    load: () => import("./progression.mdx"),
+  },
+  {
+    slug: "뱀주인자리",
+    title: "뱀주인자리와 열세 번째 별자리 소동",
+    summary:
+      "몇 년마다 돌아오는 이야기의 정체. 성좌와 별자리가 서로 다른 것인 이유, 회귀 황도가 재고 있는 것, 그리고 태양이 각 자리에 실제로 머무는 날짜까지.",
+    category: "점성학 기초",
+    published: "2026-09-05",
+    readingMinutes: 6,
+    image: "/og/blog/ophiuchus.png",
+    load: () => import("./ophiuchus.mdx"),
+  },
+  {
     slug: "목성-리턴",
     title: "목성 리턴 — 12년마다 열리는 확장의 창",
     summary:

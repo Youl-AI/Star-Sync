@@ -288,6 +288,8 @@ const PAGE_CARDS = [
   { file: "blog/jupiter-return.png", eyebrow: "COLUMN", title: "목성 리턴", sub: "12년마다 열리는 확장의 창", motif: "rings" },
   { file: "blog/transit-guide.png", eyebrow: "COLUMN", title: "트랜짓 읽는 법", sub: "지금 하늘을 내 차트에 겹치기", motif: "wheel" },
   { file: "blog/void-moon.png", eyebrow: "COLUMN", title: "보이드 문", sub: "달이 약속을 비운 시간", motif: "moon" },
+  { file: "blog/ophiuchus.png", eyebrow: "COLUMN", title: "뱀주인자리", sub: "열세 번째 별자리라는 소동", motif: "wheel" },
+  { file: "blog/progression.png", eyebrow: "COLUMN", title: "프로그레션", sub: "하루를 일 년으로 세는 법", motif: "loop" },
   { file: "calendar.png", eyebrow: "SKY CALENDAR", title: "하늘의 달력", sub: "신월과 보름, 역행의 시작과 끝", motif: "wheel" },
   { file: "weekly.png", eyebrow: "THIS WEEK", title: "이번 주 하늘", sub: "이레 동안 하늘에 일어나는 일", motif: "horizon" },
   { file: "solar-return.png", eyebrow: "SOLAR RETURN", title: "솔라 리턴", sub: "생일마다 새로 그려지는 일 년의 지도", motif: "rings" },
